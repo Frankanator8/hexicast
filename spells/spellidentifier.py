@@ -2,12 +2,15 @@ import math
 import random
 
 import pygame.draw
-from text import Text
+
+import loader
+from render.text import Text
 from tools import dist
 from spells.polygon import generate_polygon
 
 
 class SpellIdentifier:
+    EMBLEM_R_MULTIPLIER = 3
     def __init__(self):
         self.trail = []
         self.sequence = []
@@ -16,6 +19,7 @@ class SpellIdentifier:
         self.center = (0, 0)
         self.radius = 0
         self.particles = []
+        self.emblem = None
 
     def tickMouse(self, mousePos, mousePressed):
         if mousePressed[0]:
@@ -28,15 +32,6 @@ class SpellIdentifier:
             self.trail = []
 
     def render(self, screen, dt):
-        surf = pygame.Surface((screen.get_width(), screen.get_height()))
-        surf.set_alpha(100)
-        if len(self.trail) >= 2:
-            for i in range(1, len(self.trail)):
-                pygame.draw.line(surf, (0, 255, 255), self.trail[i-1], self.trail[i],
-                                 width=round(5+(i/len(self.trail))*10))
-                pygame.draw.circle(surf, (0, 255, 255), self.trail[i], round((5+(i/len(self.trail))*10)/2))
-
-        screen.blit(surf, (0, 0))
         iToID = {
             0:2,
             1:1,
@@ -47,7 +42,8 @@ class SpellIdentifier:
         }
         if self.locked:
             surf = pygame.Surface((screen.get_width(), screen.get_height()))
-            surf.set_alpha(50)
+            surf.set_alpha(100)
+            surf.fill((255, 255, 255, 0))
             if self.sequence[1] == 1: # Fire
                 if len(self.particles) < round(self.radius * 2):
                     for i in range(round(self.radius * 2)-len(self.particles)):
@@ -118,7 +114,7 @@ class SpellIdentifier:
 
 
             screen.blit(surf, (0, 0))
-
+            screen.blit(self.emblem, (self.center[0] - self.radius*self.EMBLEM_R_MULTIPLIER/2, self.center[1] - self.radius*self.EMBLEM_R_MULTIPLIER/2))
 
             for i in range(6):
                 if (self.sequence.count(iToID[i]) == 0):
@@ -132,13 +128,20 @@ class SpellIdentifier:
                     if gValue > 255:
                         gValue = 255
                     color = (0, gValue, 0)
-                pygame.draw.circle(screen, color, (self.center[0]+self.radius*math.cos(i*math.pi/3+math.pi/6), self.center[1]-self.radius*math.sin(i*math.pi/3+math.pi/6)), 10)
-
-
-
-
+                pygame.draw.circle(screen, color, (self.center[0]+self.radius*math.cos(i*math.pi/3+math.pi/6), self.center[1]-self.radius*math.sin(i*math.pi/3+math.pi/6)), self.radius/10)
         else:
             self.particles = []
+
+        surf = pygame.Surface((screen.get_width(),screen.get_height()))
+        surf.set_alpha(100)
+        surf.fill((255, 255, 255, 0))
+        if len(self.trail) >= 2:
+            for i in range(1, len(self.trail)):
+                pygame.draw.line(surf, (0, 255, 255), self.trail[i-1], self.trail[i],
+                                 width=round(5+(i/len(self.trail))*10))
+                pygame.draw.circle(surf, (0, 255, 255), self.trail[i], round((5+(i/len(self.trail))*10)/2))
+
+        screen.blit(surf, (0, 0))
 
     def getClosest30(self, ang):
         minAngle = 0
@@ -198,6 +201,9 @@ class SpellIdentifier:
             elif aPair in right:
                 self.center = (pt[0] - self.radius * math.cos(math.radians(30)),
                                pt[1] - self.radius * math.sin(math.radians(30)))
+
+            self.emblem = loader.load_image("emblem", size=(self.radius*self.EMBLEM_R_MULTIPLIER, self.radius*self.EMBLEM_R_MULTIPLIER))
+
 
 
     def updateSequence(self, screen):
