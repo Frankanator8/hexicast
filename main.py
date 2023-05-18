@@ -2,9 +2,11 @@ import sys
 import pygame
 import math
 
+import loader
 from game.player import Player
 from render.camera import Camera
 from spells.spellidentifier import SpellIdentifier
+from spells.spellregister import SpellRegister
 from render.IsometricRenderer import IsometricRenderer
 from render.IsometricMap import IsometricMap
 
@@ -20,7 +22,8 @@ IsometricRenderer.init()
 
 clock = pygame.time.Clock()
 
-spellID = SpellIdentifier()
+spellRe = SpellRegister()
+spellId = SpellIdentifier(spellRe)
 camera = Camera(0, 0, screen)
 iRenderer = IsometricRenderer(screen, camera)
 map = IsometricMap("assets/map.txt")
@@ -28,12 +31,15 @@ player = Player(0, 0, 2, 1)
 iRenderer.addEntity(player)
 running = True
 
+bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     screen.fill((0, 0, 0))
+    screen.blit(bg, (0, 0))
 
     mouseClicked = pygame.mouse.get_pressed()
     mousePos = pygame.mouse.get_pos()
@@ -42,12 +48,13 @@ while running:
 
     player.tickKeys(keys, dt)
     camera.follow(player)
-    spellID.tickMouse(mousePos, mouseClicked)
-
-    spellID.updateSequence(screen)
+    spellRe.tickMouse(mousePos, mouseClicked)
+    spellRe.updateSequence(screen)
+    spellId.tick(dt)
 
     iRenderer.render(map)
-    spellID.render(screen, dt)
+    spellRe.render(screen, dt)
+    spellId.render(screen)
 
     clock.tick(60)
     pygame.display.flip()

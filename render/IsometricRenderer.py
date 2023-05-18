@@ -27,32 +27,34 @@ class IsometricRenderer:
                 placeDicts[(math.floor(entity.x), math.floor(entity.y))] = []
             placeDicts[(math.floor(entity.x), math.floor(entity.y))].append(entity)
 
+        # TODO: Shadows and https://stackoverflow.com/questions/892811/drawing-isometric-game-worlds
         for y, row in enumerate(map.data):
-            for x, tile in enumerate(row):
-                if tile:
-                    tex = self.GRASS
+            for x, cell in enumerate(row):
+                for z, block in enumerate(cell):
+                    if block:
+                        tex = self.GRASS
 
-                else:
-                    tex = self.STONE
-                oldY = y
-                oldX = x
-                x -= camera.x
-                y -= camera.y
+                    else:
+                        tex = self.STONE
+                    oldY = y
+                    oldX = x
+                    x -= camera.x
+                    y -= camera.y
 
-                cart_x = x * size[0]/2
-                cart_y = y * size[1]/2
-                iso_x = cart_x - cart_y
-                iso_y = (cart_x + cart_y) / 2.153
-                display.blit(tex, (iso_x+display.get_width()/2, iso_y+display.get_height()/2))
-                y = oldY
-                x = oldX
+                    cart_x = x * size[0]/2
+                    cart_y = y * size[1]/2
+                    iso_x = cart_x - cart_y
+                    iso_y = (cart_x + cart_y) / 2.153 - z * size[1]
+                    display.blit(tex, (iso_x+display.get_width()/2, iso_y+display.get_height()/2))
+                    y = oldY
+                    x = oldX
 
-                if (x, y) in placeDicts.keys():
-                    for entity in placeDicts[(x, y)]:
-                        cameraX = entity.x - camera.x
-                        cameraY = entity.y - camera.y
-                        cart_x = cameraX * size[0]/2
-                        cart_y = cameraY * size[1]/2
-                        iso_x = cart_x - cart_y
-                        iso_y = (cart_x + cart_y) / 2.153 - size[1] * (entity.z - 1)
-                        display.blit(loader.load_image(f"{entity.image}/{entity.direction}", size=size), (iso_x+display.get_width()/2, iso_y+display.get_height()/2))
+                    if (x, y) in placeDicts.keys():
+                        for entity in placeDicts[(x, y)]:
+                            cameraX = entity.x - camera.x
+                            cameraY = entity.y - camera.y
+                            cart_x = cameraX * size[0]/2
+                            cart_y = cameraY * size[1]/2
+                            iso_x = cart_x - cart_y
+                            iso_y = (cart_x + cart_y) / 2.153 - size[1] * (entity.z - 1)
+                            display.blit(loader.load_image(f"{entity.image}/{entity.direction}", size=size), (iso_x+display.get_width()/2, iso_y+display.get_height()/2))

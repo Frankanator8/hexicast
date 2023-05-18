@@ -7,4 +7,3 @@ class Camera:
     def follow(self, entity):
         self.x = entity.x
         self.y = entity.y
-        print(self.x, self.y)
