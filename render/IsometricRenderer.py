@@ -45,7 +45,11 @@ class IsometricRenderer:
                     cart_y = y * size[1]/2
                     iso_x = cart_x - cart_y
                     iso_y = (cart_x + cart_y) / 2.153 - z * size[1]
-                    display.blit(tex, (iso_x+display.get_width()/2, iso_y+display.get_height()/2))
+
+                    iso_x += display.get_width()/2
+                    iso_y += display.get_height()/2
+                    if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
+                        display.blit(tex, (iso_x, iso_y))
                     y = oldY
                     x = oldX
 
