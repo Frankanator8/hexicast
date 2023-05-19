@@ -207,7 +207,7 @@ class SpellRegister:
 
 
     def updateSequence(self, screen):
-        Text(f"{self.sequence}", ("Calibri", 15), (255, 255, 255), (0, 0)).render(screen)
+        # Text(f"{self.sequence}", ("Calibri", 15), (255, 255, 255), (0, 0)).render(screen)
         if not self.locked:
             if len(self.trail) > 0:
                 dOY = self.trail[0][1] - self.trail[-1][1]

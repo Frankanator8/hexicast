@@ -1,7 +1,5 @@
 import math
-
 import pygame
-
 import loader
 
 
@@ -18,25 +16,25 @@ class SpellIdentifier:
     ]
 
     WATER_SPELLS = [
-        [1, 2],
-        [3, 4],
-        [1, 2, 3],
-        [1, 2, 3, 4],
-        [1, 2, 4, 3, 5],
-        [5, 4, 3, 2, 1],
-        [2, 1, 4, 5, 6],
-        [1, 2, 3, 4, 5, 6],
+        [1, 6],
+        [6, 2, 4],
+        [1, 6, 2],
+        [1, 2, 5, 4],
+        [5, 6, 2, 4],
+        [5, 6, 4, 2, 5, 3],
+        [1, 6, 5, 2, 6, 4],
+        [5, 2, 6, 3, 1, 5],
     ]
 
     GROUND_SPELLS = [
-        [1, 2],
-        [3, 4],
-        [1, 2, 3],
-        [1, 2, 3, 4],
-        [1, 2, 4, 3, 5],
-        [5, 4, 3, 2, 1],
-        [2, 1, 4, 5, 6],
-        [1, 2, 3, 4, 5, 6],
+        [2, 6],
+        [3, 1, 6],
+        [3, 2, 6],
+        [3, 5, 1],
+        [2, 1, 6, 3],
+        [3, 6, 2, 4],
+        [3, 2, 6, 3, 1, 5],
+        [1, 3, 2, 6, 1, 5],
     ]
 
     def __init__(self, spellRegister):
@@ -81,6 +79,7 @@ class SpellIdentifier:
                     5:210,
                     6:150
                 }
+                lis[i].insert(0, self.spellRegister.sequence[2])
                 for j in range(1, len(lis[i])):
                     if j == 1:
                         color = (0, 0, 255)
@@ -95,6 +94,8 @@ class SpellIdentifier:
                     nowY = self.spellRegister.center[1] - math.sin(rad)*r - math.sin(degNow) * size/2.2
                     pygame.draw.line(surf, color, (prevX, prevY), (nowX, nowY), width=round(size/12))
                     pygame.draw.circle(surf, color, (nowX, nowY), round(size/24))
+
+                lis[i].pop(0)
 
             screen.blit(surf, (0, 0))
 
