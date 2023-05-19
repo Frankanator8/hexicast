@@ -73,7 +73,6 @@ class IsometricRenderer:
                 placeDicts[(math.floor(entity.x), math.floor(entity.y))] = []
             placeDicts[(math.floor(entity.x), math.floor(entity.y))].append(entity)
 
-        # TODO: Shadows
         for y, row in enumerate(map.data):
             for x, cell in enumerate(row):
                 for z, block in enumerate(cell):
@@ -102,7 +101,7 @@ class IsometricRenderer:
                         for entity in placeDicts[(x, y)]:
                             cameraX = entity.x - camera.x
                             cameraY = entity.y - camera.y
-                            iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z)*2, display)
+                            iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
                             if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
                                 tintDegree = self.getTint(oldX, oldY, math.floor(z))
                                 if ((f"{entity.image}/{entity.direction}", tintDegree) not in self.renderCache.keys()):

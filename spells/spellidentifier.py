@@ -44,7 +44,7 @@ class SpellIdentifier:
 
     def render(self, screen):
         if self.spellRegister.locked:
-            surf = pygame.Surface((screen.get_width(), screen.get_height()))
+            surf = pygame.Surface((screen.get_width(), screen.get_height()), flags=pygame.SRCALPHA)
             surf.set_alpha(round(170+85*math.sin(math.radians(self.degreeRotation*8))))
             surf.fill((255, 255, 255, 0))
             element = self.spellRegister.sequence[1]

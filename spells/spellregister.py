@@ -41,7 +41,7 @@ class SpellRegister:
             5:3
         }
         if self.locked:
-            surf = pygame.Surface((screen.get_width(), screen.get_height()))
+            surf = pygame.Surface((screen.get_width(), screen.get_height()), flags=pygame.SRCALPHA)
             surf.set_alpha(100)
             surf.fill((255, 255, 255, 0))
             if self.sequence[1] == 1: # Fire
@@ -132,7 +132,7 @@ class SpellRegister:
         else:
             self.particles = []
 
-        surf = pygame.Surface((screen.get_width(),screen.get_height()))
+        surf = pygame.Surface((screen.get_width(),screen.get_height()), flags=pygame.SRCALPHA)
         surf.set_alpha(100)
         surf.fill((255, 255, 255, 0))
         if len(self.trail) >= 2:

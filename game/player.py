@@ -8,7 +8,7 @@ class Player(Entity):
         self.type = type
         self.zVel = 0
         self.timeSinceJump = 0
-        self.jumping = False
+        self.falling = False
 
     def tickKeys(self, keys, prevKeys, dt, map):
         futPosition = [self.x, self.y]
@@ -30,13 +30,15 @@ class Player(Entity):
 
         # TODO: Fix Jumping
         if self.z > len(map.data[math.floor(self.y)][math.floor(self.x)]):
-            self.zVel -= 16 * dt * dt
+            self.zVel -= 4 * dt
+            self.falling = True
 
         else:
             self.zVel = 0
             self.z = len(map.data[math.floor(self.y)][math.floor(self.x)])
+            self.falling = False
 
-        if keys[pygame.K_SPACE] and not prevKeys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] and not prevKeys[pygame.K_SPACE] and not self.falling:
             self.zVel = 1
             self.timeSinceJump = 0
 
