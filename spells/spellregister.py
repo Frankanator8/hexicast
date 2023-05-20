@@ -4,7 +4,6 @@ import random
 import pygame.draw
 
 import loader
-from render.text import Text
 from tools import dist
 from spells.polygon import generate_polygon
 

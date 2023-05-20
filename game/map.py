@@ -16,12 +16,12 @@ class Map:
         if x >= len(self.data[math.floor(y)]):
             x = len(self.data[math.floor(y)])-0.01
 
-        if len(self.data[math.floor(y)][math.floor(x)]) > entity.z:
+        if len(self.data[math.floor(y)][math.floor(x)]) > math.floor(entity.z):
             line1 = Line.determineFromPoints(x, y, entity.x, entity.y)
             uLine = Line(0, math.floor(y))
             bLine = Line(0, math.floor(y)+1)
-            lLine = Line(1000, math.floor(x))
-            rLine = Line(1000, math.floor(x)+1)
+            lLine = Line(10000000, math.floor(x))
+            rLine = Line(10000000, math.floor(x)+1)
             uInt = uLine.intersect(line1)
             bInt = bLine.intersect(line1)
             lInt = lLine.intersect(line1)

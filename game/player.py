@@ -28,22 +28,19 @@ class Player(Entity):
             futPosition[0] += 8 * dt
             self.direction = "e"
 
-        # TODO: Fix Jumping
+        self.x, self.y = map.findCollisionPoint(futPosition[0], futPosition[1], self)
         if self.z > len(map.data[math.floor(self.y)][math.floor(self.x)]):
-            self.zVel -= 4 * dt
+            self.zVel -= 10 * dt
             self.falling = True
 
-        else:
+        self.z += self.zVel * dt
+        if self.z < len(map.data[math.floor(self.y)][math.floor(self.x)]):
             self.zVel = 0
             self.z = len(map.data[math.floor(self.y)][math.floor(self.x)])
             self.falling = False
 
         if keys[pygame.K_SPACE] and not prevKeys[pygame.K_SPACE] and not self.falling:
-            self.zVel = 1
+            self.zVel = 5
             self.timeSinceJump = 0
 
-        self.z += self.zVel
 
-
-
-        self.x, self.y = map.findCollisionPoint(futPosition[0], futPosition[1], self)
