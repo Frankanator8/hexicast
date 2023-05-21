@@ -1,4 +1,6 @@
 import requests
+import json
+
 class Networking:
     def __init__(self, url):
         self.url = url
@@ -8,5 +10,5 @@ class Networking:
         return data.json()
 
     def post(self, path, data):
-        data = requests.post(f"{self.url}/{path}", data=data)
+        data = requests.post(f"{self.url}/{path}", json=data)
         return data.json()

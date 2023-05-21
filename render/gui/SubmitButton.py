@@ -6,13 +6,13 @@ from render.gui.elements.button import Button
 
 
 class SubmitButton(Button):
-    def __init__(self, x, y, w, h, font, on_release):
-        textDummy = Text("Submit", font, (0, 0, 0), (x, y))
+    def __init__(self, x, y, w, h, font, on_release, text="Submit"):
+        textDummy = Text(text, font, (0, 0, 0), (x, y))
         self.releaseFunc = on_release
         self.origW = w
         self.origH = h
         super().__init__(x, y, [Renderable(pygame.Rect(x, y, w, h), (255, 183, 58), (w+h)//2),
-                                Renderable(Text("Submit", font, (0, 0, 0), (x+(w-textDummy.w)/2, y+(h-textDummy.h)/2)))], self.hover, self.unhover, self.click, self.release)
+                                Renderable(Text(text, font, (0, 0, 0), (x+(w-textDummy.w)/2, y+(h-textDummy.h)/2)))], self.hover, self.unhover, self.click, self.release)
 
     def hover(self):
         self.renderables[0].color = (255, 200, 103)

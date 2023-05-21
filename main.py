@@ -1,3 +1,4 @@
+import random
 import sys
 import pygame
 
@@ -9,7 +10,7 @@ from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
 from render.gui.GameButton import GameButton
 from render.gui.base.text import Text
-from render.guiMaker import makeGui
+from render.guiMaker import GuiMaker
 from render.screenmaster import ScreenMaster
 from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
@@ -33,6 +34,7 @@ spellId = SpellIdentifier(spellRe)
 
 gameNetworking = GameNetworking()
 gameNetworking.loopGetGames()
+gameNetworking.loopGameState()
 
 screenMaster = ScreenMaster()
 camera = Camera(0, 0, screen)
@@ -44,8 +46,15 @@ iRenderer.setMap(iMap)
 font24 = (loader.load_font("theFont", 24), 24)
 font48 = (loader.load_font("theFont", 48), 48)
 guiRenderer = GuiRenderer(screen)
-makeGui(guiRenderer, screen, gameNetworking, font48, font24)
+guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, font48, font24, screenMaster)
+guiMaker.makeInitialGui()
 previousGameList = []
+
+screenMaster.addScreenFunc(0, guiMaker.updateScreen0)
+screenMaster.addChangeFunc(1, guiMaker.on_login_window)
+screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
+screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
+screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
 
 player = Player(36, 36, 2, 1)
 iRenderer.addEntity(player)
@@ -67,51 +76,9 @@ while running:
     keys = pygame.key.get_pressed()
     dt = clock.get_time() / 1000 # sec
 
-    if 0<= screenMaster.screenID < 10:
+    if 0 <= screenMaster.screenID < 10:
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
-
-    if screenMaster.screenID == 0:
-        if guiRenderer.get_element("nameInput").text == "":
-            guiRenderer.get_element("submitName").show = False
-
-        else:
-            guiRenderer.get_element("submitName").show = True
-
-        if gameNetworking.uuid != "":
-            screenMaster.screenID = 1
-            guiRenderer.get_element("nameInputBanner").show = False
-            guiRenderer.get_element("nameInput").show = False
-            guiRenderer.get_element("submitName").show = False
-            guiRenderer.get_element("gameNameInput").show = True
-            guiRenderer.get_element("lightBlueBanner").show = True
-            guiRenderer.get_element("createBanner").show = True
-            guiRenderer.get_element("nameBanner").show = True
-            guiRenderer.get_element("playerCountInput").show = True
-            guiRenderer.get_element("playerCountBanner").show = True
-            guiRenderer.get_element("lobbySepLine").show = True
-
-    elif screenMaster.screenID == 1:
-        try:
-            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
-                guiRenderer.get_element("gameSubmit").show = True
-
-            else:
-                guiRenderer.get_element("gameSubmit").show = False
-
-        except ValueError:
-            guiRenderer.get_element("gameSubmit").show = False
-
-        w=screen.get_width()*0.381966011
-        for tag in previousGameList:
-            guiRenderer.remove_element(tag)
-        previousGameList = []
-        for index, uuid in enumerate(gameNetworking.games.keys()):
-            game = gameNetworking.games[uuid]
-            print(game)
-            thisButton = GameButton(w+10, 200+index*28, game, (116, 213, 255) if index%2==1 else (255, 255, 255), font24, screen.get_width())
-            previousGameList.append(f"gameListButton{index}")
-            guiRenderer.add_element(thisButton, tag=f"gameListButton{index}")
 
     if screenMaster.screenID == 10:
         screen.blit(bg, (0, 0))
@@ -127,6 +94,7 @@ while running:
         Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
 
     clock.tick(60)
+    screenMaster.tick()
     pygame.display.flip()
     prevKeys = keys
     prevClicked = mouseClicked

@@ -42,3 +42,18 @@ class Renderable:
 
         else:
             self.text.render(screen)
+
+    def moveTo(self, x, y):
+        if self.type == 0:
+            self.x = x
+            self.y = y
+
+        elif self.type == 1:
+            self.rect.x = x
+            self.rect.y = y
+
+        else:
+            self.text.pos = (x, y)
+
+        self.x = x
+        self.y = y

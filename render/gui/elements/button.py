@@ -36,6 +36,4 @@ class Button(GuiElement):
 
             self.hover = False
             if not mouseClicked[0]:
-                if self.click:
-                    self.on_release()
                 self.click = False

@@ -35,3 +35,12 @@ class GuiElement:
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
         pass
+
+    def moveTo(self, x, y):
+        diffX = x - self.x
+        diffY = y - self.y
+        for renderable in self.renderables:
+            renderable.moveTo(renderable.x + diffX, renderable.y + diffY)
+
+        self.x += diffX
+        self.y += diffY
