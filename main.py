@@ -3,8 +3,10 @@ import sys
 import pygame
 
 import loader
+from game.gameManager import GameManager
 from game.map import Map
 from game.player import Player
+from game.playermanager import PlayerManager
 from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
@@ -33,8 +35,11 @@ spellRe = SpellRegister()
 spellId = SpellIdentifier(spellRe)
 
 gameNetworking = GameNetworking()
+gameNetworking.connect()
 gameNetworking.loopGetGames()
 gameNetworking.loopGameState()
+gameNetworking.loopUpdateGame()
+
 
 screenMaster = ScreenMaster()
 camera = Camera(0, 0, screen)
@@ -43,10 +48,13 @@ iMap = IsometricMap("assets/better.txt")
 map = Map(iMap)
 iRenderer.setMap(iMap)
 
+playerManager = PlayerManager(gameNetworking, map, iRenderer)
+gameManager = GameManager(playerManager, gameNetworking, screenMaster)
+
 font24 = (loader.load_font("theFont", 24), 24)
 font48 = (loader.load_font("theFont", 48), 48)
 guiRenderer = GuiRenderer(screen)
-guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, font48, font24, screenMaster)
+guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, font48, font24, screenMaster, gameManager)
 guiMaker.makeInitialGui()
 previousGameList = []
 
@@ -56,8 +64,6 @@ screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
 screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
 
-player = Player(36, 36, 2, 1)
-iRenderer.addEntity(player)
 running = True
 
 
@@ -82,8 +88,8 @@ while running:
 
     if screenMaster.screenID == 10:
         screen.blit(bg, (0, 0))
-        player.tickKeys(keys, prevKeys, dt, map)
-        camera.follow(player)
+        playerManager.tick(keys, prevKeys, dt)
+        camera.follow(playerManager.getMyPlayer())
         spellRe.tickMouse(mousePos, mouseClicked)
         spellRe.updateSequence(screen)
         spellId.tick(dt)
@@ -91,7 +97,7 @@ while running:
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)
-        Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
+        # Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
 
     clock.tick(60)
     screenMaster.tick()
@@ -99,7 +105,6 @@ while running:
     prevKeys = keys
     prevClicked = mouseClicked
 
-
 pygame.quit()
-quit()
+gameNetworking.close()
 sys.exit()

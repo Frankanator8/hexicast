@@ -1,5 +1,6 @@
 import math
 import random
+import threading
 import uuid as UUID
 import pygame
 import loader
@@ -13,7 +14,7 @@ from render.gui.elements.button import Button
 from render.gui.elements.textinput import TextInput
 
 class GuiMaker:
-    def __init__(self, screen, renderer, gameNetworking, font, fontS, screenMaster):
+    def __init__(self, screen, renderer, gameNetworking, font, fontS, screenMaster, gameInitializer):
         self.screen = screen
         self.gameNetworking = gameNetworking
         self.font = font
@@ -21,6 +22,7 @@ class GuiMaker:
         self.renderer = renderer
         self.w = screen.get_width()*0.381966011
         self.screenMaster = screenMaster
+        self.gameInitalizer = gameInitializer
 
         self.gamePage = 0
         self.perPage = 7
@@ -114,7 +116,7 @@ class GuiMaker:
         gameNetworking = self.gameNetworking
 
         try:
-            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
+            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 1:
                 guiRenderer.get_element("gameSubmit").show = True
 
             else:
@@ -240,7 +242,7 @@ class GuiMaker:
         elif gameState == "Loaded":
             generalText = "Starting game..."
             infoText = "Get ready!"
-            self.screenMaster.screenID = 10
+            threading.Thread(target=self.gameInitalizer.startGame, daemon=True).start()
 
         else:
             generalText = "Unavailable"

@@ -15,5 +15,4 @@ with open("/Users/Frank/IntelliJProjects/springcodefest2023/assets/map.txt", "w"
                     this += str(k)
 
             line += this + " "
-        print(line)
         f.write(line + "\n")

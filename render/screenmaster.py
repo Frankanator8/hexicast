@@ -18,7 +18,6 @@ class ScreenMaster:
 
     def tick(self):
         if self.screenID != self.prevScreenID:
-            print(self.screenID, self.uponScreenChange)
             if self.screenID in self.uponScreenChange.keys():
                 self.uponScreenChange[self.screenID]()
 
