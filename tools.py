@@ -25,3 +25,13 @@ class Line:
         
         b = y1 - x1*slope
         return Line(slope, b)
+
+    @classmethod
+    def determineFromSlopePoint(cls, m, x1, y1):
+        slope = m
+
+        b = y1 - x1*slope
+        return Line(slope, b)
+
+    def getPointAt(self, x):
+        return self.m * x + self.b

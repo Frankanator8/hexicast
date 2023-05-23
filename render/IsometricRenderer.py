@@ -1,5 +1,5 @@
 import math
-
+import tools
 import pygame
 
 import loader
@@ -31,6 +31,7 @@ class IsometricRenderer:
         self.map = None
         self.renderShadows = True
         self.renderCache = {}
+        self.renderPoses = {}
 
     def addEntity(self, entity):
         self.entities.append(entity)
@@ -48,6 +49,22 @@ class IsometricRenderer:
         iso_x += display.get_width()/2
         iso_y += display.get_height()/2
         return iso_x, iso_y
+
+    def getXYZ(self, x, y, display):
+        possible = []
+        for key, value in self.renderPoses.items():
+            if y > key[0].getPointAt(x) and y > key[1].getPointAt(x) and y < key[2].getPointAt(x) and y < key[3].getPointAt(x):
+                possible.append(value)
+
+        if len(possible) > 0:
+            ans = possible[0]
+            for posAns in possible:
+                if posAns[2] > ans[2]:
+                    ans = posAns
+
+            return ans
+
+        return (0, 0, 0)
 
     def getTint(self, x, y, z):
         try:
@@ -68,6 +85,7 @@ class IsometricRenderer:
         camera = self.camera
         size = self.TILE_SIZE
         placeDicts = {}
+        self.renderPoses = {}
         for entity in self.entities:
             if (math.floor(entity.x), math.floor(entity.y)) not in placeDicts.keys():
                 placeDicts[(math.floor(entity.x), math.floor(entity.y))] = []
@@ -93,6 +111,12 @@ class IsometricRenderer:
                             tex = self.renderCache[(block, tintDegree)]
 
                         display.blit(tex, (iso_x, iso_y))
+                        topPt = (iso_x + self.TILE_SIZE[0]/2, iso_y)
+                        botPt = (iso_x + self.TILE_SIZE[0]/2, iso_y + self.TILE_SIZE[1]/2)
+                        self.renderPoses[(tools.Line.determineFromSlopePoint(1/2, *topPt),
+                                          tools.Line.determineFromSlopePoint(-1/2, *topPt),
+                                          tools.Line.determineFromSlopePoint(1/2, *botPt),
+                                          tools.Line.determineFromSlopePoint(-1/2, *botPt))] = (oldX, oldY, z)
 
                     y = oldY
                     x = oldX

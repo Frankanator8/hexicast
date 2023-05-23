@@ -90,14 +90,16 @@ while running:
         screen.blit(bg, (0, 0))
         playerManager.tick(keys, prevKeys, dt)
         camera.follow(playerManager.getMyPlayer())
-        spellRe.tickMouse(mousePos, mouseClicked)
+        spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
         spellRe.updateSequence(screen)
         spellId.tick(dt)
 
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)
-        # Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
+        Text(str(iRenderer.getXYZ(*mousePos, screen)), ("Calibri", 10), (0, 0, 0), (0, 0)).render(screen)
+
+    # Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
 
     clock.tick(60)
     screenMaster.tick()

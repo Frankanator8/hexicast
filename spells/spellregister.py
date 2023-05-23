@@ -19,9 +19,14 @@ class SpellRegister:
         self.radius = 0
         self.particles = []
         self.emblem = None
+        self.secondaryInfo = [(0, 0), (0, 0)]
+        self.lastPoint = (0, 0)
 
-    def tickMouse(self, mousePos, mousePressed):
+    def tickMouse(self, mousePos, mousePressed, prevPressed):
         if mousePressed[0]:
+            if not self.locked:
+                if not prevPressed[0]:
+                    self.secondaryInfo = (mousePos, self.lastPoint)
             self.trail.append(mousePos)
             self.ready = False
 
@@ -268,3 +273,4 @@ class SpellRegister:
                 if dist(*self.trail[-1], *pt) < 20:
                     if (degreeToID[i] != self.sequence[-1]):
                         self.sequence.append(degreeToID[i])
+            self.lastPoint = self.trail[-1]
