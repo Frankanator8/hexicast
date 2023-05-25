@@ -41,9 +41,12 @@ class SpellIdentifier:
         self.spellRegister = spellRegister
         self.possible = []
         self.degreeRotation = 0
+        self.selected = None
+        self.animationSelectTick = 0
 
     def render(self, screen):
         if self.spellRegister.locked:
+            self.animationSelectTick = 0
             surf = pygame.Surface((screen.get_width(), screen.get_height()), flags=pygame.SRCALPHA)
             surf.set_alpha(round(170+85*math.sin(math.radians(self.degreeRotation*8))))
             surf.fill((255, 255, 255, 0))
@@ -99,6 +102,32 @@ class SpellIdentifier:
 
             screen.blit(surf, (0, 0))
 
+        else:
+            if self.selected != None:
+                if self.animationSelectTick < 1:
+                    self.animationSelectTick *= 2
+                    element = self.spellRegister.sequence[1]
+                    if element == 1:
+                        element = "fire"
+
+                    elif element == 3:
+                        element = "water"
+
+                    else:
+                        element = "ground"
+
+                    x = self.spellRegister.center[0] - (self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)
+                    y = self.spellRegister.center[1] - (self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)
+                    surf = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
+                    surf.set_alpha(200-200*self.animationSelectTick)
+                    surf.blit(loader.load_image(f"{element}E/{self.selected}",
+                                                size=((self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)*2,
+                                                      (self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)*2)),
+                              (x, y))
+                    screen.blit(surf, (0, 0))
+                    self.animationSelectTick /= 2
+
+
     def tick(self, dt):
         if self.spellRegister.locked:
             self.degreeRotation += 360/10 * dt
@@ -129,5 +158,28 @@ class SpellIdentifier:
                     self.possible.append(index)
 
         else:
+            self.animationSelectTick += dt
+            if len(self.possible) >= 1:
+                element = self.spellRegister.sequence[1]
+                if element == 1:
+                    element = "fire"
+                    lis = self.FIRE_SPELLS
+
+                elif element == 3:
+                    element = "water"
+                    lis = self.WATER_SPELLS
+
+                else:
+                    element = "ground"
+                    lis = self.GROUND_SPELLS
+
+                self.selected = None
+                for index, pos in enumerate(lis):
+                    if pos == self.spellRegister.sequence[3:]:
+                        self.selected = index
+                        break
+
+
+
             self.possible = []
             self.degreeRotation = 0
