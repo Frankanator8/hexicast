@@ -7,6 +7,7 @@ from game.gameManager import GameManager
 from game.map import Map
 from game.player import Player
 from game.playermanager import PlayerManager
+from game.spellManager import SpellManager
 from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
@@ -14,6 +15,7 @@ from render.gui.GameButton import GameButton
 from render.gui.base.text import Text
 from render.guiMaker import GuiMaker
 from render.screenmaster import ScreenMaster
+from spells.spellcreator import SpellCreator
 from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
 from render.IsometricRenderer import IsometricRenderer
@@ -31,9 +33,6 @@ IsometricRenderer.init()
 
 clock = pygame.time.Clock()
 
-spellRe = SpellRegister()
-spellId = SpellIdentifier(spellRe)
-
 gameNetworking = GameNetworking()
 gameNetworking.connect()
 gameNetworking.loopGetGames()
@@ -48,8 +47,13 @@ iMap = IsometricMap("assets/better.txt")
 map = Map(iMap)
 iRenderer.setMap(iMap)
 
+spellRe = SpellRegister()
+spellId = SpellIdentifier(spellRe)
+spellManager = SpellManager(iRenderer)
+spellCreator = SpellCreator(spellManager)
+
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
-gameManager = GameManager(playerManager, gameNetworking, screenMaster)
+gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster)
 
 font24 = (loader.load_font("theFont", 24), 24)
 font48 = (loader.load_font("theFont", 48), 48)
@@ -65,8 +69,6 @@ screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
 
 running = True
-
-
 bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))
 prevKeys = pygame.key.get_pressed()
 prevClicked = pygame.mouse.get_pressed()
@@ -92,7 +94,9 @@ while running:
         camera.follow(playerManager.getMyPlayer())
         spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
         spellRe.updateSequence(screen)
-        spellId.tick(dt)
+        spellId.tick(dt, spellCreator)
+        spellCreator.tick(playerManager.getMyPlayer(), spellRe)
+        spellManager.tick(dt)
 
         iRenderer.render()
         spellRe.render(screen, dt)

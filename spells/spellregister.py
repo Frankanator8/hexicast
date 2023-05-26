@@ -22,6 +22,12 @@ class SpellRegister:
         self.secondaryInfo = [(0, 0), (0, 0)]
         self.lastPoint = (0, 0)
 
+    def findPosition(self, x, y, isometricRenderer, screen):
+        return isometricRenderer.getXYZ(x, y, screen)
+
+    def findLastPosition(self, isometricRenderer, screen):
+        return self.findPosition(*self.secondaryInfo[-1], isometricRenderer, screen)
+
     def tickMouse(self, mousePos, mousePressed, prevPressed):
         if mousePressed[0]:
             if not self.locked:

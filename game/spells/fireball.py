@@ -8,6 +8,6 @@ class Fireball(Spell):
         super().__init__(x, y, z, "spells/fireball", "n", sender, Stats(atk=20, speed=10, range=2, knockback=1), 3)
         self.trueDir = direction
 
-    def tick(self):
-        self.x += math.cos(self.trueDir)
-        self.y += math.sin(self.trueDir)
+    def tick(self, dt, isometricRenderer):
+        self.x += math.cos(self.trueDir) * 5 * dt
+        self.y += math.sin(self.trueDir) * 5 * dt

@@ -128,7 +128,7 @@ class SpellIdentifier:
                     self.animationSelectTick /= 2
 
 
-    def tick(self, dt):
+    def tick(self, dt, spellCreator):
         if self.spellRegister.locked:
             self.degreeRotation += 360/10 * dt
             self.degreeRotation %= 360
@@ -177,6 +177,7 @@ class SpellIdentifier:
                 for index, pos in enumerate(lis):
                     if pos == self.spellRegister.sequence[3:]:
                         self.selected = index
+                        spellCreator.updateElementAndSelected(element, self.selected)
                         break
 
 

@@ -12,6 +12,7 @@ class PlayerManager:
         players = self.gameNetworking.gameData["gameData"]["playerPos"]
         for uuid, pos in players.items():
             p = Player(pos[0], pos[1], pos[2], 1)
+            p.uuid = uuid
             self.players[uuid] = p
             self.iRenderer.addEntity(p)
 

@@ -12,5 +12,5 @@ class Spell(Entity):
     def on_contact(self, entity):
         pass
 
-    def tick(self, isometricRenderer):
+    def tick(self, dt, isometricRenderer):
         pass
