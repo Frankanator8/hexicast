@@ -14,3 +14,6 @@ class Spell(Entity):
 
     def tick(self, dt, isometricRenderer):
         pass
+
+    def getDictObject(self):
+        return {"x":self.x, "y":self.y, "z":self.z, "direction":self.direction, "image":self.image, "sender":self.sender, "tier":self.tier}

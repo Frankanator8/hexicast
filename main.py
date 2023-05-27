@@ -34,7 +34,7 @@ IsometricRenderer.init()
 clock = pygame.time.Clock()
 
 gameNetworking = GameNetworking()
-gameNetworking.connect()
+
 gameNetworking.loopGetGames()
 gameNetworking.loopGameState()
 gameNetworking.loopUpdateGame()
@@ -96,12 +96,12 @@ while running:
         spellRe.updateSequence(screen)
         spellId.tick(dt, spellCreator)
         spellCreator.tick(playerManager.getMyPlayer(), spellRe)
-        spellManager.tick(dt)
+        spellManager.tick(gameNetworking, dt)
+        gameNetworking.sendGameData = gameManager.updateGameData()
 
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)
-        Text(str(iRenderer.getXYZ(*mousePos, screen)), ("Calibri", 10), (0, 0, 0), (0, 0)).render(screen)
 
     # Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
 

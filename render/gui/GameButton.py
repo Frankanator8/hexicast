@@ -46,13 +46,17 @@ class GameButton(Button):
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
         super().tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
-        game = self.gameNetworking.games[self.uuid]
         try:
-            hostName = self.gameNetworking.uuidToName[game['host']]
+            game = self.gameNetworking.games[self.uuid]
+            try:
+                hostName = self.gameNetworking.uuidToName[game['host']]
+
+            except KeyError:
+                hostName = "loading"
+
+            self.renderables[1].text.set_text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']}\nHost:{hostName}")
 
         except KeyError:
-            hostName = "loading"
-
-        self.renderables[1].text.set_text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']}\nHost:{hostName}")
+            pass
 
 

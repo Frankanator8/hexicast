@@ -26,7 +26,10 @@ class GameNetworking(Networking):
         self.updatingPos = False
         self.queue = []
         self.sendTimeout = 0
-        self.playerPos = (0, 0, 1, "n")
+        self.sendGameData = {}
+
+        self.gameUpdates = 0
+
 
     def __join(self, name):
         self.uuid = self.post("join", {"name":name})
@@ -86,13 +89,19 @@ class GameNetworking(Networking):
     def __loopUpdateGame(self):
         while True:
             if self.gameUuid != "":
-                data = self.sendWS({"uuid":self.uuid, "request":"updatePos", "pos":self.playerPos})
-                self.gameData = data
+                if self.sendGameData != {}:
+                    sendData = {"uuid":self.uuid, "request":"update"}
+                    sendData.update(self.sendGameData)
+                    data = self.sendWS(sendData)
+                    self.gameData = data
+
+                else:
+                    sendData = {"uuid":self.uuid, "request":"get"}
+                    data = self.sendWS(sendData)
+                    self.gameData = data
+
+                self.gameUpdates += 1
 
 
     def loopUpdateGame(self):
         threading.Thread(target=self.__loopUpdateGame, daemon=True).start()
-
-    def updatePos(self, player):
-        self.playerPos = (player.x, player.y, player.z, player.direction)
-

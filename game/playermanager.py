@@ -7,6 +7,7 @@ class PlayerManager:
         self.map = map
         self.iRenderer = iRenderer
         self.players = {}
+        self.prevHealths = {}
 
     def makePlayers(self):
         players = self.gameNetworking.gameData["gameData"]["playerPos"]
@@ -15,10 +16,10 @@ class PlayerManager:
             p.uuid = uuid
             self.players[uuid] = p
             self.iRenderer.addEntity(p)
+            self.prevHealths[uuid] = p.stats.hp
 
     def tick(self, keys, prevKeys, dt):
         self.players[self.gameNetworking.uuid].tickKeys(keys, prevKeys, dt, self.map)
-        self.gameNetworking.updatePos(self.players[self.gameNetworking.uuid])
         for uuid, pos in self.gameNetworking.gameData["gameData"]["playerPos"].items():
             if uuid != self.gameNetworking.uuid:
                 p = self.players[uuid]
@@ -26,3 +27,4 @@ class PlayerManager:
 
     def getMyPlayer(self):
         return self.players[self.gameNetworking.uuid]
+

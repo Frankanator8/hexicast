@@ -36,6 +36,9 @@ class IsometricRenderer:
     def addEntity(self, entity):
         self.entities.append(entity)
 
+    def removeEntity(self, entity):
+        self.entities.remove(entity)
+
     def setMap(self, map):
         self.map = map
 

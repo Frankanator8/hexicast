@@ -32,3 +32,6 @@ class ScreenMaster:
 
     def addScreenFunc(self, screenID, func):
         self.screenFunc[screenID] = func
+
+    def setScreenId(self, id):
+        self.screenID = id
