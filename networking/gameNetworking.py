@@ -38,7 +38,7 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__join, args=(name, ), daemon=True).start()
 
     def __createGame(self, name, settings):
-        self.gameUuid = self.post("createGame", {"name":name, "settings":settings, "uuid":self.uuid})
+        self.gameUuid = self.post("createGame", {"name":name, "settings":settings, "uuid":self.uuid, "pw":""})
         self.prospectiveGameUuid = self.gameUuid
         self.__joinGame()
     def createGame(self, name, settings):

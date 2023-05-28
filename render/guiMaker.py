@@ -4,6 +4,7 @@ import threading
 import uuid as UUID
 import pygame
 import loader
+from render import fonts
 from render.gui.Flair import Flair
 from render.gui.GameButton import GameButton
 from render.gui.SubmitButton import SubmitButton
@@ -14,11 +15,11 @@ from render.gui.elements.button import Button
 from render.gui.elements.textinput import TextInput
 
 class GuiMaker:
-    def __init__(self, screen, renderer, gameNetworking, font, fontS, screenMaster, gameInitializer):
+    def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer):
         self.screen = screen
         self.gameNetworking = gameNetworking
-        self.font = font
-        self.fontS = fontS
+        self.font = fonts.Fonts.font48
+        self.fontS = fonts.Fonts.font24
         self.renderer = renderer
         self.w = screen.get_width()*0.381966011
         self.screenMaster = screenMaster

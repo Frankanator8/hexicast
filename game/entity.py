@@ -1,3 +1,6 @@
+import loader
+
+
 class Entity:
     def __init__(self, x, y, z, image, direction):
         self.x = x
@@ -5,3 +8,12 @@ class Entity:
         self.z = z
         self.image = image
         self.direction = direction
+
+    def render(self, size):
+        return loader.load_image(f"{self.image}/{self.direction}", size=size)
+
+    def hash(self):
+        return f"{self.image}/{self.direction}"
+
+    def renderOffset(self):
+        return (0, 0)

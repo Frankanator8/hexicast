@@ -11,6 +11,7 @@ from game.spellManager import SpellManager
 from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
+from render.fonts import Fonts
 from render.gui.GameButton import GameButton
 from render.gui.base.text import Text
 from render.guiMaker import GuiMaker
@@ -30,6 +31,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("gam")
 
 IsometricRenderer.init()
+Fonts.init()
 
 clock = pygame.time.Clock()
 
@@ -55,10 +57,9 @@ spellCreator = SpellCreator(spellManager)
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
 gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster)
 
-font24 = (loader.load_font("theFont", 24), 24)
-font48 = (loader.load_font("theFont", 48), 48)
+
 guiRenderer = GuiRenderer(screen)
-guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, font48, font24, screenMaster, gameManager)
+guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, screenMaster, gameManager)
 guiMaker.makeInitialGui()
 previousGameList = []
 

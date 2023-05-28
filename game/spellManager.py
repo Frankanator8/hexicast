@@ -17,6 +17,7 @@ class SpellManager:
         self.isometricRenderer.addEntity(spell)
 
     def removeSpell(self, spellUuid):
+        self.isometricRenderer.removeEntity(self.spells[spellUuid])
         self.removeSpells[spellUuid] = self.spells[spellUuid]
         del self.spells[spellUuid]
 
@@ -46,4 +47,23 @@ class SpellManager:
                 self.isometricRenderer.addEntity(spell)
 
             if value["sender"] != gameNetworking.uuid:
-                self.spells[key] = spell
+                if key not in self.spells.keys():
+                    self.spells[key] = spell
+
+                else:
+                    self.spells[key].updateFromDictObject(value)
+
+        removeSpells = []
+        for uuid, spell in self.spells.items():
+            if spell.sender == gameNetworking.uuid:
+                isoRenderer = self.isometricRenderer
+                for entity in isoRenderer.entities:
+                    if entity.x > spell.x + 1 or entity.x + 1 > spell.x \
+                        or entity.y > spell.y + 1 or entity.y + 1 < spell.y:
+                            spell.on_contact(entity)
+
+                if spell.done:
+                    removeSpells.append(uuid)
+
+        for spell in removeSpells:
+            self.removeSpell(spell)

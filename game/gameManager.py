@@ -19,15 +19,13 @@ class GameManager:
             self.screenMaster.screenID = 10
 
     def updateGameData(self):
-        if self.gameUpdates > self.gameNetworking.gameUpdates + 1:
-            self.flush()
-            self.gameUpdates = self.gameNetworking.gameUpdates
         data = {}
         myPlayer = self.playerManager.getMyPlayer()
         data["pos"] = (myPlayer.x, myPlayer.y, myPlayer.z, myPlayer.direction)
         healthChanges = {}
         for uuid, player in self.playerManager.players.items():
             healthChanges[uuid] = player.stats.hp - self.playerManager.prevHealths[uuid]
+        print(healthChanges)
         data["healthChanges"] = healthChanges
         addedSpells = {}
         for key, value in self.spellManager.unsentSpells.items():
@@ -39,6 +37,10 @@ class GameManager:
             delSpells[key] = value.getDictObject()
 
         data["deletedSpells"] = delSpells
+
+        if self.gameUpdates > self.gameNetworking.gameUpdates:
+            self.flush()
+            self.gameUpdates = self.gameNetworking.gameUpdates
 
         return data
 

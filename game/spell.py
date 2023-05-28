@@ -17,3 +17,12 @@ class Spell(Entity):
 
     def getDictObject(self):
         return {"x":self.x, "y":self.y, "z":self.z, "direction":self.direction, "image":self.image, "sender":self.sender, "tier":self.tier}
+
+    def updateFromDictObject(self, obj):
+        self.x = obj["x"]
+        self.y = obj["y"]
+        self.z = obj["z"]
+        self.direction = obj["direction"]
+        self.image = obj["image"]
+        self.sender = obj["sender"]
+        self.tier = obj["tier"]

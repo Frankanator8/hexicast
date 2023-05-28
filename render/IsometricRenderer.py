@@ -131,12 +131,12 @@ class IsometricRenderer:
                             iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
                             if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
                                 tintDegree = self.getTint(oldX, oldY, math.floor(z))
-                                if ((f"{entity.image}/{entity.direction}", tintDegree) not in self.renderCache.keys()):
-                                    tex = loader.load_image(f"{entity.image}/{entity.direction}", size=size)
+                                if ((entity.hash(), tintDegree) not in self.renderCache.keys()):
+                                    tex = entity.render(size)
                                     tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
-                                    self.renderCache[(f"{entity.image}/{entity.direction}", tintDegree)] = tex
+                                    self.renderCache[(entity.hash(), tintDegree)] = tex
 
                                 else:
-                                    tex = self.renderCache[(f"{entity.image}/{entity.direction}", tintDegree)]
+                                    tex = self.renderCache[(entity.hash(), tintDegree)]
 
-                                display.blit(tex, (iso_x, iso_y))
+                                display.blit(tex, (iso_x + entity.renderOffset()[0], iso_y + entity.renderOffset()[1]))

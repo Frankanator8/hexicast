@@ -158,7 +158,6 @@ class SpellIdentifier:
                     self.possible.append(index)
 
         else:
-            self.animationSelectTick += dt
             if len(self.possible) >= 1:
                 element = self.spellRegister.sequence[1]
                 if element == 1:
@@ -180,7 +179,11 @@ class SpellIdentifier:
                         spellCreator.updateElementAndSelected(element, self.selected)
                         break
 
+            else:
+                if self.animationSelectTick == 0:
+                    self.selected = None
 
+            self.animationSelectTick += dt
 
             self.possible = []
             self.degreeRotation = 0
