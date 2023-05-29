@@ -23,7 +23,6 @@ class PlayerManager:
         for uuid, pos in self.gameNetworking.gameData["gameData"]["playerPos"].items():
             p = self.players[uuid]
             p.stats.hp = self.gameNetworking.gameData["gameData"]["playerHealth"][uuid]
-            p.trueHP = p.stats.hp
             if uuid != self.gameNetworking.uuid:
                 p.x, p.y, p.z, p.direction = pos
 

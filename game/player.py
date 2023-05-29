@@ -22,19 +22,19 @@ class Player(Entity):
 
     def tickKeys(self, keys, prevKeys, dt, map):
         futPosition = [self.x, self.y]
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
             futPosition[1] -= self.stats.speed * dt
             self.direction = "n"
 
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
             futPosition[1] += self.stats.speed * dt
             self.direction = "s"
 
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
             futPosition[0] -= self.stats.speed * dt
             self.direction = "w"
 
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             futPosition[0] += self.stats.speed * dt
             self.direction = "e"
 
@@ -60,12 +60,12 @@ class Player(Entity):
         return f"{self.image}/{self.direction} - {self.stats.hp} - {self.name}"
 
     def render(self, size):
-        ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)
+        ret = pygame.Surface((size[0]+20, size[1]+40), pygame.SRCALPHA)
         t = Text(self.name, Fonts.font18, (0, 0, 0), (0, 0))
         pygame.draw.rect(ret, (255, 255, 255), pygame.Rect(0, 0, t.w, t.h))
         t.render(ret)
-        pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[1], 18), border_radius=5)
-        pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[1] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
+        pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[0], 18), border_radius=5)
+        pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
         ret.blit(super().render(size), (0, 40))
         return ret
 
@@ -77,10 +77,6 @@ class Player(Entity):
     def health(self, value):
         if value > self.stats.maxHP:
             value = self.stats.maxHP
-        print(value - self.trueHP, value, self.trueHP)
+
         self.hpChange += value - self.trueHP
         self.trueHP = value
-
-
-
-

@@ -35,11 +35,11 @@ class GuiMaker:
     def makeInitialGui(self):
         guiRenderer = self.renderer
 
-        blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sideBanner", size=(self.w, self.screen.get_height())), (0, 0))])
+        blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
         guiRenderer.add_element(blueBanner, tag="blueBanner")
-        aestheticBanner = GuiElement(self.w, 0, [Renderable(loader.load_image("tempBack", size=(800, self.screen.get_height())), (self.w, 0))])
+        aestheticBanner = GuiElement(self.w, 0, [Renderable(loader.load_image("tempback", size=(800, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(aestheticBanner, tag="aestheticBanner")
-        gameLogo = GuiElement(10, 10, [Renderable(Text("Hexicast", (loader.load_font("theFont", 72), 72), (255, 255, 255), (10, 10)))])
+        gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
         guiRenderer.add_element(gameLogo, tag="gameLogo")
         nameInputBanner = GuiElement(10, 100, [Renderable(Text("Name:", self.font, (0, 0, 0), (10, 100)))])
         guiRenderer.add_element(nameInputBanner, tag="nameInputBanner")

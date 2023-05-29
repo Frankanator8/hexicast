@@ -16,6 +16,9 @@ class PhoenixFlames(Spell):
             else:
                 player.health -= (self.stats.atk - player.stats.defense)*dt
 
+        if self.time_elapsed > 8:
+            self.done = True
+
         self.players = []
     def on_contact(self, entity):
         if isinstance(entity, Player):

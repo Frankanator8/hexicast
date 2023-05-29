@@ -276,7 +276,7 @@ class SpellRegister:
             for i in range(30, 360, 60):
                 pt = (self.center[0] + self.radius * math.cos(math.radians(i)),
                       self.center[1] - self.radius * math.sin(math.radians(i)))
-                if dist(*self.trail[-1], *pt) < 20:
+                if dist(*self.trail[-1], *pt) < self.radius/3:
                     if (degreeToID[i] != self.sequence[-1]):
                         self.sequence.append(degreeToID[i])
             self.lastPoint = self.trail[-1]

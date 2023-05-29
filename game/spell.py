@@ -1,3 +1,4 @@
+import time
 from game.entity import Entity
 
 
@@ -8,6 +9,11 @@ class Spell(Entity):
         self.done = False
         self.tier = tier
         self.stats = stats
+        self.timeCreated = time.time()
+
+    @property
+    def time_elapsed(self):
+        return time.time() - self.timeCreated
 
     def on_contact(self, entity):
         pass

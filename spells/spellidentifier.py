@@ -43,6 +43,7 @@ class SpellIdentifier:
         self.degreeRotation = 0
         self.selected = None
         self.animationSelectTick = 0
+        self.element = None
 
     def render(self, screen):
         if self.spellRegister.locked:
@@ -106,15 +107,7 @@ class SpellIdentifier:
             if self.selected != None:
                 if self.animationSelectTick < 1:
                     self.animationSelectTick *= 2
-                    element = self.spellRegister.sequence[1]
-                    if element == 1:
-                        element = "fire"
-
-                    elif element == 3:
-                        element = "water"
-
-                    else:
-                        element = "ground"
+                    element = self.element
 
                     x = self.spellRegister.center[0] - (self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)
                     y = self.spellRegister.center[1] - (self.spellRegister.radius/2 + self.spellRegister.radius/2 * self.animationSelectTick)
@@ -161,22 +154,22 @@ class SpellIdentifier:
             if len(self.possible) >= 1:
                 element = self.spellRegister.sequence[1]
                 if element == 1:
-                    element = "fire"
+                    self.element = "fire"
                     lis = self.FIRE_SPELLS
 
                 elif element == 3:
-                    element = "water"
+                    self.element = "water"
                     lis = self.WATER_SPELLS
 
                 else:
-                    element = "ground"
+                    self.element = "ground"
                     lis = self.GROUND_SPELLS
 
                 self.selected = None
                 for index, pos in enumerate(lis):
                     if pos == self.spellRegister.sequence[3:]:
                         self.selected = index
-                        spellCreator.updateElementAndSelected(element, self.selected)
+                        spellCreator.updateElementAndSelected(self.element, self.selected)
                         break
 
             else:

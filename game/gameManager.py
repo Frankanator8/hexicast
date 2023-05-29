@@ -25,8 +25,6 @@ class GameManager:
         for uuid, player in self.playerManager.players.items():
             healthChanges[uuid] = player.hpChange
         data["healthChanges"] = healthChanges
-        print(healthChanges)
-        print()
         addedSpells = {}
         for key, value in self.spellManager.unsentSpells.items():
             addedSpells[key] = value.getDictObject()
@@ -46,3 +44,4 @@ class GameManager:
         self.spellManager.removeSpells = {}
         for player in self.playerManager.players.values():
             player.hpChange = 0
+            player.trueHP = player.stats.hp

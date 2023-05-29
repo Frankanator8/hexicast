@@ -27,6 +27,9 @@ class FireBody(Spell):
             self.y = self.player.y
         self.z = self.player.z
         self.player.stats.speed = 12
+        if self.time_elapsed > 8:
+            self.done = True
+            self.player.stats.speed = 8
     def on_contact(self, entity):
         pass
 
