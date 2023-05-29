@@ -17,6 +17,8 @@ class Player(Entity):
         self.uuid = None
         self.name = None
         self.stats = Stats(hp=100, maxHP=100, atk=0, defense=5, speed=8)
+        self.hpChange = 0
+        self.trueHP = self.stats.hp
 
     def tickKeys(self, keys, prevKeys, dt, map):
         futPosition = [self.x, self.y]
@@ -66,6 +68,18 @@ class Player(Entity):
         pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[1] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
         ret.blit(super().render(size), (0, 40))
         return ret
+
+    @property
+    def health(self):
+        return self.trueHP
+
+    @health.setter
+    def health(self, value):
+        if value > self.stats.maxHP:
+            value = self.stats.maxHP
+        print(value - self.trueHP, value, self.trueHP)
+        self.hpChange += value - self.trueHP
+        self.trueHP = value
 
 
 

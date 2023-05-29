@@ -27,6 +27,8 @@ class GameNetworking(Networking):
         self.queue = []
         self.sendTimeout = 0
         self.sendGameData = {}
+        self.lastSentUuid = ""
+        self.sendUuid = ""
 
         self.gameUpdates = 0
 
@@ -100,7 +102,7 @@ class GameNetworking(Networking):
                     data = self.sendWS(sendData)
                     self.gameData = data
 
-                self.gameUpdates += 1
+                self.lastSentUuid = self.sendUuid
 
 
     def loopUpdateGame(self):

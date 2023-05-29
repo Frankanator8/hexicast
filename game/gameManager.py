@@ -5,7 +5,6 @@ class GameManager:
         self.screenMaster = screenMaster
         self.spellManager = spellManager
         self.started = False
-        self.gameUpdates = gameNetworking.gameUpdates
 
     def startGame(self):
         if not self.started:
@@ -24,9 +23,10 @@ class GameManager:
         data["pos"] = (myPlayer.x, myPlayer.y, myPlayer.z, myPlayer.direction)
         healthChanges = {}
         for uuid, player in self.playerManager.players.items():
-            healthChanges[uuid] = player.stats.hp - self.playerManager.prevHealths[uuid]
-        print(healthChanges)
+            healthChanges[uuid] = player.hpChange
         data["healthChanges"] = healthChanges
+        print(healthChanges)
+        print()
         addedSpells = {}
         for key, value in self.spellManager.unsentSpells.items():
             addedSpells[key] = value.getDictObject()
@@ -38,14 +38,11 @@ class GameManager:
 
         data["deletedSpells"] = delSpells
 
-        if self.gameUpdates > self.gameNetworking.gameUpdates:
-            self.flush()
-            self.gameUpdates = self.gameNetworking.gameUpdates
 
         return data
 
     def flush(self):
         self.spellManager.unsentSpells = {}
         self.spellManager.removeSpells = {}
-        for uuid, player in self.playerManager.players.items():
-            self.playerManager.prevHealths[uuid] = player.stats.hp
+        for player in self.playerManager.players.values():
+            player.hpChange = 0

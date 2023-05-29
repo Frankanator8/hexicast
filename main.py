@@ -21,6 +21,7 @@ from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
 from render.IsometricRenderer import IsometricRenderer
 from render.IsometricMap import IsometricMap
+import uuid as UUID
 
 pygame.init()
 
@@ -98,7 +99,10 @@ while running:
         spellId.tick(dt, spellCreator)
         spellCreator.tick(playerManager.getMyPlayer(), spellRe)
         spellManager.tick(gameNetworking, dt)
-        gameNetworking.sendGameData = gameManager.updateGameData()
+        if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
+            gameNetworking.sendGameData = gameManager.updateGameData()
+            gameManager.flush()
+            gameNetworking.sendUuid = UUID.uuid4()
 
         iRenderer.render()
         spellRe.render(screen, dt)

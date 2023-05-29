@@ -1,3 +1,4 @@
+from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
 
@@ -25,3 +26,7 @@ class FireBody(Spell):
             self.x = self.player.x+1
             self.y = self.player.y
         self.z = self.player.z
+        self.player.stats.speed = 12
+    def on_contact(self, entity):
+        pass
+

@@ -16,5 +16,5 @@ class Fireball(Spell):
     def on_contact(self, entity):
         if isinstance(entity, Player):
             if entity.uuid != self.sender:
-                entity.stats.hp -= self.stats.atk - entity.stats.defense
+                entity.health -= self.stats.atk - entity.stats.defense
                 self.done = True
