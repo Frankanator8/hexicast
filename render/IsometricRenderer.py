@@ -53,11 +53,13 @@ class IsometricRenderer:
         iso_y += display.get_height()/2
         return iso_x, iso_y
 
-    def getXYZ(self, x, y, display):
+    def getXYZ(self, x, y, precise=False):
         possible = []
+        possibleToLines = {}
         for key, value in self.renderPoses.items():
             if y > key[0].getPointAt(x) and y > key[1].getPointAt(x) and y < key[2].getPointAt(x) and y < key[3].getPointAt(x):
                 possible.append(value)
+                possibleToLines[value] = key
 
         if len(possible) > 0:
             ans = possible[0]
@@ -65,7 +67,19 @@ class IsometricRenderer:
                 if posAns[2] > ans[2]:
                     ans = posAns
 
-            return ans
+            if precise:
+                key = possibleToLines[ans]
+                ans = list(ans)
+                yLine = tools.Line.determineFromSlopePoint(-1/2, x, y)
+                xLine = tools.Line.determineFromSlopePoint(1/2, x, y)
+
+                totalYDist = tools.dist(*yLine.intersect(key[0]), *yLine.intersect(key[2]))
+                ans[1] += tools.dist(*yLine.intersect(key[0]), x, y)/totalYDist
+
+                totalXDist = tools.dist(*xLine.intersect(key[1]), *xLine.intersect(key[3]))
+                ans[0] += tools.dist(*xLine.intersect(key[1]), x, y)/totalXDist
+
+            return tuple(ans)
 
         return (0, 0, 0)
 
@@ -140,3 +154,19 @@ class IsometricRenderer:
                                     tex = self.renderCache[(entity.hash(), tintDegree)]
 
                                 display.blit(tex, (iso_x + entity.renderOffset()[0], iso_y + entity.renderOffset()[1]))
+
+        for entity in self.entities:
+            cameraX = entity.x - camera.x
+            cameraY = entity.y - camera.y
+            iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
+            if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
+                tintDegree = self.getTint(oldX, oldY, math.floor(z))
+                if ((f"p-{entity.hash()}", tintDegree) not in self.renderCache.keys()):
+                    tex = entity.prioritizedRender(size)
+                    tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
+                    self.renderCache[(f"p-{entity.hash()}", tintDegree)] = tex
+
+                else:
+                    tex = self.renderCache[(f"p-{entity.hash()}", tintDegree)]
+
+                display.blit(tex, (iso_x + entity.renderOffset()[0], iso_y + entity.renderOffset()[1]))

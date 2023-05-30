@@ -1,3 +1,5 @@
+import pygame
+
 import loader
 
 
@@ -17,3 +19,6 @@ class Entity:
 
     def renderOffset(self):
         return (0, 0)
+
+    def prioritizedRender(self, size):
+        return pygame.Surface((1, 1))

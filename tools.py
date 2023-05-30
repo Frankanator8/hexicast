@@ -7,18 +7,18 @@ class Line:
         self.b = b
 
     def intersect(self, line):
-        if self.b - line.b == 0:
-            x = 1000000
+        if self.m - line.m == 0:
+            x = 100000000
 
         else:
-            x = (line.m-self.m)/(self.b-line.b)
+            x = (line.b-self.b)/(self.m-line.m)
         y = self.m * x + self.b
         return (x, y)
 
     @classmethod
     def determineFromPoints(cls, x1, y1, x2, y2):
         if (x2-x1) == 0:
-            slope = 1000
+            slope = 1000000
         
         else:
             slope = (y2-y1)/(x2-x1)
@@ -35,3 +35,6 @@ class Line:
 
     def getPointAt(self, x):
         return self.m * x + self.b
+
+    def __repr__(self):
+        return f"y={self.m}x+{self.b}"

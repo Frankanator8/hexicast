@@ -15,6 +15,7 @@ class GameManager:
                     break
 
             self.playerManager.makePlayers()
+            self.flush()
             self.screenMaster.screenID = 10
 
     def updateGameData(self):

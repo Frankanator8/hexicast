@@ -1,3 +1,4 @@
+import math
 import uuid as UUID
 
 import tools
@@ -12,6 +13,11 @@ class SpellManager:
         self.isometricRenderer = isometricRenderer
         self.unsentSpells = {}
         self.removeSpells = {}
+
+        self.spellQueue = []
+
+    def addToQueue(self, spell):
+        self.spellQueue.append(spell)
 
     def addSpell(self, spell):
         uuid = str(UUID.uuid4())
@@ -30,7 +36,6 @@ class SpellManager:
         for uuid, spell in self.spells.items():
             if spell.sender == gameNetworking.uuid:
                 self.unsentSpells[uuid] = spell
-
 
         keysToDelete = []
         for key in self.spells.keys():
@@ -61,14 +66,31 @@ class SpellManager:
         removeSpells = []
         for uuid, spell in self.spells.items():
             if spell.sender == gameNetworking.uuid:
-                isoRenderer = self.isometricRenderer
-                for entity in isoRenderer.entities:
-                    if not(entity.x > spell.x + 1 or entity.x + 1 < spell.x \
-                        or entity.y > spell.y + 1 or entity.y + 1 < spell.y):
+                if spell.y < 0 or spell.y >= len(self.isometricRenderer.map.data) or spell.x < 0 or spell.x >= len(
+                        self.isometricRenderer.map.data[math.floor(spell.y)]):
+                    spell.done = True
+
+                else:
+                    isoRenderer = self.isometricRenderer
+                    for entity in isoRenderer.entities:
+                        if not (entity.x > spell.x + spell.stats.range or entity.x + 1 < spell.x - (
+                                spell.stats.range - 1)
+                                or entity.y > spell.y + spell.stats.range or entity.y + 1 < spell.y - (
+                                        spell.stats.range - 1)
+                                or entity.z > spell.z + spell.stats.range or entity.z + 1 < spell.z - (
+                                        spell.stats.range - 1)):
                             spell.on_contact(entity)
+
+                    if spell.z < len(isoRenderer.map.data[math.floor(spell.y)][math.floor(spell.x)]):
+                        spell.on_ground()
 
             if spell.done:
                 removeSpells.append(uuid)
 
         for spell in removeSpells:
             self.removeSpell(spell)
+
+        for spell in self.spellQueue:
+            self.addSpell(spell)
+
+        self.spellQueue = []

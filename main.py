@@ -3,6 +3,7 @@ import sys
 import pygame
 
 import loader
+from audio.musicmaster import MusicMaster
 from game.gameManager import GameManager
 from game.map import Map
 from game.player import Player
@@ -70,6 +71,8 @@ screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
 screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
 
+musicMaster = MusicMaster()
+
 running = True
 bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))
 prevKeys = pygame.key.get_pressed()
@@ -86,7 +89,10 @@ while running:
     keys = pygame.key.get_pressed()
     dt = clock.get_time() / 1000 # sec
 
+    musicMaster.tick(dt)
+
     if 0 <= screenMaster.screenID < 10:
+        musicMaster.playMusic("dvorak.mp3")
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
 
@@ -97,7 +103,7 @@ while running:
         spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
         spellRe.updateSequence(screen)
         spellId.tick(dt, spellCreator)
-        spellCreator.tick(playerManager.getMyPlayer(), spellRe)
+        spellCreator.tick(playerManager.getMyPlayer(), spellRe, iRenderer)
         spellManager.tick(gameNetworking, dt)
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
             gameNetworking.sendGameData = gameManager.updateGameData()

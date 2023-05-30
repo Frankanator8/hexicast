@@ -22,8 +22,8 @@ class SpellRegister:
         self.secondaryInfo = [(0, 0), (0, 0)]
         self.lastPoint = (0, 0)
 
-    def findPosition(self, x, y, isometricRenderer, screen):
-        return isometricRenderer.getXYZ(x, y, screen)
+    def findPosition(self, x, y, isometricRenderer):
+        return isometricRenderer.getXYZ(x, y, precise=True)
 
     def findLastPosition(self, isometricRenderer, screen):
         return self.findPosition(*self.secondaryInfo[-1], isometricRenderer, screen)
