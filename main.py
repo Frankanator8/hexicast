@@ -92,11 +92,12 @@ while running:
     musicMaster.tick(dt)
 
     if 0 <= screenMaster.screenID < 10:
-        musicMaster.playMusic("dvorak.mp3")
+        musicMaster.playMusic("demonslayer.mp3")
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
 
     if screenMaster.screenID == 10:
+        musicMaster.playMusic("genshin.mp3")
         screen.blit(bg, (0, 0))
         playerManager.tick(keys, prevKeys, dt)
         camera.follow(playerManager.getMyPlayer())

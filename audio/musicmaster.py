@@ -5,13 +5,13 @@ class MusicMaster:
         self.loadMusic = ""
         self.currentMusic = ""
         self.transition = False
-        self.volume = 1
+        self.volume = 0.2
     def playMusic(self, file):
         file = f"assets/audio/{file}"
         if file != self.currentMusic and file != self.loadMusic:
             self.loadMusic = file
             self.transition = True
-            self.volume = 1
+            self.volume = 0.2
 
     def tick(self, dt):
         if self.transition:
@@ -25,6 +25,6 @@ class MusicMaster:
                 self.currentMusic = self.loadMusic
                 self.loadMusic = ""
                 self.transition = False
-                self.volume = 1
+                self.volume = 0.2
 
         pygame.mixer.music.set_volume(self.volume)
