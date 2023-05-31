@@ -16,7 +16,11 @@ class Spell(Entity):
         return time.time() - self.timeCreated
 
     def on_contact(self, entity):
-        pass
+        if isinstance(entity, Spell):
+            if type(self).__name__ != type(entity).__name__:
+                if entity != self:
+                    if entity.tier >= self.tier:
+                        self.done = True
 
     def on_ground(self):
         pass

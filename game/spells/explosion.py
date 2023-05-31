@@ -39,3 +39,4 @@ class Explosion(Spell):
                             self.spellCreator.spellManager.addToQueue(ExplosionFire(self.x + i, self.y + j, self.z, self.sender))
 
                 self.done = True
+        super().on_contact(entity)

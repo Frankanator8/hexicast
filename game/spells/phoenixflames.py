@@ -23,3 +23,5 @@ class PhoenixFlames(Spell):
     def on_contact(self, entity):
         if isinstance(entity, Player):
             self.players.append(entity)
+
+        super().on_contact(entity)

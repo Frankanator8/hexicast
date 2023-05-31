@@ -28,3 +28,4 @@ class Firewall(Spell):
         if isinstance(entity, Player):
             if entity.uuid != self.sender:
                 self.players.append(entity)
+        super().on_contact(entity)

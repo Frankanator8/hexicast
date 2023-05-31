@@ -18,6 +18,8 @@ class Fireball(Spell):
             if entity.uuid != self.sender:
                 entity.health -= self.stats.atk - entity.stats.defense
                 self.done = True
+        
+        super().on_contact(entity)
 
     def on_ground(self):
         self.done = True

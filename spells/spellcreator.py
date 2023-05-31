@@ -1,6 +1,7 @@
 import math
 
 import tools
+from game.spells.dragonbreath import DragonBreath
 from game.spells.explosion import Explosion
 from game.spells.fireball import Fireball
 from game.spells.firebody import FireBody
@@ -74,5 +75,39 @@ class SpellCreator:
 
                     if add:
                         self.spellManager.addSpell(Explosion(player, self))
+
+                    self.element = None
+
+                if self.selected == 6:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, DragonBreath):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 3:
+                                add = False
+
+
+                    if add:
+                        placeX = math.floor(player.x)
+                        placeY = math.floor(player.y)
+                        placeZ = math.floor(player.z)
+                        if player.direction == "n":
+                            for i in range(3):
+                                self.spellManager.addSpell(DragonBreath(placeX-(3-i), placeY-i, placeZ, player))
+                                self.spellManager.addSpell(DragonBreath(placeX+(3-i), placeY-i, placeZ, player))
+
+                        if player.direction == "s":
+                            for i in range(3):
+                                self.spellManager.addSpell(DragonBreath(placeX-(3-i), placeY+i, placeZ, player))
+                                self.spellManager.addSpell(DragonBreath(placeX+(3-i), placeY+i, placeZ, player))
+
+                        if player.direction == "e":
+                            for i in range(3):
+                                self.spellManager.addSpell(DragonBreath(placeX+i, placeY-(3-i), placeZ, player))
+                                self.spellManager.addSpell(DragonBreath(placeX+i, placeY+(3-i), placeZ, player))
+
+                        if player.direction == "w":
+                            for i in range(3):
+                                self.spellManager.addSpell(DragonBreath(placeX-i, placeY-(3-i), placeZ, player))
+                                self.spellManager.addSpell(DragonBreath(placeX-i, placeY+(3-i), placeZ, player))
 
                     self.element = None
