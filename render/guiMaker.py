@@ -12,10 +12,11 @@ from render.gui.base.element import GuiElement
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
 from render.gui.elements.button import Button
+from render.gui.elements.slider import Slider
 from render.gui.elements.textinput import TextInput
 
 class GuiMaker:
-    def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer):
+    def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer, musicMaster, soundMaster):
         self.screen = screen
         self.gameNetworking = gameNetworking
         self.font = fonts.Fonts.font48
@@ -24,6 +25,8 @@ class GuiMaker:
         self.w = screen.get_width()*0.381966011
         self.screenMaster = screenMaster
         self.gameInitalizer = gameInitializer
+        self.musicMaster = musicMaster
+        self.soundMaster = soundMaster
 
         self.gamePage = 0
         self.perPage = 7
@@ -47,6 +50,15 @@ class GuiMaker:
         guiRenderer.add_element(nameInput, tag="nameInput")
         submitName = SubmitButton(10, 250, 200, 50, self.font, lambda:self.gameNetworking.join(nameInput.text) if nameInput.text != "" else None)
         guiRenderer.add_element(submitName, tag="submitName")
+
+        musicBanner = GuiElement(10, self.screen.get_height()-130, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-130)))])
+        guiRenderer.add_element(musicBanner, tag="musicBanner")
+        musicSlider = Slider(10, self.screen.get_height()-100, self.w-20, 20, 100, lambda x:self.musicMaster.set_volume(x/100))
+        guiRenderer.add_element(musicSlider, tag="musicSlider")
+        sfxBanner = GuiElement(10, self.screen.get_height()-70, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-70)))])
+        guiRenderer.add_element(sfxBanner, tag="sfxBanner")
+        sfxSlider = Slider(10, self.screen.get_height()-40, self.w-20, 20, 100, lambda x:self.soundMaster.set_volume(x/100))
+        guiRenderer.add_element(sfxSlider, tag="sfxSlider")
 
     def decrementPage(self):
         if self.gamePage > 0:
@@ -194,7 +206,8 @@ class GuiMaker:
     def on_loading_window(self):
         destroy = ["lightBlueBanner", "createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
                    "playerCountInput", "lobbySepLine", "gameSubmit", "gameName", "passwordText", "passwordInput",
-                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "blueBanner", "gameLogo"]
+                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "blueBanner", "gameLogo",
+                   "musicBanner", "musicSlider", "sfxBanner", "sfxSlider"]
         for uuid in self.uuids:
             destroy.append(f"gameListButton{uuid}")
 

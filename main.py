@@ -4,6 +4,7 @@ import pygame
 
 import loader
 from audio.musicmaster import MusicMaster
+from audio.soundmaster import SoundMaster
 from game.gameManager import GameManager
 from game.map import Map
 from game.player import Player
@@ -34,6 +35,8 @@ pygame.display.set_caption("Hexicast")
 
 IsometricRenderer.init()
 Fonts.init()
+musicMaster = MusicMaster()
+soundMaster = SoundMaster()
 
 clock = pygame.time.Clock()
 
@@ -61,7 +64,7 @@ gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMas
 
 
 guiRenderer = GuiRenderer(screen)
-guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, screenMaster, gameManager)
+guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, screenMaster, gameManager, musicMaster, soundMaster)
 guiMaker.makeInitialGui()
 previousGameList = []
 
@@ -70,8 +73,6 @@ screenMaster.addChangeFunc(1, guiMaker.on_login_window)
 screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
 screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
-
-musicMaster = MusicMaster()
 
 running = True
 bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))

@@ -13,6 +13,7 @@ class Networking:
         self.wsUrl = wsUrl
 
         self.websocket = None
+        self.closed = False
 
     def get(self, path, **params):
         data = requests.get(f"{self.url}/{path}", params=params)
@@ -34,4 +35,5 @@ class Networking:
 
     def close(self):
         if self.websocket is not None:
+            self.closed = True
             self.websocket.close()

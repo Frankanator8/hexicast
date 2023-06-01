@@ -53,6 +53,8 @@ class GameNetworking(Networking):
 
     def __loopGetGames(self):
         while True:
+            if self.closed:
+                return
             try:
                 self.__getGames()
 
@@ -81,6 +83,9 @@ class GameNetworking(Networking):
 
     def __loopGameState(self):
         while True:
+            if self.closed:
+                return
+
             if self.gameUuid != "":
                 self.gameStatus = self.post("gameState", {"uuid":self.gameUuid})
             time.sleep(1)
@@ -90,6 +95,8 @@ class GameNetworking(Networking):
 
     def __loopUpdateGame(self):
         while True:
+            if self.closed:
+                return
             if self.gameUuid != "":
                 if self.sendGameData != {}:
                     sendData = {"uuid":self.uuid, "request":"update"}
