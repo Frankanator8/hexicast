@@ -32,6 +32,7 @@ class GuiMaker:
         self.perPage = 7
         self.uuids = []
         self.uuidToButton = {}
+        self.gameEndUuids = []
 
         self.flairs = []
 
@@ -202,6 +203,69 @@ class GuiMaker:
 
         if gameNetworking.gameUuid != "":
             self.screenMaster.screenID = 2
+
+    def on_end_screen(self):
+        guiRenderer = self.renderer
+        destroy = ["loadingBanner", "statusText", "detailText"]
+        for tag in destroy:
+            self.renderer.remove_element(tag)
+
+        guiRenderer.add_element(GuiElement(0, 0, [Renderable(loader.load_image("winbanner", size=self.screen.get_size()), (0, 0))]), tag="winbanner")
+        times = []
+        allPlayers = list(self.gameNetworking.gameData["gameData"]["playerHealth"])
+        for player, time in self.gameNetworking.gameData["result"].items():
+            times.append((player, time - self.gameNetworking.gameData["gameData"]["timeStart"]))
+            allPlayers.remove(player)
+            self.gameNetworking.getName(player)
+
+        times.sort(key=lambda x:x[1], reverse=True)
+        for index, item in enumerate(times):
+            playerRanking = GuiElement(500, 200 + 50*index, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (500, 200+50*index)))])
+            self.gameEndUuids.append(item[0])
+            guiRenderer.add_element(playerRanking, tag=f"gameEnd{item[0]}")
+
+        numberOne = GuiElement(100, 500, [Renderable(Text("loading...", self.font, (0, 0, 0), (100, 500)))])
+        self.gameNetworking.getName(allPlayers[0])
+        guiRenderer.add_element(numberOne, tag="numberOne")
+
+    def updateScreen3(self):
+        guiRenderer = self.renderer
+        if random.randint(1, 100) <= 10:
+            newFlair = Flair(random.randint(0, self.screen.get_width()), random.randint(0, self.screen.get_height()))
+            flairID = str(UUID.uuid4())
+            guiRenderer.add_element(newFlair, tag=f"starFlair{flairID}")
+            self.flairs.append(f"starFlair{flairID}")
+
+        removeOffset = 0
+        for x in range(len(self.flairs)):
+            i = self.flairs[x-removeOffset]
+            if guiRenderer.get_element(i).done:
+                guiRenderer.remove_element(i)
+                self.flairs.pop(x-removeOffset)
+                removeOffset += 1
+
+        times = []
+        allPlayers = list(self.gameNetworking.gameData["gameData"]["playerHealth"])
+        for player, time in self.gameNetworking.gameData["result"].items():
+            times.append((player, time - self.gameNetworking.gameData["gameData"]["timeStart"]))
+            allPlayers.remove(player)
+
+        times.sort(key=lambda x:x[1], reverse=True)
+        for index, item in enumerate(times):
+            try:
+                nameText = self.gameNetworking.uuidToName[item[0]]
+
+            except KeyError:
+                nameText = "loading..."
+            guiRenderer.get_element(f"gameEnd{item[0]}").renderables[0].text.set_text(f"{index+1}. {nameText} - {item[1]} secs")
+
+        try:
+            nOneText = f"{self.gameNetworking.uuidToName[allPlayers[0]]}"
+
+        except KeyError:
+            nOneText = "loading..."
+
+        guiRenderer.get_element("numberOne").renderables[0].text.set_text(nOneText)
 
     def on_loading_window(self):
         destroy = ["lightBlueBanner", "createBanner", "nameBanner", "gameNameInput", "playerCountBanner",

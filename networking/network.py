@@ -37,3 +37,4 @@ class Networking:
         if self.websocket is not None:
             self.closed = True
             self.websocket.close()
+            self.websocket = None

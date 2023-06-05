@@ -10,6 +10,9 @@ class Text: # allows for renderable text
         self.h = 0
         self.make_font()
 
+    def centerAt(self, x, y):
+        self.pos = (x-self.w/2, y-self.h/2)
+
     def set_text(self, newtext):
         self.text = newtext
         self.make_font()

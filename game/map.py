@@ -5,6 +5,19 @@ class Map:
     def __init__(self, iMap):
         self.data = iMap.data
 
+    def considerOutOfWorld(self, x, y):
+        if y < 0:
+            y = 0
+        if y >= len(self.data):
+            y = len(self.data)-0.01
+
+        if x < 0:
+            x = 0
+        if x >= len(self.data[math.floor(y)]):
+            x = len(self.data[math.floor(y)])-0.01
+
+        return (x, y)
+
     def findCollisionPoint(self, x, y, entity):
         if y < 0:
             y = 0

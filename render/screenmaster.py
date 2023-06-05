@@ -6,6 +6,7 @@ class ScreenMaster:
             0: "Joining screen",
             1: "Lobby",
             2: "Loading",
+            3: "End screen",
             10: "Game"
         }
 

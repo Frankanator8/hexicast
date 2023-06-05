@@ -21,7 +21,13 @@ class Player(Entity):
         self.trueHP = self.stats.hp
         self.pRender = {"n":None, "w":None, "s":None,"e":None}
 
+        self.alive = True
+        self.show = True
+
     def tickKeys(self, keys, prevKeys, dt, map):
+        if not self.alive:
+            return
+
         futPosition = [self.x, self.y]
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             futPosition[1] -= self.stats.speed * dt
@@ -58,34 +64,32 @@ class Player(Entity):
         return (0, -40)
 
     def hash(self):
-        return f"{self.image}/{self.direction} - {round(self.stats.hp)} - {self.name}"
+        return f"{self.image}/{self.direction} - {round(self.stats.hp)} - {self.name} - {self.show}"
 
     def render(self, size):
         ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)
-        t = Text(self.name, Fonts.font18, (0, 0, 0), (0, 0))
-        pygame.draw.rect(ret, (255, 255, 255), pygame.Rect(0, 0, t.w, t.h))
-        t.render(ret)
-        pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[0], 18), border_radius=5)
-        pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
-        ret.blit(super().render(size), (0, 40))
+        if self.show:
+            ret.blit(super().render(size), (0, 40))
         return ret
 
     def prioritizedRender(self, size):
         ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)
-        t = Text(self.name, Fonts.font18, (0, 0, 0), (0, 0))
-        pygame.draw.rect(ret, (255, 255, 255), pygame.Rect(0, 0, t.w, t.h))
-        t.render(ret)
-        pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[0], 18), border_radius=5)
-        pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
-        if self.pRender[self.direction] is None:
-            self.pRender[self.direction] = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
-            mask = pygame.mask.from_surface(super().render(size))
-            for x, y in mask.outline(every=4):
-                for xO in range(-1, 2):
-                    for yO in range(-1, 2):
-                        self.pRender[self.direction].set_at((x+xO, y+yO), (255, 255, 255))
+        if self.show:
+            t = Text(self.name, Fonts.font18, (0, 0, 0), (0, 0))
+            pygame.draw.rect(ret, (255, 255, 255), pygame.Rect(0, 0, t.w, t.h))
+            t.render(ret)
+            if self.alive:
+                pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[0], 18), border_radius=5)
+                pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
+                if self.pRender[self.direction] is None:
+                    self.pRender[self.direction] = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
+                    mask = pygame.mask.from_surface(super().render(size))
+                    for x, y in mask.outline(every=4):
+                        for xO in range(-1, 2):
+                            for yO in range(-1, 2):
+                                self.pRender[self.direction].set_at((x+xO, y+yO), (255, 255, 255))
 
-        ret.blit(self.pRender[self.direction], (0, 40))
+            ret.blit(self.pRender[self.direction], (0, 40))
 
         return ret
 

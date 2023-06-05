@@ -1,7 +1,6 @@
 import random
 import sys
 import pygame
-
 import loader
 from audio.musicmaster import MusicMaster
 from audio.soundmaster import SoundMaster
@@ -10,6 +9,7 @@ from game.map import Map
 from game.player import Player
 from game.playermanager import PlayerManager
 from game.spellManager import SpellManager
+from game.gameStateManager import GameStateManager
 from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
@@ -60,7 +60,8 @@ spellManager = SpellManager(iRenderer)
 spellCreator = SpellCreator(spellManager)
 
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
-gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster)
+gameStateManager = GameStateManager(gameNetworking, screenMaster)
+gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager)
 
 
 guiRenderer = GuiRenderer(screen)
@@ -73,6 +74,8 @@ screenMaster.addChangeFunc(1, guiMaker.on_login_window)
 screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
 screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
+screenMaster.addChangeFunc(3, guiMaker.on_end_screen)
+screenMaster.addScreenFunc(3, guiMaker.updateScreen3)
 
 running = True
 bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -101,12 +104,20 @@ while running:
         musicMaster.playMusic("genshin.mp3")
         screen.blit(bg, (0, 0))
         playerManager.tick(keys, prevKeys, dt)
-        camera.follow(playerManager.getMyPlayer())
-        spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
-        spellRe.updateSequence(screen)
-        spellId.tick(dt, spellCreator)
-        spellCreator.tick(playerManager.getMyPlayer(), spellRe, iRenderer)
-        spellManager.tick(gameNetworking, dt)
+        if playerManager.getMyPlayer().alive:
+            camera.follow(playerManager.getMyPlayer())
+
+        else:
+            camera.tickKeys(dt, keys, map)
+
+        if playerManager.getMyPlayer().alive:
+            spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
+            spellRe.updateSequence(screen)
+            spellId.tick(dt, spellCreator)
+            spellCreator.tick(playerManager.getMyPlayer(), spellRe, iRenderer)
+            spellManager.tick(gameNetworking, dt)
+
+        gameStateManager.tick(dt, playerManager.getMyPlayer())
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
             gameNetworking.sendGameData = gameManager.updateGameData()
             gameManager.flush()
@@ -115,8 +126,7 @@ while running:
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)
-
-    # Text(f"{round(player.x)}, {round(player.y)}, {round(player.z)}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
+        gameStateManager.render(screen)
 
     clock.tick(60)
     screenMaster.tick()

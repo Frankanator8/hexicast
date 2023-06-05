@@ -1,9 +1,10 @@
 class GameManager:
-    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster):
+    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster, timeManager):
         self.playerManager = playerManager
         self.gameNetworking = gameNetworking
         self.screenMaster = screenMaster
         self.spellManager = spellManager
+        self.timeManager = timeManager
         self.started = False
 
     def startGame(self):
