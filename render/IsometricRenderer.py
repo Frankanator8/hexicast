@@ -170,3 +170,8 @@ class IsometricRenderer:
                     tex = self.renderCache[(f"p-{entity.hash()}", tintDegree)]
 
                 display.blit(tex, (iso_x + entity.renderOffset()[0], iso_y + entity.renderOffset()[1]))
+
+    def reset(self):
+        self.entities = []
+        self.renderCache = {}
+        self.renderPoses = {}

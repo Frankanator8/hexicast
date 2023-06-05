@@ -16,6 +16,12 @@ class SpellManager:
 
         self.spellQueue = []
 
+    def reset(self):
+        self.spells = {}
+        self.unsentSpells = {}
+        self.removeSpells = {}
+        self.spellQueue = []
+
     def addToQueue(self, spell):
         self.spellQueue.append(spell)
 

@@ -18,6 +18,14 @@ class GameStateManager:
         self.endGameTime = 0
         self.screenMaster = screenMaster
 
+    def reset(self):
+        self.showGracePeriod = True
+        self.showDeathScreen = False
+        self.playerPos = (0, 0, 0)
+        self.ticks = 0
+        self.endGame = False
+        self.endGameTime = 0
+
     @property
     def timeElapsed(self):
         return time.time() - self.gameNetworking.gameData["gameData"]["timeStart"]

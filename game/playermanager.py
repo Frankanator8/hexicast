@@ -8,6 +8,9 @@ class PlayerManager:
         self.iRenderer = iRenderer
         self.players = {}
 
+    def reset(self):
+        self.players = {}
+
     def makePlayers(self):
         players = self.gameNetworking.gameData["gameData"]["playerPos"]
         for uuid, pos in players.items():

@@ -64,7 +64,7 @@ class Player(Entity):
         return (0, -40)
 
     def hash(self):
-        return f"{self.image}/{self.direction} - {round(self.stats.hp)} - {self.name} - {self.show}"
+        return f"{self.image}/{self.direction}-{round(self.stats.hp)}-{self.name}-{self.show}-{self.alive}"
 
     def render(self, size):
         ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)

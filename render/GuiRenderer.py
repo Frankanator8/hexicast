@@ -15,6 +15,9 @@ class GuiRenderer:
 
         return self.tags[tag]
 
+    def has_element(self, tag):
+        return tag in self.tags.keys()
+
     def render(self, screen):
         for element in self.elements:
             if element.show:

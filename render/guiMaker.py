@@ -5,6 +5,7 @@ import uuid as UUID
 import pygame
 import loader
 from render import fonts
+from render.gui.ExitButton import ExitButton
 from render.gui.Flair import Flair
 from render.gui.GameButton import GameButton
 from render.gui.SubmitButton import SubmitButton
@@ -71,10 +72,33 @@ class GuiMaker:
 
     def on_login_window(self):
         guiRenderer = self.renderer
-        guiRenderer.remove_element("nameInputBanner")
-        guiRenderer.remove_element("aestheticBanner")
-        guiRenderer.remove_element("nameInput")
-        guiRenderer.remove_element("submitName")
+        if guiRenderer.has_element("nameInputBanner"):
+            guiRenderer.remove_element("nameInputBanner")
+            guiRenderer.remove_element("aestheticBanner")
+            guiRenderer.remove_element("nameInput")
+            guiRenderer.remove_element("submitName")
+
+        if not guiRenderer.has_element("blueBanner"):
+            blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
+            guiRenderer.add_element(blueBanner, tag="blueBanner")
+            gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
+            guiRenderer.add_element(gameLogo, tag="gameLogo")
+            musicBanner = GuiElement(10, self.screen.get_height()-130, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-130)))])
+            guiRenderer.add_element(musicBanner, tag="musicBanner")
+            musicSlider = Slider(10, self.screen.get_height()-100, self.w-20, 20, self.musicMaster.volume*100, lambda x:self.musicMaster.set_volume(x/100))
+            guiRenderer.add_element(musicSlider, tag="musicSlider")
+            sfxBanner = GuiElement(10, self.screen.get_height()-70, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-70)))])
+            guiRenderer.add_element(sfxBanner, tag="sfxBanner")
+            sfxSlider = Slider(10, self.screen.get_height()-40, self.w-20, 20, self.soundMaster.volume*100, lambda x:self.soundMaster.set_volume(x/100))
+            guiRenderer.add_element(sfxSlider, tag="sfxSlider")
+
+        if guiRenderer.has_element("exitButton"):
+            destroy = ["winbanner", "numberOne", "exitButton"]
+            for i in self.gameEndUuids:
+                destroy.append(f"gameEnd{i}")
+            self.gameEndUuids = []
+            for tag in destroy:
+                guiRenderer.remove_element(tag)
 
         lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
@@ -212,7 +236,7 @@ class GuiMaker:
 
         guiRenderer.add_element(GuiElement(0, 0, [Renderable(loader.load_image("winbanner", size=self.screen.get_size()), (0, 0))]), tag="winbanner")
         times = []
-        allPlayers = list(self.gameNetworking.gameData["gameData"]["playerHealth"])
+        allPlayers = self.gameNetworking.gameData["players"]
         for player, time in self.gameNetworking.gameData["result"].items():
             times.append((player, time - self.gameNetworking.gameData["gameData"]["timeStart"]))
             allPlayers.remove(player)
@@ -220,13 +244,16 @@ class GuiMaker:
 
         times.sort(key=lambda x:x[1], reverse=True)
         for index, item in enumerate(times):
-            playerRanking = GuiElement(500, 200 + 50*index, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (500, 200+50*index)))])
+            playerRanking = GuiElement(500, 175 + 50*index, [Renderable(Text("loading...", self.fontS, (255, 196, 85), (500, 175+50*index)))])
             self.gameEndUuids.append(item[0])
             guiRenderer.add_element(playerRanking, tag=f"gameEnd{item[0]}")
 
         numberOne = GuiElement(100, 500, [Renderable(Text("loading...", self.font, (0, 0, 0), (100, 500)))])
         self.gameNetworking.getName(allPlayers[0])
         guiRenderer.add_element(numberOne, tag="numberOne")
+
+        exitButton = ExitButton(650, 525, self.gameInitalizer, self.screenMaster)
+        guiRenderer.add_element(exitButton, tag="exitButton")
 
     def updateScreen3(self):
         guiRenderer = self.renderer
@@ -247,7 +274,7 @@ class GuiMaker:
         times = []
         allPlayers = list(self.gameNetworking.gameData["gameData"]["playerHealth"])
         for player, time in self.gameNetworking.gameData["result"].items():
-            times.append((player, time - self.gameNetworking.gameData["gameData"]["timeStart"]))
+            times.append((player, round(time - self.gameNetworking.gameData["gameData"]["timeStart"], 1)))
             allPlayers.remove(player)
 
         times.sort(key=lambda x:x[1], reverse=True)
@@ -257,7 +284,7 @@ class GuiMaker:
 
             except KeyError:
                 nameText = "loading..."
-            guiRenderer.get_element(f"gameEnd{item[0]}").renderables[0].text.set_text(f"{index+1}. {nameText} - {item[1]} secs")
+            guiRenderer.get_element(f"gameEnd{item[0]}").renderables[0].text.set_text(f"{index+2}. {nameText} - {item[1]} secs")
 
         try:
             nOneText = f"{self.gameNetworking.uuidToName[allPlayers[0]]}"

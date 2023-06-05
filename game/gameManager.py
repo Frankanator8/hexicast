@@ -19,6 +19,14 @@ class GameManager:
             self.flush()
             self.screenMaster.screenID = 10
 
+    def reset(self):
+        self.started = False
+        self.playerManager.reset()
+        self.timeManager.reset()
+        self.spellManager.reset()
+        self.gameNetworking.reset()
+        self.spellManager.isometricRenderer.reset()
+
     def updateGameData(self):
         data = {}
         myPlayer = self.playerManager.getMyPlayer()

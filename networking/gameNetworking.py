@@ -20,17 +20,18 @@ class GameNetworking(Networking):
         self.gameDataRequestTime = 0.01
         self.tries = 0
 
-        self.gameUpdateTime = 0.01
-        self.updateTries = 0
-        self.updating = False
-        self.updatingPos = False
-        self.queue = []
-        self.sendTimeout = 0
         self.sendGameData = {}
         self.lastSentUuid = ""
         self.sendUuid = ""
 
-        self.gameUpdates = 0
+    def reset(self):
+        self.gameStatus = ""
+        self.gameData = {}
+        self.gameUuid = ""
+        self.prospectiveGameUuid = ""
+        self.sendGameData = {}
+        self.lastSentUuid = ""
+        self.sendUuid = ""
 
 
     def __join(self, name):
@@ -110,6 +111,9 @@ class GameNetworking(Networking):
                     self.gameData = data
 
                 self.lastSentUuid = self.sendUuid
+
+            else:
+                self.sendWS({"uuid":self.uuid, "request":"ping"})
 
 
     def loopUpdateGame(self):
