@@ -1,5 +1,6 @@
 import math
 import time
+import random
 
 import pygame
 
@@ -43,7 +44,7 @@ class GameStateManager:
         if self.endGame:
             self.endGameTime += dt
 
-        if self.endGameTime > 1.5:
+        if self.endGameTime > 2.8:
             self.screenMaster.screenID = 3
             self.gameNetworking.gameUuid = ""
             self.endGame = False
@@ -123,10 +124,26 @@ class GameStateManager:
             deathText.render(screen)
 
         if self.endGame:
-            pygame.draw.polygon(screen, (0, 255, 0), [(screen.get_width()/2-80, screen.get_height()/2-40),
-                                                      (screen.get_width()/2+80, screen.get_height()/2-40),
-                                                      (screen.get_width()/2+100, screen.get_height()/2+40),
-                                                      (screen.get_width()/2-60, screen.get_height()/2+40)])
+            leftInShift = (1-self.endGameTime)
+            if leftInShift < 0:
+                leftInShift = 0
+            shift = random.randint(-10, 10) - leftInShift * screen.get_width()
+
+            if leftInShift == 0:
+                for i in range(random.randint(30, 60)):
+                    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(screen.get_width()/2 + shift+random.randint(-300, 300),
+                                                                          screen.get_height()/2 + shift+random.randint(-100, 100),
+                                                                          10, 10))
+            pygame.draw.polygon(screen, (0, 255, 0), [(screen.get_width()/2-280+shift, screen.get_height()/2-70),
+                                                      (screen.get_width()/2+270+shift, screen.get_height()/2-70),
+                                                      (screen.get_width()/2+300+shift, screen.get_height()/2+70),
+                                                      (screen.get_width()/2-260+shift, screen.get_height()/2+70)])
+            pygame.draw.polygon(screen, (255, 255, 255), [(screen.get_width()/2-240+shift, screen.get_height()/2-50),
+                                                      (screen.get_width()/2+240+shift, screen.get_height()/2-50),
+                                                      (screen.get_width()/2+260+shift, screen.get_height()/2+50),
+                                                      (screen.get_width()/2-220+shift, screen.get_height()/2+50)])
+
+
             gameText = Text("G A M E !", Fonts.font150, (255, 0, 0), (0, 0))
-            gameText.centerAt(screen.get_width()/2, screen.get_height()/2)
+            gameText.centerAt(screen.get_width()/2 + shift, screen.get_height()/2)
             gameText.render(screen)

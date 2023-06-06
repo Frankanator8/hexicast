@@ -120,13 +120,9 @@ class GuiMaker:
 
         gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
         guiRenderer.add_element(gameName, tag="gameName")
-        passwordText = GuiElement(10, 160, [Renderable(Text("Password (if applicable)", self.fontS, (5, 0, 149), (10, 160)))])
-        guiRenderer.add_element(passwordText, tag="passwordText")
-        passwordInput = TextInput(10, 190, Text("", self.fontS, (0, 0, 0), (10, 190)))
-        guiRenderer.add_element(passwordInput, tag="passwordInput")
-        playerList = GuiElement(10, 220, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 220)))])
+        playerList = GuiElement(10, 155, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 140)))])
         guiRenderer.add_element(playerList, tag="playerList")
-        join = SubmitButton(10, 300, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
+        join = SubmitButton(10, 250, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
         guiRenderer.add_element(join, tag="joinButton")
 
         pageForward = Button(self.w+10, 150, [Renderable(loader.load_image("arrowB"), (self.w+10, 150))], lambda:None, lambda:None, lambda:None, self.decrementPage)
@@ -296,7 +292,7 @@ class GuiMaker:
 
     def on_loading_window(self):
         destroy = ["lightBlueBanner", "createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
-                   "playerCountInput", "lobbySepLine", "gameSubmit", "gameName", "passwordText", "passwordInput",
+                   "playerCountInput", "lobbySepLine", "gameSubmit", "gameName",
                    "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "blueBanner", "gameLogo",
                    "musicBanner", "musicSlider", "sfxBanner", "sfxSlider"]
         for uuid in self.uuids:
