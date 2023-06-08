@@ -7,6 +7,12 @@ class IsometricMap:
             self.data = [[[int(x) for x in c.split("/")] for c in x.strip().split()] for x in f.readlines()]
         self.generateZProfiles()
         self.generateShadowMap()
+
+    def load(self, data):
+        self.data = data
+        self.generateZProfiles()
+        self.generateShadowMap()
+
     def generateZProfiles(self):
         self.zProfiles = []
         self.maxHeight = 0

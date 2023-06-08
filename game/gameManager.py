@@ -16,6 +16,8 @@ class GameManager:
                     break
 
             self.playerManager.makePlayers()
+            self.spellManager.isometricRenderer.map.load(self.gameNetworking.gameData["gameData"]["map"])
+            self.playerManager.map.data = self.spellManager.isometricRenderer.map.data
             self.flush()
             self.screenMaster.screenID = 10
 

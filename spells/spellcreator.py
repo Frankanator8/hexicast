@@ -6,8 +6,12 @@ from game.spells.explosion import Explosion
 from game.spells.fireball import Fireball
 from game.spells.firebody import FireBody
 from game.spells.firewall import Firewall
+from game.spells.freeze import Freeze
 from game.spells.heatpuff import HeatPuff
 from game.spells.phoenixflames import PhoenixFlames
+from game.spells.swordofdestruction import SwordOfDestruction
+from game.spells.water import Water
+from game.spells.waterspikes import WaterSpikes
 
 
 class SpellCreator:
@@ -111,3 +115,43 @@ class SpellCreator:
                                 self.spellManager.addSpell(DragonBreath(placeX-i, placeY+(3-i), placeZ, player))
 
                     self.element = None
+
+                if self.selected == 7:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, SwordOfDestruction):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 2:
+                                add = False
+
+                    if add:
+                        self.spellManager.addSpell(SwordOfDestruction(player, self))
+
+                    self.element = None
+
+            elif self.element == "water":
+                if self.selected == 0:
+                    self.spellManager.addSpell(Freeze(player))
+                    self.element = None
+
+                if self.selected == 1:
+                    if not spellRegister.ready:
+                        targetX, targetY, _ = spellRegister.findPosition(*spellRegister.secondaryInfo[0],
+                                                                         self.spellManager.isometricRenderer)
+                        placeX = math.floor(targetX)
+                        placeY = math.floor(targetY)
+                        for j in range(-1, 2):
+                            for i in range(-1, 2):
+                                self.spellManager.addSpell(WaterSpikes(placeX+i, placeY+j, math.floor(player.z)-1, player.uuid))
+                        self.element = None
+
+
+                if self.selected == 6:
+                    if not spellRegister.ready:
+                        targetX, targetY, _ = spellRegister.findPosition(*spellRegister.secondaryInfo[0],
+                                                                         self.spellManager.isometricRenderer)
+                        dY = targetY - player.y
+                        dX = targetX - player.x
+                        dir = math.atan2(dY, dX)
+                        self.spellManager.addSpell(Water(player.x, player.y, player, dir, self))
+                        self.element = None
+

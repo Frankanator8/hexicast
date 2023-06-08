@@ -18,6 +18,7 @@ class GameStateManager:
         self.endGame = False
         self.endGameTime = 0
         self.screenMaster = screenMaster
+        self.gracePeriod = False
 
     def reset(self):
         self.showGracePeriod = True
@@ -26,6 +27,7 @@ class GameStateManager:
         self.ticks = 0
         self.endGame = False
         self.endGameTime = 0
+        self.gracePeriod = False
 
     @property
     def timeElapsed(self):
@@ -34,6 +36,12 @@ class GameStateManager:
         if self.ticks > 0:
             if (player.x, player.y, player.z) != self.playerPos:
                 self.showGracePeriod = False
+
+        if self.timeElapsed < 30:
+            self.gracePeriod = True
+
+        else:
+            self.gracePeriod = False
 
         self.playerPos = (player.x, player.y, player.z)
         self.ticks += 1

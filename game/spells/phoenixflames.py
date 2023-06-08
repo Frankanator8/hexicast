@@ -5,7 +5,7 @@ from game.stats import Stats
 
 class PhoenixFlames(Spell):
     def __init__(self, x, y, z, sender):
-        super().__init__(x, y, z, "spells/phoenix", "n", sender, Stats(atk=8, healing=5), 3)
+        super().__init__(x, y, z, "spells/phoenix", "n", sender, Stats(atk=8, healing=15), 3)
         self.players = []
 
     def tick(self, dt, isometricRenderer):
@@ -16,7 +16,7 @@ class PhoenixFlames(Spell):
             else:
                 player.health -= (self.stats.atk - player.stats.defense)*dt
 
-        if self.time_elapsed > 8:
+        if self.time_elapsed > 6:
             self.done = True
 
         self.players = []

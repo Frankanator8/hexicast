@@ -120,9 +120,9 @@ class GuiMaker:
 
         gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
         guiRenderer.add_element(gameName, tag="gameName")
-        playerList = GuiElement(10, 155, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 140)))])
+        playerList = GuiElement(10, 170, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 170)))])
         guiRenderer.add_element(playerList, tag="playerList")
-        join = SubmitButton(10, 250, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
+        join = SubmitButton(10, 260, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
         guiRenderer.add_element(join, tag="joinButton")
 
         pageForward = Button(self.w+10, 150, [Renderable(loader.load_image("arrowB"), (self.w+10, 150))], lambda:None, lambda:None, lambda:None, self.decrementPage)

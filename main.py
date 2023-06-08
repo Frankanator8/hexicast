@@ -110,13 +110,12 @@ while running:
         else:
             camera.tickKeys(dt, keys, map)
 
-        if playerManager.getMyPlayer().alive:
+        if playerManager.getMyPlayer().alive and not gameStateManager.gracePeriod:
             spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
             spellRe.updateSequence(screen)
             spellId.tick(dt, spellCreator)
             spellCreator.tick(playerManager.getMyPlayer(), spellRe, iRenderer)
-            spellManager.tick(gameNetworking, dt)
-
+        spellManager.tick(gameNetworking, dt)
         gameStateManager.tick(dt, playerManager.getMyPlayer())
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
             gameNetworking.sendGameData = gameManager.updateGameData()

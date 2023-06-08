@@ -12,10 +12,12 @@ class IsometricRenderer:
         cls.GRASS = loader.load_image("map/grass", size=cls.TILE_SIZE)
         cls.WATER = loader.load_image("map/water", size=cls.TILE_SIZE)
         cls.STONE = loader.load_image("map/stone", size=cls.TILE_SIZE)
+        cls.SAND = loader.load_image("map/sand", size=cls.TILE_SIZE)
         cls.BLOCK_DICT = {
             0:cls.WATER,
             1:cls.GRASS,
-            2:cls.STONE
+            2:cls.STONE,
+            3:cls.SAND
         }
         cls.TINT_DEGREE = {
             0:180,
