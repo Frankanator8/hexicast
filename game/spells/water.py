@@ -7,8 +7,8 @@ from game.stats import Stats
 
 class Water(Spell):
     def __init__(self, x, y, player, direction, spellCreator, move=True):
-        super().__init__(x, y, math.floor(player.z)-1, "spells/water", self.getDisplayDirection(direction), player.uuid,
-                         Stats(atk=20, speed=30), 4)
+        super().__init__(x, y, math.floor(player.z), "spells/water", self.getDisplayDirection(direction), player.uuid,
+                         Stats(atk=10, speed=30), 4)
         self.trueDir = direction
         self.player = player
         self.move = move
@@ -25,7 +25,7 @@ class Water(Spell):
 
     def tick(self, dt, isometricRenderer):
         for player in self.players:
-            player.health -= self.stats.atk - player.stats.defense
+            player.health -= (self.stats.atk - player.stats.defense) * dt
 
         self.players = []
         if self.move:

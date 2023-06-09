@@ -15,7 +15,7 @@ class ExplosionFire(Spell):
 
     def tick(self, dt, isometricRenderer):
         for player in self.players:
-            player.health -= dt * self.stats.atk
+            player.health -= dt * (self.stats.atk-player.stats.defense)
 
         self.players = []
 

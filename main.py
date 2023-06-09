@@ -6,7 +6,6 @@ from audio.musicmaster import MusicMaster
 from audio.soundmaster import SoundMaster
 from game.gameManager import GameManager
 from game.map import Map
-from game.player import Player
 from game.playermanager import PlayerManager
 from game.spellManager import SpellManager
 from game.gameStateManager import GameStateManager
@@ -14,8 +13,6 @@ from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
 from render.camera import Camera
 from render.fonts import Fonts
-from render.gui.GameButton import GameButton
-from render.gui.base.text import Text
 from render.guiMaker import GuiMaker
 from render.screenmaster import ScreenMaster
 from spells.spellcreator import SpellCreator

@@ -13,7 +13,7 @@ class Freeze(Spell):
         self.direction = self.player.direction
         self.x = self.player.x
         self.y = self.player.y
-        self.z = math.floor(self.player.z)-1
+        self.z = math.floor(self.player.z)
         self.player.stats.defense = self.stats.defense
         if self.time_elapsed > 3:
             self.done = True

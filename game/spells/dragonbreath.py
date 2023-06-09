@@ -27,13 +27,11 @@ class DragonBreath(Spell):
         self.hit = []
 
     def tick(self, dt, isometricRenderer):
-        if len(self.hit) == 0:
-            self.x += math.cos(self.trueDir) * self.stats.speed * dt
-            self.y += math.sin(self.trueDir) * self.stats.speed * dt
+        self.x += math.cos(self.trueDir) * self.stats.speed * dt
+        self.y += math.sin(self.trueDir) * self.stats.speed * dt
 
-        else:
-            for player in self.hit:
-                player.health -= dt * self.stats.atk/5
+        for player in self.hit:
+            player.health -= dt * self.stats.atk/5
 
         if self.time_elapsed > 10:
             self.done = True
@@ -46,11 +44,9 @@ class DragonBreath(Spell):
         if len(self.hit) == 0:
             if isinstance(entity, Player):
                 if entity.uuid != self.sender:
-                    entity.health -= self.stats.atk - entity.stats.atk
+                    entity.health -= self.stats.atk - entity.stats.defense
                     self.hit.append(entity)
                     self.timeCreated = time.time()
 
         super().on_contact(entity)
 
-    def hash(self):
-        return f"{super().hash()}-{len(self.hit)==0}"

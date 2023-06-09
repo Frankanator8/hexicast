@@ -1,6 +1,7 @@
 import math
 
 import tools
+from game.spells.deadcalm import DeadCalm
 from game.spells.dragonbreath import DragonBreath
 from game.spells.explosion import Explosion
 from game.spells.fireball import Fireball
@@ -11,7 +12,11 @@ from game.spells.heatpuff import HeatPuff
 from game.spells.phoenixflames import PhoenixFlames
 from game.spells.swordofdestruction import SwordOfDestruction
 from game.spells.water import Water
+from game.spells.waterblast import WaterBlast
+from game.spells.waterdart import WaterDart
+from game.spells.watersembrace import WatersEmbrace
 from game.spells.waterspikes import WaterSpikes
+from game.spells.whirlpool import Whirlpool
 
 
 class SpellCreator:
@@ -144,6 +149,39 @@ class SpellCreator:
                                 self.spellManager.addSpell(WaterSpikes(placeX+i, placeY+j, math.floor(player.z)-1, player.uuid))
                         self.element = None
 
+                if self.selected == 2:
+                    self.spellManager.addSpell(WaterDart(player))
+                    self.element = None
+
+                if self.selected == 3:
+                    self.spellManager.addSpell(WaterBlast(player))
+                    self.element = None
+
+                if self.selected == 4:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, WatersEmbrace):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 1:
+                                add = False
+
+                    if add:
+                        self.spellManager.addSpell(WatersEmbrace(player))
+
+                    self.element = None
+
+                if self.selected == 5:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, Whirlpool):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 1:
+                                add = False
+
+                    if add:
+                        for r in range(1, 5):
+                            for i in range(4):
+                                self.spellManager.addSpell(Whirlpool(player, r, i*90+r*90/4))
+
+                    self.element = None
 
                 if self.selected == 6:
                     if not spellRegister.ready:
@@ -154,4 +192,22 @@ class SpellCreator:
                         dir = math.atan2(dY, dX)
                         self.spellManager.addSpell(Water(player.x, player.y, player, dir, self))
                         self.element = None
+
+                if self.selected == 7:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, DeadCalm):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 1:
+                                add = False
+
+                    if add:
+                        added = set()
+                        for r in range(5):
+                            for i in range(0, 360, 20):
+                                place = (math.floor(player.x + math.cos(math.radians(i)) * r), math.floor(player.y + math.sin(math.radians(i)) * r))
+                                if place not in added:
+                                    self.spellManager.addSpell(DeadCalm(player, *place))
+                                    added.add(place)
+
+                    self.element = None
 
