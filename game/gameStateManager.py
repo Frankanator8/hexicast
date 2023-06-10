@@ -37,7 +37,7 @@ class GameStateManager:
             if (player.x, player.y, player.z) != self.playerPos:
                 self.showGracePeriod = False
 
-        if self.timeElapsed < 30:
+        if self.timeElapsed < 1:
             self.gracePeriod = True
 
         else:

@@ -6,7 +6,7 @@ from game.stats import Stats
 
 class ExplosionFire(Spell):
     def __init__(self, x, y, z, sender):
-        super().__init__(x, y, z, "spells/firewall", "n", sender, Stats(atk=20), 3)
+        super().__init__(x, y, z, "spells/firewall", "n", sender, Stats(atk=12), 3)
         self.players = []
 
     def on_contact(self, entity):

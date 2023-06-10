@@ -6,7 +6,7 @@ from game.stats import Stats
 
 class Whirlpool(Spell):
     def __init__(self, player, radius, degree):
-        super().__init__(player.x, player.y, math.floor(player.z), "spells/water", "n", player.uuid, Stats(atk=30, speed=180), 4)
+        super().__init__(player.x, player.y, math.floor(player.z), "spells/water", "n", player.uuid, Stats(atk=8, speed=180), 4)
         self.degree = degree
         self.radius = radius
         self.renderRadius = 0
@@ -24,7 +24,7 @@ class Whirlpool(Spell):
         self.players = []
 
         if self.renderRadius < self.radius:
-            self.renderRadius += dt * self.radius
+            self.renderRadius += dt * self.radius * 0.25
 
         else:
             self.renderRadius = self.radius

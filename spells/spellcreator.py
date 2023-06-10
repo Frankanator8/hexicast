@@ -4,12 +4,15 @@ import tools
 from game.spells.deadcalm import DeadCalm
 from game.spells.dragonbreath import DragonBreath
 from game.spells.explosion import Explosion
+from game.spells.fallingmountains import FallingMountains
 from game.spells.fireball import Fireball
 from game.spells.firebody import FireBody
 from game.spells.firewall import Firewall
 from game.spells.freeze import Freeze
 from game.spells.heatpuff import HeatPuff
 from game.spells.phoenixflames import PhoenixFlames
+from game.spells.rocket import Rocket
+from game.spells.sandstorm import Sandstorm
 from game.spells.swordofdestruction import SwordOfDestruction
 from game.spells.water import Water
 from game.spells.waterblast import WaterBlast
@@ -178,8 +181,8 @@ class SpellCreator:
 
                     if add:
                         for r in range(1, 5):
-                            for i in range(4):
-                                self.spellManager.addSpell(Whirlpool(player, r, i*90+r*90/4))
+                            for i in range(6):
+                                self.spellManager.addSpell(Whirlpool(player, r, i*60+r*60/4))
 
                     self.element = None
 
@@ -208,6 +211,48 @@ class SpellCreator:
                                 if place not in added:
                                     self.spellManager.addSpell(DeadCalm(player, *place))
                                     added.add(place)
+
+                    self.element = None
+
+            elif self.element == "ground":
+                if self.selected == 5:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, Rocket):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 2:
+                                add = False
+
+                    if add:
+                        self.spellManager.addSpell(Rocket(player))
+
+                    self.element = None
+
+                if self.selected == 6:
+                    if not spellRegister.ready:
+                        targetX, targetY, _ = spellRegister.findPosition(*spellRegister.secondaryInfo[0],
+                                                                         self.spellManager.isometricRenderer)
+                        placeX = math.floor(targetX)
+                        placeY = math.floor(targetY)
+                        for j in range(-1, 2):
+                            for i in range(-1, 2):
+                                try:
+                                    self.spellManager.addSpell(FallingMountains(placeX+i, placeY+j, len(self.spellManager.isometricRenderer.map.data[round(placeY)][round(placeX)])+3, player))
+
+                                except IndexError:
+                                    pass
+                        self.element = None
+
+                if self.selected == 7:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, Sandstorm):
+                            if tools.dist(entity.x, entity.y, player.x, player.y) < 2:
+                                add = False
+
+                    if add:
+                        for oY in range(-7, 8):
+                            for oX in range(-7, 8):
+                                self.spellManager.addSpell(Sandstorm(math.floor(player.x)+oX, math.floor(player.y)+oY, player))
 
                     self.element = None
 
