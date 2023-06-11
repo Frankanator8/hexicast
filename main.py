@@ -50,15 +50,15 @@ iRenderer = IsometricRenderer(screen, camera)
 iMap = IsometricMap("assets/better.txt")
 map = Map(iMap)
 iRenderer.setMap(iMap)
-
-spellRe = SpellRegister()
-spellId = SpellIdentifier(spellRe)
 spellManager = SpellManager(iRenderer)
-spellCreator = SpellCreator(spellManager)
 
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
 gameStateManager = GameStateManager(gameNetworking, screenMaster)
 gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager)
+
+spellRe = SpellRegister()
+spellId = SpellIdentifier(spellRe)
+spellCreator = SpellCreator(gameManager)
 
 
 guiRenderer = GuiRenderer(screen)
@@ -111,7 +111,7 @@ while running:
             spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
             spellRe.updateSequence(screen)
             spellId.tick(dt, spellCreator)
-            spellCreator.tick(playerManager.getMyPlayer(), spellRe, iRenderer)
+            spellCreator.tick(spellRe)
         spellManager.tick(gameNetworking, dt)
         gameStateManager.tick(dt, playerManager.getMyPlayer())
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:

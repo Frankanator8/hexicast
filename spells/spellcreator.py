@@ -1,18 +1,23 @@
 import math
 
 import tools
+from game.spells.boomerang import Boomerang
+from game.spells.boulder import Boulder
 from game.spells.deadcalm import DeadCalm
 from game.spells.dragonbreath import DragonBreath
+from game.spells.earthwall import EarthWall
 from game.spells.explosion import Explosion
 from game.spells.fallingmountains import FallingMountains
 from game.spells.fireball import Fireball
 from game.spells.firebody import FireBody
 from game.spells.firewall import Firewall
+from game.spells.footsteps import Footsteps
 from game.spells.freeze import Freeze
 from game.spells.heatpuff import HeatPuff
 from game.spells.phoenixflames import PhoenixFlames
 from game.spells.rocket import Rocket
 from game.spells.sandstorm import Sandstorm
+from game.spells.shield import Shield
 from game.spells.swordofdestruction import SwordOfDestruction
 from game.spells.water import Water
 from game.spells.waterblast import WaterBlast
@@ -23,16 +28,19 @@ from game.spells.whirlpool import Whirlpool
 
 
 class SpellCreator:
-    def __init__(self, spellManager):
+    def __init__(self, gameManager):
         self.element = None
         self.selected = 0
-        self.spellManager = spellManager
+        self.gameManager = gameManager
+        self.spellManager = self.gameManager.spellManager
 
     def updateElementAndSelected(self, element, selected):
         self.element = element
         self.selected = selected
 
-    def tick(self, player, spellRegister, isometricRenderer):
+    def tick(self, spellRegister):
+        player = self.gameManager.playerManager.getMyPlayer()
+        isometricRenderer = self.spellManager.isometricRenderer
         if self.element != None:
             if self.element == "fire":
                 if self.selected == 0:
@@ -215,6 +223,82 @@ class SpellCreator:
                     self.element = None
 
             elif self.element == "ground":
+                if self.selected == 0:
+                    if not spellRegister.ready:
+                        targetX, targetY, _ = spellRegister.findPosition(*spellRegister.secondaryInfo[0],
+                                                                         self.spellManager.isometricRenderer)
+                        placeX = math.floor(targetX)
+                        placeY = math.floor(targetY)
+                        self.spellManager.addSpell(Boomerang(player, (placeX, placeY)))
+                        self.element = None
+
+                if self.selected == 1:
+                    if player.direction == "n":
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)-1, math.floor(player.y)-1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x), math.floor(player.y)-1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)+1, math.floor(player.y)-1, math.floor(player.z)-1, player.uuid))
+
+                    elif player.direction == "s":
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)-1, math.floor(player.y)+1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x), math.floor(player.y)+1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)+1, math.floor(player.y)+1, math.floor(player.z)-1, player.uuid))
+
+                    elif player.direction == "e":
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)+1, math.floor(player.y)-1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)+1, math.floor(player.y), math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)+1, math.floor(player.y)+1, math.floor(player.z)-1, player.uuid))
+
+                    else:
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)-1, math.floor(player.y)-1, math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)-1, math.floor(player.y), math.floor(player.z)-1, player.uuid))
+                        self.spellManager.addSpell(EarthWall(math.floor(player.x)-1, math.floor(player.y)+1, math.floor(player.z)-1, player.uuid))
+
+                    self.element = None
+
+                if self.selected == 2:
+                    add = True
+                    for entity in isometricRenderer.entities:
+                        if isinstance(entity, Shield):
+                            if entity.sender == player.uuid:
+                                add = False
+
+                    if add:
+                        self.spellManager.addSpell(Shield(player))
+
+                    self.element = None
+
+                if self.selected == 3:
+                    closestPlayer = None
+                    for oPlayer in self.gameManager.playerManager.players.values():
+                        if player.uuid != oPlayer.uuid:
+                            if closestPlayer is None:
+                                closestPlayer = oPlayer
+
+                            else:
+                                if tools.dist(oPlayer.x, oPlayer.y, player.x, player.y) < tools.dist(closestPlayer.x, closestPlayer.y, player.x, player.y):
+                                    closestPlayer = oPlayer
+
+                    if closestPlayer is not None:
+                        dir = math.atan2(closestPlayer.y - player.y, closestPlayer.x - player.x)
+                        for i in range(3):
+                            placeX = player.x + math.cos(dir) * i
+                            placeY = player.y + math.sin(dir) * i
+                            self.spellManager.addSpell(Footsteps(placeX, placeY, len(self.spellManager.isometricRenderer.map.data[round(placeY)][round(placeX)]), -dir, player.uuid))
+
+                    self.element = None
+
+                if self.selected == 4:
+                    if not spellRegister.ready:
+                        targetX, targetY, _ = spellRegister.findPosition(*spellRegister.secondaryInfo[0],
+                                                                         self.spellManager.isometricRenderer)
+                        dY = targetY - player.y
+                        dX = targetX - player.x
+                        dir = math.atan2(dY, dX)
+                        self.spellManager.addSpell(Boulder(player, dir-math.pi/6))
+                        self.spellManager.addSpell(Boulder(player, dir))
+                        self.spellManager.addSpell(Boulder(player, dir+math.pi/6))
+                        self.element = None
+
                 if self.selected == 5:
                     add = True
                     for entity in isometricRenderer.entities:
@@ -236,7 +320,7 @@ class SpellCreator:
                         for j in range(-1, 2):
                             for i in range(-1, 2):
                                 try:
-                                    self.spellManager.addSpell(FallingMountains(placeX+i, placeY+j, len(self.spellManager.isometricRenderer.map.data[round(placeY)][round(placeX)])+3, player))
+                                    self.spellManager.addSpell(FallingMountains(placeX+i, placeY+j, len(self.spellManager.isometricRenderer.map.data[round(placeY+i)][round(placeX+j)])+3, player))
 
                                 except IndexError:
                                     pass
