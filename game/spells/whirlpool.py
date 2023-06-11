@@ -39,7 +39,8 @@ class Whirlpool(Spell):
         if self.time_elapsed > 10:
             self.done = True
 
-    def getDisplayDirection(self, direction):
+    @staticmethod
+    def getDisplayDirection(direction):
         pi = math.pi
         if pi/4 < direction <= 3*pi/4:
             return "n"

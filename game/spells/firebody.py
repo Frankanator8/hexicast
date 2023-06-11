@@ -1,4 +1,3 @@
-from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
 

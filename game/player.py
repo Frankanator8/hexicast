@@ -61,7 +61,7 @@ class Player(Entity):
             self.timeSinceJump = 0
 
     def renderOffset(self):
-        return (0, -40)
+        return 0, -40
 
     def hash(self):
         return f"{self.image}/{self.direction}-{round(self.stats.hp)}-{self.name}-{self.show}-{self.alive}"

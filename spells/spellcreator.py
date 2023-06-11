@@ -41,7 +41,7 @@ class SpellCreator:
     def tick(self, spellRegister):
         player = self.gameManager.playerManager.getMyPlayer()
         isometricRenderer = self.spellManager.isometricRenderer
-        if self.element != None:
+        if self.element is not None:
             if self.element == "fire":
                 if self.selected == 0:
                     self.spellManager.addSpell(FireBody(player))

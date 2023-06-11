@@ -16,7 +16,7 @@ class Map:
         if x >= len(self.data[math.floor(y)]):
             x = len(self.data[math.floor(y)])-0.01
 
-        return (x, y)
+        return x, y
 
     def findCollisionPoint(self, x, y, entity):
         if y < 0:
@@ -55,4 +55,4 @@ class Map:
             return ret
 
         else:
-            return (x, y)
+            return x, y

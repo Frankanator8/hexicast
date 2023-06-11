@@ -12,7 +12,7 @@ class Button(GuiElement):
         self.click = False
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
-        if mousePos[0] >= self.x and mousePos[0] <= self.x + self.w and mousePos[1] >= self.y and mousePos[1] <= self.y + self.h:
+        if self.x <= mousePos[0] <= self.x + self.w and self.y <= mousePos[1] <= self.y + self.h:
             if not self.hover:
                 self.on_hover()
 

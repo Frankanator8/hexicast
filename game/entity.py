@@ -18,7 +18,7 @@ class Entity:
         return f"{self.image}/{self.direction}"
 
     def renderOffset(self):
-        return (0, 0)
+        return 0, 0
 
     def prioritizedRender(self, size):
         return pygame.Surface((1, 1))

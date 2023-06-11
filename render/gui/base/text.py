@@ -2,6 +2,7 @@ import pygame
 
 class Text: # allows for renderable text
     def __init__(self, text, font, color, pos):
+        self.font_render = None
         self.text = text
         self.font = font
         self.color = color

@@ -1,16 +1,20 @@
-import random
 import sys
+import uuid as UUID
+
 import pygame
+
 import loader
 from audio.musicmaster import MusicMaster
 from audio.soundmaster import SoundMaster
 from game.gameManager import GameManager
+from game.gameStateManager import GameStateManager
 from game.map import Map
 from game.playermanager import PlayerManager
 from game.spellManager import SpellManager
-from game.gameStateManager import GameStateManager
 from networking.gameNetworking import GameNetworking
 from render.GuiRenderer import GuiRenderer
+from render.IsometricMap import IsometricMap
+from render.IsometricRenderer import IsometricRenderer
 from render.camera import Camera
 from render.fonts import Fonts
 from render.guiMaker import GuiMaker
@@ -18,9 +22,6 @@ from render.screenmaster import ScreenMaster
 from spells.spellcreator import SpellCreator
 from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
-from render.IsometricRenderer import IsometricRenderer
-from render.IsometricMap import IsometricMap
-import uuid as UUID
 
 pygame.init()
 
@@ -109,7 +110,7 @@ while running:
 
         if playerManager.getMyPlayer().alive and not gameStateManager.gracePeriod:
             spellRe.tickMouse(mousePos, mouseClicked, prevClicked)
-            spellRe.updateSequence(screen)
+            spellRe.updateSequence()
             spellId.tick(dt, spellCreator)
             spellCreator.tick(spellRe)
         spellManager.tick(gameNetworking, dt)

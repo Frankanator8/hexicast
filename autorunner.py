@@ -1,4 +1,5 @@
 import importlib.util
+
 import pip._internal
 
 packages = ["pygame", "requests", "websockets"]
@@ -11,4 +12,3 @@ for package in packages:
     else:
         print(f"{package} already installed")
 
-import main

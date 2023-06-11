@@ -17,7 +17,8 @@ class TextInput(GuiElement):
         self.maxLen = maxLen
 
 
-    def keyPressed(self, id, keys, prevKeys):
+    @staticmethod
+    def keyPressed(id, keys, prevKeys):
         if keys[id] and not prevKeys[id]:
             return True
 
@@ -34,7 +35,7 @@ class TextInput(GuiElement):
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
         keyP = lambda x: self.keyPressed(x, keys, prevKeys)
         if mouseClicked[0] and not prevClicked[0]:
-            if mousePos[0] >= self.x and mousePos[0] <= self.x + self.w and mousePos[1] >= self.y and mousePos[1] <= self.y + self.h:
+            if self.x <= mousePos[0] <= self.x + self.w and self.y <= mousePos[1] <= self.y + self.h:
                 self.active = True
                 self.cursorFlash = True
                 self.cursorDelay = 0

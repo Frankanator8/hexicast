@@ -6,6 +6,10 @@ import loader
 
 
 class IsometricRenderer:
+    WATER = None
+    GRASS = None
+    STONE = None
+    SAND = None
     TILE_SIZE = (96, 96)
     @classmethod
     def init(cls):
@@ -59,7 +63,7 @@ class IsometricRenderer:
         possible = []
         possibleToLines = {}
         for key, value in self.renderPoses.items():
-            if y > key[0].getPointAt(x) and y > key[1].getPointAt(x) and y < key[2].getPointAt(x) and y < key[3].getPointAt(x):
+            if key[0].getPointAt(x) < y < key[2].getPointAt(x) and y > key[1].getPointAt(x) and y < key[3].getPointAt(x):
                 possible.append(value)
                 possibleToLines[value] = key
 
@@ -83,7 +87,7 @@ class IsometricRenderer:
 
             return tuple(ans)
 
-        return (0, 0, 0)
+        return 0, 0, 0
 
     def getTint(self, x, y, z):
         try:
@@ -121,7 +125,7 @@ class IsometricRenderer:
                     iso_x, iso_y = self.getIsoXY(x, y, z, display)
                     if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
                         tintDegree = self.getTint(oldX, oldY, z)
-                        if ((block, tintDegree) not in self.renderCache.keys()):
+                        if (block, tintDegree) not in self.renderCache.keys():
                             tex = self.BLOCK_DICT[block].copy()
                             tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
                             self.renderCache[(block, tintDegree)] = tex
@@ -146,8 +150,8 @@ class IsometricRenderer:
                             cameraY = entity.y - camera.y
                             iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
                             if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
-                                tintDegree = self.getTint(oldX, oldY, math.floor(z))
-                                if ((entity.hash(), tintDegree) not in self.renderCache.keys()):
+                                tintDegree = self.getTint(oldX, oldY, math.floor(entity.z))
+                                if (entity.hash(), tintDegree) not in self.renderCache.keys():
                                     tex = entity.render(size)
                                     tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
                                     self.renderCache[(entity.hash(), tintDegree)] = tex
@@ -162,8 +166,8 @@ class IsometricRenderer:
             cameraY = entity.y - camera.y
             iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
             if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
-                tintDegree = self.getTint(oldX, oldY, math.floor(z))
-                if ((f"p-{entity.hash()}", tintDegree) not in self.renderCache.keys()):
+                tintDegree = self.getTint(math.floor(entity.x), math.floor(entity.y), math.floor(entity.z))
+                if (f"p-{entity.hash()}", tintDegree) not in self.renderCache.keys():
                     tex = entity.prioritizedRender(size)
                     tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
                     self.renderCache[(f"p-{entity.hash()}", tintDegree)] = tex

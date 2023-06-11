@@ -7,7 +7,7 @@ def load_image(name, size=None):
     if (name, size) in IMAGES.keys():
         return IMAGES[(name, size)]
     image = pygame.image.load(f"assets/{name}.png").convert_alpha()
-    if size != None:
+    if size is not None:
         image = pygame.transform.scale(image, size)
     IMAGES[(name, size)] = image
     return image

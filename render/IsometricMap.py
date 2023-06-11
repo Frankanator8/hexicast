@@ -1,8 +1,8 @@
-import math
-from tools import Line
-
 class IsometricMap:
     def __init__(self, map):
+        self.zProfiles = None
+        self.maxHeight = None
+        self.shadowMap = None
         with open(map) as f:
             self.data = [[[int(x) for x in c.split("/")] for c in x.strip().split()] for x in f.readlines()]
         self.generateZProfiles()

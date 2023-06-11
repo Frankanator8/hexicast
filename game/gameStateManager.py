@@ -125,7 +125,7 @@ class GameStateManager:
         if self.showDeathScreen:
             redScreen = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
             redScreen.fill((255, 0, 0))
-            redScreen.set_alpha(100+math.sin(self.timeElapsed)*40)
+            redScreen.set_alpha(round(100+math.sin(self.timeElapsed)*40))
             screen.blit(redScreen, (0, 0))
             deathText = Text("You died. You are now spectating the game.", Fonts.font48, (255, 255, 255), (0, 0))
             deathText.centerAt(screen.get_width()/2, screen.get_height()-80)

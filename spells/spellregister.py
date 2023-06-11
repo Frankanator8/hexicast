@@ -22,7 +22,8 @@ class SpellRegister:
         self.secondaryInfo = [(0, 0), (0, 0)]
         self.lastPoint = (0, 0)
 
-    def findPosition(self, x, y, isometricRenderer):
+    @staticmethod
+    def findPosition(x, y, isometricRenderer):
         return isometricRenderer.getXYZ(x, y, precise=True)
 
     def findLastPosition(self, isometricRenderer, screen):
@@ -100,7 +101,7 @@ class SpellRegister:
                 if len(self.particles) < 10:
                     for i in range(10 - len(self.particles)):
                         y = self.center[1] + random.uniform(0, self.radius)
-                        poly = generate_polygon([self.center[0] + random.uniform(-1, 1) * self.radius, y],
+                        poly = generate_polygon((self.center[0] + random.uniform(-1, 1) * self.radius, y),
                                             30, 0.8, random.uniform(0, 0.5), random.randint(6, 10))
                         self.particles.append([poly, (random.randint(133, 209), 209, 93), 0,  y])
 
@@ -110,7 +111,7 @@ class SpellRegister:
                     oldY = i[3]
                     i[3] += 1.7**((i[3]/screen.get_height()+1) * 7) * dt
 
-                    diff = i[3] - oldY;
+                    diff = i[3] - oldY
 
                     for j in i[0]:
                         j[1] += diff
@@ -127,10 +128,10 @@ class SpellRegister:
             screen.blit(self.emblem, (self.center[0] - self.radius*self.EMBLEM_R_MULTIPLIER/2, self.center[1] - self.radius*self.EMBLEM_R_MULTIPLIER/2))
 
             for i in range(6):
-                if (self.sequence.count(iToID[i]) == 0):
+                if self.sequence.count(iToID[i]) == 0:
                     color = (255, 0, 0)
 
-                elif (self.sequence[-1] == iToID[i]):
+                elif self.sequence[-1] == iToID[i]:
                     color = (255, 255, 0)
 
                 else:
@@ -153,14 +154,16 @@ class SpellRegister:
 
         screen.blit(surf, (0, 0))
 
-    def getClosest30(self, ang):
+    @staticmethod
+    def getClosest30(ang):
         minAngle = 0
         for i in range(0, 360, 30):
             if abs(ang - i) < abs(ang - minAngle):
                 minAngle = i
 
         return minAngle
-    def diffAng(self, ang1, ang2):
+    @staticmethod
+    def diffAng(ang1, ang2):
         a = ang1 - ang2
         if a>180:
             a-=360
@@ -216,7 +219,7 @@ class SpellRegister:
 
 
 
-    def updateSequence(self, screen):
+    def updateSequence(self):
         # Text(f"{self.sequence}", ("Calibri", 15), (255, 255, 255), (0, 0)).render(screen)
         if not self.locked:
             if len(self.trail) > 0:
@@ -277,6 +280,6 @@ class SpellRegister:
                 pt = (self.center[0] + self.radius * math.cos(math.radians(i)),
                       self.center[1] - self.radius * math.sin(math.radians(i)))
                 if dist(*self.trail[-1], *pt) < self.radius/3:
-                    if (degreeToID[i] != self.sequence[-1]):
+                    if degreeToID[i] != self.sequence[-1]:
                         self.sequence.append(degreeToID[i])
             self.lastPoint = self.trail[-1]

@@ -13,7 +13,7 @@ class Line:
         else:
             x = (line.b-self.b)/(self.m-line.m)
         y = self.m * x + self.b
-        return (x, y)
+        return x, y
 
     @classmethod
     def determineFromPoints(cls, x1, y1, x2, y2):

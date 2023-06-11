@@ -1,14 +1,15 @@
 import math
 
-from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
+
 
 class Footsteps(Spell):
     def __init__(self, x, y, z, dir, uuid):
         super().__init__(x, y, z, "spells/footsteps", self.getDisplayDirection(dir), uuid, Stats(), 2)
 
-    def getDisplayDirection(self, direction):
+    @staticmethod
+    def getDisplayDirection(direction):
         pi = math.pi
         if direction < 0:
             direction += math.pi * 2

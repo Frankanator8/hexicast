@@ -12,7 +12,8 @@ class Flair(GuiElement):
         self.progress = 0
         self.original = loader.load_image("star")
 
-    def rot_center(self, image, angle, x, y):
+    @staticmethod
+    def rot_center(image, angle, x, y):
         rotated_image = pygame.transform.rotate(image, angle)
         new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
 

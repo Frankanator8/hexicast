@@ -1,5 +1,3 @@
-import math
-
 from game.spell import Spell
 from game.stats import Stats
 

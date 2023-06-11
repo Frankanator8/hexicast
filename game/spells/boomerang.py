@@ -50,7 +50,8 @@ class Boomerang(Spell):
             self.x += math.cos(dir) * self.stats.speed * dt
             self.y += math.sin(dir) * self.stats.speed * dt
 
-    def getDisplayDirection(self, direction):
+    @staticmethod
+    def getDisplayDirection(direction):
         pi = math.pi
         if pi/4 < direction <= 3*pi/4:
             return "n"

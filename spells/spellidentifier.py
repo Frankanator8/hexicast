@@ -104,7 +104,7 @@ class SpellIdentifier:
             screen.blit(surf, (0, 0))
 
         else:
-            if self.selected != None:
+            if self.selected is not None:
                 if self.animationSelectTick < 1:
                     self.animationSelectTick *= 2
                     element = self.element

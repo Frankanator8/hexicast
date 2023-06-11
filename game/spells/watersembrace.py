@@ -1,8 +1,8 @@
 import math
 
-from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
+
 
 class WatersEmbrace(Spell):
     def __init__(self, player):

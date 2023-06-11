@@ -1,10 +1,8 @@
 import math
 
-import pygame
-
-from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
+
 
 class Sandstorm(Spell):
     def __init__(self, x, y, player):

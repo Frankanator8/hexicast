@@ -21,16 +21,14 @@ class SubmitButton(Button):
         self.renderables[0].color = (255, 183, 58)
 
     def click(self):
-        renderObjs = []
-        renderObjs.append(Renderable(pygame.Rect(self.x+2, self.y+2, self.origW-4, self.origH-4), (255, 183, 58), round((self.w+self.h)//2)))
-        renderObjs.append(self.renderables[1])
+        renderObjs = [Renderable(pygame.Rect(self.x + 2, self.y + 2, self.origW - 4, self.origH - 4), (255, 183, 58),
+                                 round((self.w + self.h) // 2)), self.renderables[1]]
         self.renderables = renderObjs
         self.recalculateWH()
 
     def release(self):
-        renderObjs = []
-        renderObjs.append(Renderable(pygame.Rect(self.x, self.y, self.origW, self.origH), (255, 183, 58), round((self.origW+self.origH)//2)))
-        renderObjs.append(self.renderables[1])
+        renderObjs = [Renderable(pygame.Rect(self.x, self.y, self.origW, self.origH), (255, 183, 58),
+                                 round((self.origW + self.origH) // 2)), self.renderables[1]]
         self.renderables = renderObjs
         self.recalculateWH()
         self.releaseFunc()
