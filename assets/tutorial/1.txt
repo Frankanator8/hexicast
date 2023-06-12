@@ -1,0 +1,24 @@
+Once you have started casting the spell,
+the casting menu will appear. The 8 spells
+for the element you have chosen will appear,
+and their corresponding stroke.
+The blue move is always your next stroke
+
+Once you're done casting, let go of the mouse.
+If it was successful, the emblem of the spell
+you casted should appear and fade out.
+
+In order to win the game, you must be the last
+wizard standing, and defeat your opponents by
+removing their hp (the bar above their ahead).
+
+You can do this using your spells, which can heal
+yourself, provide utility, or attack others.
+
+Generally, a spell will destroy itself upon
+coming into contact into land, or when it hits
+another spell of a tier higher or equal to its
+own. Many times, a spell will time out and
+disappear as well.
+
+To see what the spells do, go to the next page!

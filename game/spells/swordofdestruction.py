@@ -4,7 +4,7 @@ from game.stats import Stats
 
 class Beam(Spell):
     def __init__(self, x, y, z, dir, sender):
-        super().__init__(x, y, z, "spells/beam", dir, sender, Stats(atk=20, range=2, speed=12), 4)
+        super().__init__(x, y, z, "spells/beam", dir, sender, Stats(atk=12, range=2, speed=12), 4)
 
     def tick(self, dt, isometricRenderer):
         if self.direction == "n":

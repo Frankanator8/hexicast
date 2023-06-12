@@ -1,0 +1,22 @@
+Ice Defense - ups your defense
+for a limited time
+
+Water Spike - click to raise a
+bunch of water spikes that do damage
+to whoever is on top of it
+Water Darts - sends a small but fast
+dart out the direction you're facing
+
+Water Blade - sends a big, slower,
+but more powerful water blast
+the direction you're facing
+Water's Embrace - gives you healing
+at a slower pace but follows you around
+
+Whirlpool - creates a giant whirlpool
+around you that deals a lot of damage
+Water - creates a river in the direction
+you clicked in that disappears after
+a long time
+Dead Calm - locks you in place but also
+stops all incoming attacks

@@ -28,21 +28,23 @@ class Player(Entity):
         if not self.alive:
             return
 
+        inWater = map.data[math.floor(self.y)][math.floor(self.x)][-1] == 0
+
         futPosition = [self.x, self.y]
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            futPosition[1] -= self.stats.speed * dt
+            futPosition[1] -= self.stats.speed * dt * (0.5 if inWater else 1)
             self.direction = "n"
 
         elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            futPosition[1] += self.stats.speed * dt
+            futPosition[1] += self.stats.speed * dt * (0.5 if inWater else 1)
             self.direction = "s"
 
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            futPosition[0] -= self.stats.speed * dt
+            futPosition[0] -= self.stats.speed * dt * (0.5 if inWater else 1)
             self.direction = "w"
 
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            futPosition[0] += self.stats.speed * dt
+            futPosition[0] += self.stats.speed * dt * (0.5 if inWater else 1)
             self.direction = "e"
 
         self.x, self.y = map.findCollisionPoint(futPosition[0], futPosition[1], self)
@@ -57,8 +59,20 @@ class Player(Entity):
             self.falling = False
 
         if keys[pygame.K_SPACE] and not prevKeys[pygame.K_SPACE] and not self.falling:
-            self.zVel = 5
-            self.timeSinceJump = 0
+            if not inWater:
+                self.zVel = 5
+                self.timeSinceJump = 0
+
+            else:
+                surroundingLand = False
+                for oY in range(-1, 2):
+                    for oX in range(-1, 2):
+                        if map.data[math.floor(self.y)+oY][math.floor(self.x)+oX][-1] != 0:
+                            surroundingLand = True
+
+                if surroundingLand:
+                    self.zVel = 5
+                    self.timeSinceJump = 0
 
     def renderOffset(self):
         return 0, -40

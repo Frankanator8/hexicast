@@ -114,6 +114,9 @@ class IsometricRenderer:
                 placeDicts[(math.floor(entity.x), math.floor(entity.y))] = []
             placeDicts[(math.floor(entity.x), math.floor(entity.y))].append(entity)
 
+        for key, item in placeDicts.items():
+            item.sort(key=lambda e:e.x-key[0]+e.y-key[1])
+
         for y, row in enumerate(map.data):
             for x, cell in enumerate(row):
                 for z, block in enumerate(cell):

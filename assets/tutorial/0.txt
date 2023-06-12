@@ -1,0 +1,20 @@
+Movement
+W/Up Arrow -> Move North (what looks like top right)
+S/Down Arrow -> Move South (bottom left)
+A/Left Arrow -> Move West (top left)
+D/Right Arrow -> Move East (bottom right)
+
+Space Bar -> Jump (you can only jump up one block)
+
+To Cast a Spell:
+Hold down your mouse, and trace out either the:
+Top, bottom left, or bottom right sides of a hexagon
+The moves are shown to the right, with the fire
+move being highlighted
+
+Sometimes, you need a secondary click (or you can start
+the next spell) to initiate the spell (usually to
+aim it). If a spell does not seem to initiate when
+you cast it and the game verifies you casted it,
+try clicking somewhere.
+

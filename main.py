@@ -1,5 +1,7 @@
 import sys
 import uuid as UUID
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame
 
@@ -29,6 +31,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_icon(loader.load_image("icon"))
 pygame.display.set_caption("Hexicast")
 
 IsometricRenderer.init()
@@ -94,7 +97,7 @@ while running:
     musicMaster.tick(dt)
 
     if 0 <= screenMaster.screenID < 10:
-        musicMaster.playMusic("demonslayer.mp3")
+        musicMaster.playMusic("lobby1.wav")
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
 

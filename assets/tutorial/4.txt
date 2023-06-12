@@ -1,0 +1,20 @@
+Boomerang - launches a boomerang
+to where you click, then returns
+to the player's current position
+
+Earth Wall - creates a permanent wall
+in front of you that can block low spells
+Shield - creates a temporary shield
+in front of you that can block low spells
+Footsteps - gives you a hint in the
+direction of the closest player
+
+Boulder - acts as a 3-boulder shotgun.
+Loses damage with time
+Rocket Launch - temporarily boosts you
+up into the air
+
+Falling Mountains - summon a bunch of
+falling mountains where you click
+Sandstorm - create a sandstorm to confuse
+your opponents on where you are

@@ -21,7 +21,9 @@ class GuiMaker:
         self.screen = screen
         self.gameNetworking = gameNetworking
         self.font = fonts.Fonts.font48
+        self.fontM = fonts.Fonts.font36
         self.fontS = fonts.Fonts.font24
+        self.fontXS = fonts.Fonts.font15
         self.renderer = renderer
         self.w = screen.get_width()*0.381966011
         self.screenMaster = screenMaster
@@ -35,14 +37,83 @@ class GuiMaker:
         self.uuidToButton = {}
         self.gameEndUuids = []
 
+        self.tutorialStage = 0
+
         self.flairs = []
+
+    def incrementTutorial(self):
+        self.tutorialStage += 1
+        if self.tutorialStage >= 5:
+            self.deleteTutorial()
+
+        else:
+            guiRenderer = self.renderer
+            guiRenderer.get_element("bigTutorial").renderables[0].text.set_text(f"Tutorial {self.tutorialStage+1}/5")
+            helpBanner = loader.load_image(f"tutorial/{self.tutorialStage}")
+            helpBanner.set_alpha(210)
+            guiRenderer.get_element("tutorialBanner").renderables[0].disp = helpBanner
+            with open(f"assets/tutorial/{self.tutorialStage}.txt") as f:
+                guiRenderer.get_element("tutorialText").renderables[0].text.set_text(f.read())
+
+
+
+
+    def makeCredits(self):
+        self.deleteCredits()
+        self.deleteTutorial()
+        guiRenderer = self.renderer
+        creditBanner = loader.load_image("credits")
+        creditBanner.set_alpha(210)
+        banner = GuiElement(100, 75, [Renderable(creditBanner, (100, 75))])
+        guiRenderer.add_element(banner, tag="creditsBanner")
+        bigCredit = GuiElement(110, 95, [Renderable(Text("Credits", self.font, (255, 255, 255), (110, 95)))])
+        guiRenderer.add_element(bigCredit, tag="bigCredit")
+        with open("assets/credits.txt") as f:
+            creditText = GuiElement(110, 135, [Renderable(Text(f.read(), self.fontS, (255, 255, 255), (110, 135)))])
+        guiRenderer.add_element(creditText, tag="creditText")
+        exit = Button(635, 95, [Renderable(loader.load_image("exit"), (635, 95))], lambda:None, lambda:None, lambda:None, self.deleteCredits)
+        guiRenderer.add_element(exit, tag="exitCredits")
+
+    def deleteCredits(self):
+        guiRenderer = self.renderer
+        destroy = ["creditsBanner", "bigCredit", "creditText", "exitCredits"]
+        for tag in destroy:
+            if guiRenderer.has_element(tag):
+                guiRenderer.remove_element(tag)
+
+    def makeTutorial(self):
+        self.deleteTutorial()
+        self.deleteCredits()
+        guiRenderer = self.renderer
+        helpBanner = loader.load_image(f"tutorial/{self.tutorialStage}")
+        helpBanner.set_alpha(210)
+        banner = GuiElement(100, 75, [Renderable(helpBanner, (100, 75))])
+        guiRenderer.add_element(banner, tag="tutorialBanner")
+        bigTutorial = GuiElement(110, 95, [Renderable(Text(f"Tutorial {self.tutorialStage+1}/5", self.font, (255, 255, 255), (110, 95)))])
+        guiRenderer.add_element(bigTutorial, tag="bigTutorial")
+        with open(f"assets/tutorial/{self.tutorialStage}.txt") as f:
+            tutorialText = GuiElement(110, 135, [Renderable(Text(f.read(), self.fontXS, (255, 255, 255), (110, 135)))])
+        guiRenderer.add_element(tutorialText, tag="tutorialText")
+        exit = Button(635, 95, [Renderable(loader.load_image("exit"), (635, 95))], lambda:None, lambda:None, lambda:None, self.deleteTutorial)
+        guiRenderer.add_element(exit, tag="exitTutorial")
+        next = Button(635, 490, [Renderable(loader.load_image("arrowF"), (635, 490))], lambda:None, lambda:None, lambda:None, self.incrementTutorial)
+        guiRenderer.add_element(next, tag="nextTutorial")
+
+    def deleteTutorial(self):
+        guiRenderer = self.renderer
+        self.tutorialStage = 0
+        destroy = ["tutorialBanner", "bigTutorial", "tutorialText", "exitTutorial", "nextTutorial"]
+        for tag in destroy:
+            if guiRenderer.has_element(tag):
+                guiRenderer.remove_element(tag)
+
 
     def makeInitialGui(self):
         guiRenderer = self.renderer
 
         blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
         guiRenderer.add_element(blueBanner, tag="blueBanner")
-        aestheticBanner = GuiElement(self.w, 0, [Renderable(loader.load_image("tempback", size=(800, self.screen.get_height())), (self.w, 0))])
+        aestheticBanner = GuiElement(self.w, 0, [Renderable(loader.load_image("back", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(aestheticBanner, tag="aestheticBanner")
         gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
         guiRenderer.add_element(gameLogo, tag="gameLogo")
@@ -53,14 +124,19 @@ class GuiMaker:
         submitName = SubmitButton(10, 250, 200, 50, self.font, lambda:self.gameNetworking.join(nameInput.text) if nameInput.text != "" else None)
         guiRenderer.add_element(submitName, tag="submitName")
 
-        musicBanner = GuiElement(10, self.screen.get_height()-130, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-130)))])
+        musicBanner = GuiElement(10, self.screen.get_height()-200, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-200)))])
         guiRenderer.add_element(musicBanner, tag="musicBanner")
-        musicSlider = Slider(10, self.screen.get_height()-100, self.w-20, 20, 100, lambda x:self.musicMaster.set_volume(x/100))
+        musicSlider = Slider(10, self.screen.get_height()-170, self.w-20, 20, 100, lambda x:self.musicMaster.set_volume(x/100))
         guiRenderer.add_element(musicSlider, tag="musicSlider")
-        sfxBanner = GuiElement(10, self.screen.get_height()-70, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-70)))])
+        sfxBanner = GuiElement(10, self.screen.get_height()-140, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-140)))])
         guiRenderer.add_element(sfxBanner, tag="sfxBanner")
-        sfxSlider = Slider(10, self.screen.get_height()-40, self.w-20, 20, 100, lambda x:self.soundMaster.set_volume(x/100))
+        sfxSlider = Slider(10, self.screen.get_height()-110, self.w-20, 20, 100, lambda x:self.soundMaster.set_volume(x/100))
         guiRenderer.add_element(sfxSlider, tag="sfxSlider")
+
+        credits = SubmitButton(10, self.screen.get_height() - 70, 120, 50, self.fontM, self.makeCredits, text="Credits")
+        guiRenderer.add_element(credits, tag="creditButton")
+        credits = SubmitButton(150, self.screen.get_height() - 70, 140, 50, self.fontM, self.makeTutorial, text="Tutorial")
+        guiRenderer.add_element(credits, tag="tutorialButton")
 
     def decrementPage(self):
         if self.gamePage > 0:
@@ -83,14 +159,19 @@ class GuiMaker:
             guiRenderer.add_element(blueBanner, tag="blueBanner")
             gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
             guiRenderer.add_element(gameLogo, tag="gameLogo")
-            musicBanner = GuiElement(10, self.screen.get_height()-130, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-130)))])
+            musicBanner = GuiElement(10, self.screen.get_height()-200, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-200)))])
             guiRenderer.add_element(musicBanner, tag="musicBanner")
-            musicSlider = Slider(10, self.screen.get_height()-100, self.w-20, 20, self.musicMaster.volume*100, lambda x:self.musicMaster.set_volume(x/100))
+            musicSlider = Slider(10, self.screen.get_height()-170, self.w-20, 20, self.musicMaster.volume*100, lambda x:self.musicMaster.set_volume(x/100))
             guiRenderer.add_element(musicSlider, tag="musicSlider")
-            sfxBanner = GuiElement(10, self.screen.get_height()-70, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-70)))])
+            sfxBanner = GuiElement(10, self.screen.get_height()-140, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-140)))])
             guiRenderer.add_element(sfxBanner, tag="sfxBanner")
-            sfxSlider = Slider(10, self.screen.get_height()-40, self.w-20, 20, self.soundMaster.volume*100, lambda x:self.soundMaster.set_volume(x/100))
+            sfxSlider = Slider(10, self.screen.get_height()-110, self.w-20, 20, self.soundMaster.volume * 100, lambda x:self.soundMaster.set_volume(x/100))
             guiRenderer.add_element(sfxSlider, tag="sfxSlider")
+
+            credits = SubmitButton(10, self.screen.get_height() - 70, 120, 50, self.fontM, self.makeCredits, text="Credits")
+            guiRenderer.add_element(credits, tag="creditButton")
+            credits = SubmitButton(150, self.screen.get_height() - 70, 140, 50, self.fontM, self.makeTutorial, text="Tutorial")
+            guiRenderer.add_element(credits, tag="tutorialButton")
 
         if guiRenderer.has_element("exitButton"):
             destroy = ["winbanner", "numberOne", "exitButton"]
@@ -99,6 +180,9 @@ class GuiMaker:
             self.gameEndUuids = []
             for tag in destroy:
                 guiRenderer.remove_element(tag)
+
+        self.deleteCredits()
+        self.deleteTutorial()
 
         lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
@@ -150,7 +234,7 @@ class GuiMaker:
         gameNetworking = self.gameNetworking
 
         try:
-            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 1:
+            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
                 guiRenderer.get_element("gameSubmit").show = True
 
             else:
@@ -291,10 +375,12 @@ class GuiMaker:
         guiRenderer.get_element("numberOne").renderables[0].text.set_text(nOneText)
 
     def on_loading_window(self):
+        self.deleteCredits()
+        self.deleteTutorial()
         destroy = ["lightBlueBanner", "createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
                    "playerCountInput", "lobbySepLine", "gameSubmit", "gameName",
                    "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "blueBanner", "gameLogo",
-                   "musicBanner", "musicSlider", "sfxBanner", "sfxSlider"]
+                   "musicBanner", "musicSlider", "sfxBanner", "sfxSlider", "creditButton", "tutorialButton"]
         for uuid in self.uuids:
             destroy.append(f"gameListButton{uuid}")
 

@@ -1,0 +1,21 @@
+Fire Body - increases your speed
+for a limited time
+Heat Puff - launches you in the direction
+opposite of which you are facing
+
+Fire Wall - creates a ring of fire around
+of you that can deal damage
+
+
+Fireball - click to shoot a damage fireball
+Phoenix Flames - places a blue fire that heals
+you but harms others
+Explosion Propulsion - places down a mine that
+detonates upon being hit with either a player
+or a higher tier spell
+
+Dragon's Breath - Launches a fast moving and
+deadly triangle fire blast in the direction
+the player is facing
+Sword of Destruction - creates a sword that
+periodically launches out beams that do damage

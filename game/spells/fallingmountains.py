@@ -8,8 +8,8 @@ class FallingMountains(Spell):
         self.zVel = 0
 
     def tick(self, dt, isometricRenderer):
-        if self.time_elapsed > 0.5:
-            self.zVel -= dt * 10
+        if self.time_elapsed > 0.2:
+            self.zVel -= dt * 20
 
         self.z += self.zVel * dt
 

@@ -1,0 +1,12 @@
+Assets
+~ Art - Frank Liu, Matthew Fang
+~ Music - Gavin Huang
+~ Backgrounds - Matthew Fang, Frank Liu
+
+Game Design
+~ Spell Design - Gavin Huang, Frank Liu
+~ Game Rules - Matthew Fang, Frank Liu, Gavin Huang
+~ UI - Frank Liu
+
+Coding
+~ Game/UI - Frank Liu

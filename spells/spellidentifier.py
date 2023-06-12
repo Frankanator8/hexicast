@@ -1,3 +1,4 @@
+import copy
 import math
 import pygame
 import loader
@@ -83,15 +84,19 @@ class SpellIdentifier:
                     5:210,
                     6:150
                 }
-                lis[i].insert(0, self.spellRegister.sequence[2])
-                for j in range(1, len(lis[i])):
+                use = copy.deepcopy(lis[i])
+                use.insert(0, self.spellRegister.sequence[2])
+                use = use[len(self.spellRegister.sequence)-3:]
+
+
+                for j in range(1, len(use)):
                     if j == 1:
                         color = (0, 0, 255)
 
                     else:
                         color = (0, 0, 0)
-                    degPrev = math.radians(idToDegree[lis[i][j-1]])
-                    degNow = math.radians(idToDegree[lis[i][j]])
+                    degPrev = math.radians(idToDegree[use[j-1]])
+                    degNow = math.radians(idToDegree[use[j]])
                     prevX = self.spellRegister.center[0] + math.cos(rad)*r + math.cos(degPrev) * size/2.2
                     nowX =self.spellRegister.center[0] + math.cos(rad)*r + math.cos(degNow) * size/2.2
                     prevY = self.spellRegister.center[1] - math.sin(rad)*r - math.sin(degPrev) * size/2.2
@@ -99,7 +104,6 @@ class SpellIdentifier:
                     pygame.draw.line(surf, color, (prevX, prevY), (nowX, nowY), width=round(size/12))
                     pygame.draw.circle(surf, color, (nowX, nowY), round(size/24))
 
-                lis[i].pop(0)
 
             screen.blit(surf, (0, 0))
 
