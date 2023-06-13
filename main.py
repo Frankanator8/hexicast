@@ -102,7 +102,7 @@ while running:
         guiRenderer.render(screen)
 
     if screenMaster.screenID == 10:
-        musicMaster.playMusic("genshin.mp3")
+        musicMaster.playMusic("game1.wav")
         screen.blit(bg, (0, 0))
         playerManager.tick(keys, prevKeys, dt)
         if playerManager.getMyPlayer().alive:
