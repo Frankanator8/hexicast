@@ -6,6 +6,8 @@ class GameManager:
         self.spellManager = spellManager
         self.timeManager = timeManager
         self.started = False
+        self.ticksSinceLastUpdate = 0
+        self.ticks = 0
 
     def startGame(self):
         if not self.started:
@@ -57,3 +59,6 @@ class GameManager:
         for player in self.playerManager.players.values():
             player.hpChange = 0
             player.trueHP = player.stats.hp
+
+        self.ticksSinceLastUpdate = self.ticks
+        self.ticks = 0

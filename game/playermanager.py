@@ -8,8 +8,13 @@ class PlayerManager:
         self.iRenderer = iRenderer
         self.players = {}
 
+        self.playerPoses = {}
+        self.truePoses = {}
+
     def reset(self):
         self.players = {}
+        self.playerPoses = {}
+        self.truePoses = {}
 
     def makePlayers(self):
         players = self.gameNetworking.gameData["gameData"]["playerPos"]
@@ -17,11 +22,13 @@ class PlayerManager:
             p = Player(pos[0], pos[1], pos[2], 1)
             p.uuid = uuid
             self.players[uuid] = p
+            self.playerPoses[uuid] = []
+            self.truePoses[uuid] = (pos[0], pos[1], pos[2])
             self.gameNetworking.getName(uuid)
             p.name = "loading..."
             self.iRenderer.addEntity(p)
 
-    def tick(self, keys, prevKeys, dt):
+    def tick(self, keys, prevKeys, dt, ticks):
         self.players[self.gameNetworking.uuid].tickKeys(keys, prevKeys, dt, self.map)
         for uuid, pos in self.gameNetworking.gameData["gameData"]["playerPos"].items():
             p = self.players[uuid]
@@ -34,7 +41,22 @@ class PlayerManager:
                 p.image = "p1"
 
             if p.uuid != self.gameNetworking.uuid:
-                p.x, p.y, p.z, p.direction = pos
+                targetX, targetY, targetZ, p.direction = pos
+                if (targetX, targetY, targetZ) != self.truePoses[p.uuid]:
+                    p.x, p.y, p.z = self.truePoses[p.uuid]
+                    if ticks < 1:
+                        ticks = 1
+
+                    self.playerPoses[p.uuid] = []
+                    for i in range(1, ticks+1):
+                        self.playerPoses[p.uuid].append((p.x + i/ticks * (targetX-p.x), p.y + i/ticks * (targetY-p.y), p.z + i/ticks * (targetZ-p.z)))
+
+                    self.truePoses[p.uuid] = (targetX, targetY, targetZ)
+
+                if len(self.playerPoses[p.uuid]) > 0:
+                    p.x, p.y, p.z = self.playerPoses[p.uuid][0]
+                    self.playerPoses[p.uuid].pop(0)
+
                 if self.gameNetworking.gameData["gameData"]["period"] == 0:
                     p.show = False
 

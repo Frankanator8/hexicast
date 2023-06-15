@@ -104,7 +104,7 @@ while running:
     if screenMaster.screenID == 10:
         musicMaster.playMusic("game1.wav")
         screen.blit(bg, (0, 0))
-        playerManager.tick(keys, prevKeys, dt)
+        playerManager.tick(keys, prevKeys, dt, gameManager.ticksSinceLastUpdate)
         if playerManager.getMyPlayer().alive:
             camera.follow(playerManager.getMyPlayer())
 
@@ -116,12 +116,15 @@ while running:
             spellRe.updateSequence()
             spellId.tick(dt, spellCreator)
             spellCreator.tick(spellRe)
-        spellManager.tick(gameNetworking, dt)
+        spellManager.tick(gameNetworking, dt, gameManager.ticksSinceLastUpdate)
         gameStateManager.tick(dt, playerManager.getMyPlayer())
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
             gameNetworking.sendGameData = gameManager.updateGameData()
             gameManager.flush()
             gameNetworking.sendUuid = UUID.uuid4()
+
+        else:
+            gameManager.ticks += 1
 
         iRenderer.render()
         spellRe.render(screen, dt)

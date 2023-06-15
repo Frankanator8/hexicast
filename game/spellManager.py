@@ -1,3 +1,4 @@
+import copy
 import math
 import uuid as UUID
 
@@ -11,6 +12,9 @@ class SpellManager:
         self.isometricRenderer = isometricRenderer
         self.unsentSpells = {}
         self.removeSpells = {}
+
+        self.spellPoses = {}
+        self.trueSpellPoses = {}
 
         self.spellQueue = []
 
@@ -33,7 +37,7 @@ class SpellManager:
         self.removeSpells[spellUuid] = self.spells[spellUuid]
         del self.spells[spellUuid]
 
-    def tick(self, gameNetworking, dt):
+    def tick(self, gameNetworking, dt, ticks):
         for spell in self.spells.values():
             spell.tick(dt, self.isometricRenderer)
 
@@ -63,9 +67,26 @@ class SpellManager:
 
                 if add:
                     self.spells[key] = spell
+                    self.spellPoses[key] = []
+                    self.trueSpellPoses[key] = (value["x"], value["y"], value["z"])
 
                 else:
-                    self.spells[key].updateFromDictObject(value)
+                    passObj = copy.deepcopy(value)
+                    if (value["x"], value["y"], value["z"]) != self.trueSpellPoses[key]:
+                        passObj["x"], passObj["y"], passObj["z"] = self.trueSpellPoses[key]
+                        if ticks < 1:
+                            ticks = 1
+
+                        self.spellPoses[key] = []
+                        for i in range(1, ticks+1):
+                            self.spellPoses[key].append((passObj["x"] + i/ticks * (value["x"]-passObj["x"]), passObj["y"] + i/ticks * (value["y"]-passObj["y"]), passObj["z"] + i/ticks * (value["z"]-passObj["z"])))
+
+                        self.trueSpellPoses[key] = (value["x"], value["y"], value["z"])
+
+                    if len(self.spellPoses[key]) > 0:
+                        passObj["x"], passObj["y"], passObj["z"] = self.spellPoses[key][0]
+                        self.spellPoses[key].pop(0)
+                    self.spells[key].updateFromDictObject(passObj)
 
         removeSpells = []
         for uuid, spell in self.spells.items():
