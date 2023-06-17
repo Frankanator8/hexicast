@@ -6,7 +6,7 @@ from render.gui.base.text import Text
 
 
 class TextInput(GuiElement):
-    def __init__(self, x, y, textObj, maxLen=None):
+    def __init__(self, x, y, textObj, maxLen=None, subchar=""):
         super().__init__(x, y, [])
         self.active = False
         self.text = ""
@@ -15,6 +15,7 @@ class TextInput(GuiElement):
         self.cursorFlash = False
         self.cursorDelay = 0
         self.maxLen = maxLen
+        self.subchar = subchar
 
 
     @staticmethod
@@ -61,7 +62,12 @@ class TextInput(GuiElement):
 
                 for i in itertools.chain(range(48, 58), range(65, 91), range(97, 123)):
                     if keyP(i):
-                        self.insertAtCursor(chr(i))
+                        if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
+                            char = chr(i).upper()
+
+                        else:
+                            char= chr(i)
+                        self.insertAtCursor(char)
                         self.cursor+=1
                         self.cursorDelay = 0
                         self.cursorFlash = True
@@ -98,8 +104,12 @@ class TextInput(GuiElement):
         if self.cursor > len(self.text):
             self.cursor = len(self.text)
 
-        self.textObj.set_text(self.text)
-        whereCursor = self.textObj.pos[0] + Text(self.text[:self.cursor], self.textObj.font, (0, 0, 0), self.textObj.pos).w
+        renderText = self.text
+        if self.subchar != "":
+            renderText = self.subchar * (len(self.text))
+
+        self.textObj.set_text(renderText)
+        whereCursor = self.textObj.pos[0] + Text(renderText[:self.cursor], self.textObj.font, (0, 0, 0), self.textObj.pos).w
         renderObjs = [Renderable(pygame.Rect(self.x, self.y, self.textObj.w + 10, self.textObj.h + 5), (195, 215, 255) if self.active else (255, 255, 255), 0),
                       Renderable(self.textObj)]
         if self.active:
@@ -108,5 +118,5 @@ class TextInput(GuiElement):
         self.renderables = renderObjs
         self.recalculateWH()
 
-
-
+    def setSubchar(self, char):
+        self.subchar = char

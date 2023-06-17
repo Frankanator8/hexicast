@@ -8,6 +8,8 @@ class GameNetworking(Networking):
     def __init__(self):
         super().__init__("https://spring-codefest-server.frankanator433.repl.co",
                          "wss://spring-codefest-server.frankanator433.repl.co/game")
+        # super().__init__("http://localhost:7070",
+        #                  "ws://localhost:7070/game")
         self.uuid = ""
         self.gameUuid = ""
         self.prospectiveGameUuid = ""
@@ -24,6 +26,10 @@ class GameNetworking(Networking):
         self.lastSentUuid = ""
         self.sendUuid = ""
 
+        self.accountUuid = ""
+
+        self.signinMessage = ""
+
     def reset(self):
         self.gameStatus = ""
         self.gameData = {}
@@ -32,6 +38,32 @@ class GameNetworking(Networking):
         self.sendGameData = {}
         self.lastSentUuid = ""
         self.sendUuid = ""
+
+    def __login(self, username, pw):
+        res = super().post("login", {"name":username, "pw":pw})
+        if res.split()[0] == "SUCCESS":
+            self.accountUuid = res.split()[1]
+            self.__join(" ".join(res.split()[2:]))
+
+        elif res.split()[0] == "NOACCEX":
+            self.signinMessage = "No account exists"
+
+        elif res.split()[0] == "INCUSERPW":
+            self.signinMessage = "Wrong password"
+
+    def login(self, username, pw):
+        threading.Thread(target=self.__login, args=(username, pw, ), daemon=True).start()
+
+    def __signup(self, name, display, pw):
+        res = super().post("signup", {"name":name, "display":display, "pw":pw})
+        if res == "GOOD":
+            self.__login(name, pw)
+
+        else:
+            self.signinMessage = "Unavailable"
+
+    def signup(self, name, display, pw):
+        threading.Thread(target=self.__signup, args=(name, display, pw, ), daemon=True).start()
 
 
     def __join(self, name):
@@ -59,8 +91,9 @@ class GameNetworking(Networking):
             try:
                 self.__getGames()
 
-            except requests.exceptions.JSONDecodeError:
+            except (requests.exceptions.JSONDecodeError, requests.exceptions.ConnectionError):
                 pass
+
             time.sleep(1)
 
     def loopGetGames(self):

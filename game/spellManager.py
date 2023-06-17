@@ -106,7 +106,7 @@ class SpellManager:
                                         spell.stats.range - 1)):
                             spell.on_contact(entity)
 
-                    if spell.z+1 < len(isoRenderer.map.data[math.floor(spell.y)][math.floor(spell.x)]):
+                    if spell.z < len(isoRenderer.map.data[math.floor(spell.y)][math.floor(spell.x)]):
                         spell.on_ground()
 
             if spell.done:

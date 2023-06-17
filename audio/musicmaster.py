@@ -33,4 +33,4 @@ class MusicMaster:
                 self.transition = False
                 self.volume = self.maxVolume
 
-        pygame.mixer.music.set_volume(self.volume)
+        pygame.mixer.music.set_volume(0)

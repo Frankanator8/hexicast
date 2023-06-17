@@ -67,8 +67,12 @@ class Player(Entity):
                 surroundingLand = False
                 for oY in range(-1, 2):
                     for oX in range(-1, 2):
-                        if map.data[math.floor(self.y)+oY][math.floor(self.x)+oX][-1] != 0:
-                            surroundingLand = True
+                        try:
+                            if map.data[math.floor(self.y)+oY][math.floor(self.x)+oX][-1] != 0:
+                                surroundingLand = True
+
+                        except IndexError:
+                            pass
 
                 if surroundingLand:
                     self.zVel = 5
@@ -103,7 +107,7 @@ class Player(Entity):
                             for yO in range(-1, 2):
                                 self.pRender[self.direction].set_at((x+xO, y+yO), (255, 255, 255))
 
-            ret.blit(self.pRender[self.direction], (0, 40))
+                ret.blit(self.pRender[self.direction], (0, 40))
 
         return ret
 

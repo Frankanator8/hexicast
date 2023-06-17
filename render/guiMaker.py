@@ -38,6 +38,7 @@ class GuiMaker:
         self.gameEndUuids = []
 
         self.tutorialStage = 0
+        self.loginScreen = 0
 
         self.flairs = []
 
@@ -107,6 +108,105 @@ class GuiMaker:
             if guiRenderer.has_element(tag):
                 guiRenderer.remove_element(tag)
 
+    def makeLogin(self):
+        self.loginScreen = 1
+        guiRenderer = self.renderer
+        delete = ["login", "nameInputBanner", "nameInput", "submitName"]
+        for tag in delete:
+            guiRenderer.remove_element(tag)
+
+        usernameBanner = GuiElement(10, 100, [Renderable(Text("Username", self.fontS, (0, 0, 0), (10, 100)))])
+        guiRenderer.add_element(usernameBanner, tag="usernameBanner")
+        usernameInput = TextInput(10, 130, Text("", self.fontS, (0, 0, 0), (10, 130)), maxLen=18)
+        guiRenderer.add_element(usernameInput, tag="usernameInput")
+
+        passwordBanner = GuiElement(10, 170, [Renderable(Text("Password", self.fontS, (0, 0, 0), (10, 170)))])
+        guiRenderer.add_element(passwordBanner, tag="passwordBanner")
+        passwordInput = TextInput(10, 200, Text("", self.fontS, (0, 0, 0), (10, 200)), maxLen=18, subchar="*")
+        guiRenderer.add_element(passwordInput, tag="passwordInput")
+
+        loginButton = SubmitButton(10, 250, 100, 30, self.fontS, lambda:self.gameNetworking.login(usernameInput.text, passwordInput.text), text="Log in")
+        guiRenderer.add_element(loginButton, tag="loginButton")
+        helpText = GuiElement(120, 250, [Renderable(Text("", self.fontS, (255, 0, 0), (120, 250)))])
+        guiRenderer.add_element(helpText, tag="helpText")
+
+        signupBanner = GuiElement(10, 290, [Renderable(Text("Don't have an account?", self.fontS, (0, 0, 0), (10, 290)))])
+        guiRenderer.add_element(signupBanner, tag="signupBanner")
+
+        signupButton = SubmitButton(10, 320, 100, 30, self.fontS, self.makeSignup, text="Sign Up")
+        guiRenderer.add_element(signupButton, tag="signupButton")
+
+    def makeSignup(self):
+        self.loginScreen = 2
+        guiRenderer = self.renderer
+        delete = ["usernameBanner", "usernameInput",
+                  "passwordBanner", "passwordInput", "loginButton", "signupBanner", "signupButton", "helpText"]
+        for tag in delete:
+            guiRenderer.remove_element(tag)
+
+        usernameBanner = GuiElement(10, 100, [Renderable(Text("Username", self.fontS, (0, 0, 0), (10, 100)))])
+        guiRenderer.add_element(usernameBanner, tag="usernameBanner")
+        usernameInput = TextInput(10, 130, Text("", self.fontS, (0, 0, 0), (10, 130)), maxLen=18)
+        guiRenderer.add_element(usernameInput, tag="usernameInput")
+
+        displayNameBanner = GuiElement(10, 170, [Renderable(Text("Display Name", self.fontS, (0, 0, 0), (10, 170)))])
+        guiRenderer.add_element(displayNameBanner, tag="displayNameBanner")
+        displayNameInput = TextInput(10, 200, Text("", self.fontS, (0, 0, 0), (10, 200)), maxLen=18)
+        guiRenderer.add_element(displayNameInput, tag="displayNameInput")
+
+        passwordBanner = GuiElement(10, 240, [Renderable(Text("Password (Aa alphabet and space)", self.fontS, (0, 0, 0), (10, 240)))])
+        guiRenderer.add_element(passwordBanner, tag="passwordBanner")
+        passwordInput = TextInput(10, 270, Text("", self.fontS, (0, 0, 0), (10, 270)), maxLen=18, subchar="*")
+        guiRenderer.add_element(passwordInput, tag="passwordInput")
+
+        passwordViewer = Button(10, 310, [Renderable(pygame.Rect(10, 310, 130, 20), (255, 79, 79), 2),
+                                          Renderable(Text("Hover to view password", self.fontXS, (0, 0, 0), (10, 310)))],
+                                lambda:guiRenderer.get_element("passwordInput").setSubchar(""),
+                                lambda:guiRenderer.get_element("passwordInput").setSubchar("*"),
+                                lambda:None,
+                                lambda:None)
+        guiRenderer.add_element(passwordViewer, tag="passwordViewer")
+
+        signupButton = SubmitButton(10, 340, 200, 50, self.font, lambda:self.gameNetworking.signup(usernameInput.text, displayNameInput.text, passwordInput.text), text="Sign Up!")
+        guiRenderer.add_element(signupButton, tag="signupButton")
+
+        helpText = GuiElement(110, 100, [Renderable(Text("", self.fontS, (255, 0, 0), (110, 100)))])
+        guiRenderer.add_element(helpText, tag="helpText")
+
+    def updateScreen0(self):
+        guiRenderer = self.renderer
+        gameNetworking = self.gameNetworking
+        if self.loginScreen == 0:
+            if guiRenderer.get_element("nameInput").text == "":
+                guiRenderer.get_element("submitName").show = False
+
+            else:
+                guiRenderer.get_element("submitName").show = True
+
+        elif self.loginScreen == 1:
+            if guiRenderer.get_element("usernameInput").text != "" and guiRenderer.get_element("passwordInput").text != "":
+                guiRenderer.get_element("loginButton").show = True
+
+            else:
+                guiRenderer.get_element("loginButton").show = False
+
+            guiRenderer.get_element("helpText").renderables[0].text.set_text(self.gameNetworking.signinMessage)
+
+        elif self.loginScreen == 2:
+            if guiRenderer.get_element("usernameInput").text != "" and guiRenderer.get_element("passwordInput").text != "" \
+                    and guiRenderer.get_element("displayNameInput").text != "":
+                guiRenderer.get_element("signupButton").show = True
+
+            else:
+                guiRenderer.get_element("signupButton").show = False
+
+            guiRenderer.get_element("helpText").renderables[0].text.set_text(self.gameNetworking.signinMessage)
+
+
+        if gameNetworking.uuid != "":
+            self.screenMaster.screenID = 1
+
+
 
     def makeInitialGui(self):
         guiRenderer = self.renderer
@@ -117,11 +217,13 @@ class GuiMaker:
         guiRenderer.add_element(aestheticBanner, tag="aestheticBanner")
         gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
         guiRenderer.add_element(gameLogo, tag="gameLogo")
-        nameInputBanner = GuiElement(10, 100, [Renderable(Text("Name:", self.font, (0, 0, 0), (10, 100)))])
+        login = SubmitButton(10, 110, 280, 75, self.font, self.makeLogin, text="Log in/Sign Up")
+        guiRenderer.add_element(login, tag="login")
+        nameInputBanner = GuiElement(10, 200, [Renderable(Text("or with guest name:", self.fontS, (0, 0, 0), (10, 200)))])
         guiRenderer.add_element(nameInputBanner, tag="nameInputBanner")
-        nameInput = TextInput(10, 150, Text("", self.font, (0, 0, 0), (10, 150)), maxLen=9)
+        nameInput = TextInput(10, 225, Text("", self.fontS, (0, 0, 0), (10, 225)), maxLen=18)
         guiRenderer.add_element(nameInput, tag="nameInput")
-        submitName = SubmitButton(10, 250, 200, 50, self.font, lambda:self.gameNetworking.join(nameInput.text) if nameInput.text != "" else None)
+        submitName = SubmitButton(10, 275, 200, 50, self.font, lambda:self.gameNetworking.join(nameInput.text) if nameInput.text != "" else None)
         guiRenderer.add_element(submitName, tag="submitName")
 
         musicBanner = GuiElement(10, self.screen.get_height()-200, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-200)))])
@@ -148,11 +250,13 @@ class GuiMaker:
 
     def on_login_window(self):
         guiRenderer = self.renderer
-        if guiRenderer.has_element("nameInputBanner"):
-            guiRenderer.remove_element("nameInputBanner")
-            guiRenderer.remove_element("aestheticBanner")
-            guiRenderer.remove_element("nameInput")
-            guiRenderer.remove_element("submitName")
+        delete = ["nameInputBanner", "aestheticBanner", "nameInput", "submitName", "login", "usernameBanner", "usernameInput",
+                  "passwordBanner", "passwordInput", "loginButton", "signupBanner", "signupButton", "displayNameBanner", "displayNameInput",
+                  "passwordViewer", "signupButton", "helpText"]
+        for tag in delete:
+            if guiRenderer.has_element(tag):
+                guiRenderer.remove_element(tag)
+
 
         if not guiRenderer.has_element("blueBanner"):
             blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
@@ -215,18 +319,6 @@ class GuiMaker:
         guiRenderer.add_element(pageText, tag="pageText")
         pageForward = Button(self.w+150, 150, [Renderable(loader.load_image("arrowF"), (self.w+150, 150))], lambda:None, lambda:None, lambda:None, self.incrementPage)
         guiRenderer.add_element(pageForward, tag="pageForward")
-
-    def updateScreen0(self):
-        guiRenderer = self.renderer
-        gameNetworking = self.gameNetworking
-        if guiRenderer.get_element("nameInput").text == "":
-            guiRenderer.get_element("submitName").show = False
-
-        else:
-            guiRenderer.get_element("submitName").show = True
-
-        if gameNetworking.uuid != "":
-            self.screenMaster.screenID = 1
 
     def updateScreen1(self):
         guiRenderer = self.renderer
