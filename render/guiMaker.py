@@ -8,6 +8,7 @@ from render import fonts
 from render.gui.ExitButton import ExitButton
 from render.gui.Flair import Flair
 from render.gui.GameButton import GameButton
+from render.gui.GamemodeButton import GamemodeButton
 from render.gui.SubmitButton import SubmitButton
 from render.gui.base.element import GuiElement
 from render.gui.base.renderable import Renderable
@@ -15,6 +16,7 @@ from render.gui.base.text import Text
 from render.gui.elements.button import Button
 from render.gui.elements.slider import Slider
 from render.gui.elements.textinput import TextInput
+from datetime import datetime
 
 class GuiMaker:
     def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer, musicMaster, soundMaster):
@@ -39,6 +41,7 @@ class GuiMaker:
 
         self.tutorialStage = 0
         self.loginScreen = 0
+        self.gameSelectScreen = 0
 
         self.flairs = []
 
@@ -55,9 +58,6 @@ class GuiMaker:
             guiRenderer.get_element("tutorialBanner").renderables[0].disp = helpBanner
             with open(f"assets/tutorial/{self.tutorialStage}.txt") as f:
                 guiRenderer.get_element("tutorialText").renderables[0].text.set_text(f.read())
-
-
-
 
     def makeCredits(self):
         self.deleteCredits()
@@ -206,8 +206,6 @@ class GuiMaker:
         if gameNetworking.uuid != "":
             self.screenMaster.screenID = 1
 
-
-
     def makeInitialGui(self):
         guiRenderer = self.renderer
 
@@ -248,7 +246,62 @@ class GuiMaker:
         if self.gamePage < math.ceil(len(self.uuids)/self.perPage) - 1:
             self.gamePage += 1
 
-    def on_login_window(self):
+    def createChallengeGUI(self):
+        guiRenderer = self.renderer
+        delete = ["ladderButton", "challengeButton", "privateButton", "playerIcon", "dispName", "userName", "trophyIcon",
+                  "trophyText", "dateIcon", "dateText", "sepLine", "gameModeText"]
+        for tag in delete:
+            if guiRenderer.has_element(tag):
+                guiRenderer.remove_element(tag)
+
+        self.gameSelectScreen = 2
+
+        createBanner = GuiElement(self.w+10, 10, [Renderable(Text("Create a Game", self.font, (255, 170, 0), (self.w+10, 10)))])
+        guiRenderer.add_element(createBanner, tag="createBanner")
+        nameBanner = GuiElement(self.w+10, 60, [Renderable(Text("Name:", self.fontS, (0, 0, 0), (self.w+10, 60)))])
+        guiRenderer.add_element(nameBanner, tag="nameBanner")
+        gameNameInput = TextInput(self.w+70, 60, Text("", self.fontS, (0, 0, 0), (self.w+70, 60)), maxLen=18)
+        guiRenderer.add_element(gameNameInput, tag="gameNameInput")
+        playerCountBanner = GuiElement(self.w+350, 60, [Renderable(Text("Players:", self.fontS, (0, 0, 0), (self.w+350, 60)))])
+        guiRenderer.add_element(playerCountBanner, tag="playerCountBanner")
+        playerCountInput = TextInput(self.w+430, 60, Text("", self.fontS, (0, 0, 0), (self.w+430, 60)), maxLen=1)
+        guiRenderer.add_element(playerCountInput, tag="playerCountInput")
+        sepLine = GuiElement(self.w+3, 125, [Renderable(pygame.Rect(self.w+3, 125, self.screen.get_width() - self.w - 6, 4), (0, 0, 0), 0)])
+        guiRenderer.add_element(sepLine, tag="lobbySepLine")
+        gameSubmit = SubmitButton(self.w+10, 100, 100, 50, self.fontS, lambda: self.gameNetworking.createGame(gameNameInput.text,
+                                                                                                              {"maxPlayers": int(playerCountInput.text)}))
+        guiRenderer.add_element(gameSubmit, tag="gameSubmit")
+
+        gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
+        guiRenderer.add_element(gameName, tag="gameName")
+        playerList = GuiElement(10, 170, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 170)))])
+        guiRenderer.add_element(playerList, tag="playerList")
+        join = SubmitButton(10, 260, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
+        guiRenderer.add_element(join, tag="joinButton")
+
+        pageForward = Button(self.w+10, 150, [Renderable(loader.load_image("arrowB"), (self.w+10, 150))], lambda:None, lambda:None, lambda:None, self.decrementPage)
+        guiRenderer.add_element(pageForward, tag="pageBackward")
+        pageText = GuiElement(self.w+40, 150, [Renderable(Text("Page", self.fontS, (255, 255, 255), (self.w+40, 150)))])
+        guiRenderer.add_element(pageText, tag="pageText")
+        pageForward = Button(self.w+150, 150, [Renderable(loader.load_image("arrowF"), (self.w+150, 150))], lambda:None, lambda:None, lambda:None, self.incrementPage)
+        guiRenderer.add_element(pageForward, tag="pageForward")
+
+    def resetSelectWindow(self):
+        destroy = ["createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
+                   "playerCountInput", "lobbySepLine", "gameSubmit", "gameName",
+                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward"]
+        for uuid in self.uuids:
+            destroy.append(f"gameListButton{uuid}")
+
+        self.uuids = []
+        self.uuidToButton = {}
+        for tag in destroy:
+            if self.renderer.has_element(tag):
+                self.renderer.remove_element(tag)
+
+
+    def on_game_select_window(self):
+        self.gameSelectScreen = 0
         guiRenderer = self.renderer
         delete = ["nameInputBanner", "aestheticBanner", "nameInput", "submitName", "login", "usernameBanner", "usernameInput",
                   "passwordBanner", "passwordInput", "loginButton", "signupBanner", "signupButton", "displayNameBanner", "displayNameInput",
@@ -285,103 +338,143 @@ class GuiMaker:
             for tag in destroy:
                 guiRenderer.remove_element(tag)
 
+        lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
+        guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
+
+        ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.createChallengeGUI)
+        guiRenderer.add_element(ladderButton, tag="ladderButton")
+
+        challengeButton = GamemodeButton(self.w+10, 320, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.CHALLENGE, self.createChallengeGUI)
+        guiRenderer.add_element(challengeButton, tag="challengeButton")
+
+        privateButton = GamemodeButton(self.w+10, 440, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.PRIVATE, self.createChallengeGUI)
+        guiRenderer.add_element(privateButton, tag="privateButton")
+
+        icon = GuiElement(self.w+10, 20, [Renderable(loader.load_image("p1/e", size=(100, 100)), (self.w+10, 20))])
+        guiRenderer.add_element(icon, tag="playerIcon")
+
+        dispName = GuiElement(self.w+110, 20, [Renderable(Text("loading...", self.font, (0, 0, 0), (self.w+110, 20)))])
+        guiRenderer.add_element(dispName, tag="dispName")
+
+        userName = GuiElement(self.w+110, 65, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+110, 65)))])
+        guiRenderer.add_element(userName, tag="userName")
+
+        trophyIcon = GuiElement(self.w+110, 95, [Renderable(loader.load_image("trophy", size=(20, 20)), (self.w+110, 95))])
+        guiRenderer.add_element(trophyIcon, tag="trophyIcon")
+        trophyText = GuiElement(self.w+135, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+135, 95)))])
+        guiRenderer.add_element(trophyText, tag="trophyText")
+
+        dateIcon = GuiElement(self.w+220, 95, [Renderable(loader.load_image("calendar", size=(20, 20)), (self.w+220, 95))])
+        guiRenderer.add_element(dateIcon, tag="dateIcon")
+        dateText = GuiElement(self.w+245, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+245, 95)))])
+        guiRenderer.add_element(dateText, tag="dateText")
+
+        sepLine = GuiElement(self.w+10, 130, [Renderable(pygame.Rect(self.w+10, 130, self.screen.get_width()-self.w-20, 5), (0, 0, 0), 0)])
+        guiRenderer.add_element(sepLine, tag="sepLine")
+
+        gameModeText = GuiElement(self.w+10, 140, [Renderable(Text("Choose a gamemode:", self.font, (0, 0, 0), (self.w+10, 140)))])
+        guiRenderer.add_element(gameModeText, tag="gameModeText")
+
         self.deleteCredits()
         self.deleteTutorial()
 
-        lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
-        guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
-        createBanner = GuiElement(self.w+10, 10, [Renderable(Text("Create a Game", self.font, (255, 170, 0), (self.w+10, 10)))])
-        guiRenderer.add_element(createBanner, tag="createBanner")
-        nameBanner = GuiElement(self.w+10, 60, [Renderable(Text("Name:", self.fontS, (0, 0, 0), (self.w+10, 60)))])
-        guiRenderer.add_element(nameBanner, tag="nameBanner")
-        gameNameInput = TextInput(self.w+70, 60, Text("", self.fontS, (0, 0, 0), (self.w+70, 60)), maxLen=18)
-        guiRenderer.add_element(gameNameInput, tag="gameNameInput")
-        playerCountBanner = GuiElement(self.w+350, 60, [Renderable(Text("Players:", self.fontS, (0, 0, 0), (self.w+350, 60)))])
-        guiRenderer.add_element(playerCountBanner, tag="playerCountBanner")
-        playerCountInput = TextInput(self.w+430, 60, Text("", self.fontS, (0, 0, 0), (self.w+430, 60)), maxLen=1)
-        guiRenderer.add_element(playerCountInput, tag="playerCountInput")
-        sepLine = GuiElement(self.w+3, 125, [Renderable(pygame.Rect(self.w+3, 125, self.screen.get_width() - self.w - 6, 4), (0, 0, 0), 0)])
-        guiRenderer.add_element(sepLine, tag="lobbySepLine")
-        gameSubmit = SubmitButton(self.w+10, 100, 100, 50, self.fontS, lambda: self.gameNetworking.createGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text)}))
-        guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
-        gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
-        guiRenderer.add_element(gameName, tag="gameName")
-        playerList = GuiElement(10, 170, [Renderable(Text("Players:", self.fontS, (5, 0, 149), (10, 170)))])
-        guiRenderer.add_element(playerList, tag="playerList")
-        join = SubmitButton(10, 260, 200, 75, self.font, self.gameNetworking.joinGame, text="Join!")
-        guiRenderer.add_element(join, tag="joinButton")
-
-        pageForward = Button(self.w+10, 150, [Renderable(loader.load_image("arrowB"), (self.w+10, 150))], lambda:None, lambda:None, lambda:None, self.decrementPage)
-        guiRenderer.add_element(pageForward, tag="pageBackward")
-        pageText = GuiElement(self.w+40, 150, [Renderable(Text("Page", self.fontS, (255, 255, 255), (self.w+40, 150)))])
-        guiRenderer.add_element(pageText, tag="pageText")
-        pageForward = Button(self.w+150, 150, [Renderable(loader.load_image("arrowF"), (self.w+150, 150))], lambda:None, lambda:None, lambda:None, self.incrementPage)
-        guiRenderer.add_element(pageForward, tag="pageForward")
 
     def updateScreen1(self):
         guiRenderer = self.renderer
         screen = self.screen
         gameNetworking = self.gameNetworking
+        if self.gameSelectScreen == 0:
+            gameNetworking.getUserInfo(gameNetworking.accountUuid, uuid=True)
+            gameNetworking.getName(gameNetworking.uuid)
 
-        try:
-            if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
-                guiRenderer.get_element("gameSubmit").show = True
+            if self.gameNetworking.accountUuid == "":
+                try:
+                    dispText = gameNetworking.uuidToName[gameNetworking.uuid]
+
+                except KeyError:
+                    dispText = "loading..."
+
+                usernameText = "You are playing as a guest."
+                guiRenderer.get_element("trophyIcon").show = False
+                guiRenderer.get_element("trophyText").show = False
+                guiRenderer.get_element("dateIcon").show = False
+                guiRenderer.get_element("dateText").show = False
+
 
             else:
+                try:
+                    userData = gameNetworking.userData[gameNetworking.accountUuid]
+                    dispText = userData["displayName"]
+                    usernameText = f"@{userData['username']}"
+                    guiRenderer.get_element("trophyText").renderables[0].text.set_text(str(userData["rating"]))
+                    guiRenderer.get_element("dateText").renderables[0].text.set_text(f"Joined {datetime.fromtimestamp(userData['joined']).strftime('%m/%d/%Y, %H:%M:%S')}")
+
+                except KeyError:
+                    dispText = "loading..."
+                    usernameText = "loading..."
+
+            guiRenderer.get_element("dispName").renderables[0].text.set_text(dispText)
+            guiRenderer.get_element("userName").renderables[0].text.set_text(usernameText)
+
+        elif self.gameSelectScreen == 2:
+            try:
+                if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
+                    guiRenderer.get_element("gameSubmit").show = True
+
+                else:
+                    guiRenderer.get_element("gameSubmit").show = False
+
+            except ValueError:
                 guiRenderer.get_element("gameSubmit").show = False
 
-        except ValueError:
-            guiRenderer.get_element("gameSubmit").show = False
-
-        if guiRenderer.get_element("gameName").renderables[0].text.text != "Choose a game":
-            guiRenderer.get_element("joinButton").show = True
-
-        else:
-            guiRenderer.get_element("joinButton").show = False
-
-
-        removeOffset = 0
-        for i in range(len(self.uuids)):
-            game_id = self.uuids[i-removeOffset]
-            if game_id not in gameNetworking.games.keys():
-                self.uuids.pop(i-removeOffset)
-                guiRenderer.remove_element(f"gameListButton{game_id}")
-                del self.uuidToButton[game_id]
-                removeOffset += 1
-
-        for uuid in gameNetworking.games.keys():
-            if uuid not in self.uuids:
-                self.uuids.append(uuid)
-                gameNetworking.getName(gameNetworking.games[uuid]["host"])
-                thisButton = GameButton(self.w+10, 0, uuid, (255, 255, 255), self.fontS, screen.get_width(), gameNetworking, guiRenderer)
-                guiRenderer.add_element(thisButton, tag=f"gameListButton{uuid}")
-                self.uuidToButton[uuid] = thisButton
-
-        for index, uuid in enumerate(self.uuids):
-            if self.gamePage * self.perPage <= index < (self.gamePage+1) * self.perPage:
-                self.uuidToButton[uuid].show = True
-                # print((self.w + 10, 200+56*(index-self.gamePage * self.perPage)))
-                self.uuidToButton[uuid].moveTo(self.w + 10, 200+56*(index-self.gamePage * self.perPage))
-                self.uuidToButton[uuid].renderables[0].color = (116, 213, 255) if index%2==1 else (255, 255, 255)
+            if guiRenderer.get_element("gameName").renderables[0].text.text != "Choose a game":
+                guiRenderer.get_element("joinButton").show = True
 
             else:
-                self.uuidToButton[uuid].show = False
+                guiRenderer.get_element("joinButton").show = False
 
-        if self.gamePage > 0:
-            guiRenderer.get_element("pageBackward").show = True
 
-        else:
-            guiRenderer.get_element("pageBackward").show = False
+            removeOffset = 0
+            for i in range(len(self.uuids)):
+                game_id = self.uuids[i-removeOffset]
+                if game_id not in gameNetworking.games.keys():
+                    self.uuids.pop(i-removeOffset)
+                    guiRenderer.remove_element(f"gameListButton{game_id}")
+                    del self.uuidToButton[game_id]
+                    removeOffset += 1
 
-        if self.gamePage < math.ceil(len(self.uuids)/self.perPage) - 1:
-            guiRenderer.get_element("pageForward").show = True
+            for uuid in gameNetworking.games.keys():
+                if uuid not in self.uuids:
+                    self.uuids.append(uuid)
+                    gameNetworking.getName(gameNetworking.games[uuid]["host"])
+                    thisButton = GameButton(self.w+10, 0, uuid, (255, 255, 255), self.fontS, screen.get_width(), gameNetworking, guiRenderer)
+                    guiRenderer.add_element(thisButton, tag=f"gameListButton{uuid}")
+                    self.uuidToButton[uuid] = thisButton
 
-        else:
-            guiRenderer.get_element("pageForward").show = False
+            for index, uuid in enumerate(self.uuids):
+                if self.gamePage * self.perPage <= index < (self.gamePage+1) * self.perPage:
+                    self.uuidToButton[uuid].show = True
+                    # print((self.w + 10, 200+56*(index-self.gamePage * self.perPage)))
+                    self.uuidToButton[uuid].moveTo(self.w + 10, 200+56*(index-self.gamePage * self.perPage))
+                    self.uuidToButton[uuid].renderables[0].color = (116, 213, 255) if index%2==1 else (255, 255, 255)
 
-        guiRenderer.get_element("pageText").renderables[0].text.set_text(f"Page {self.gamePage+1}/{math.ceil(len(self.uuids)/self.perPage)}")
+                else:
+                    self.uuidToButton[uuid].show = False
+
+            if self.gamePage > 0:
+                guiRenderer.get_element("pageBackward").show = True
+
+            else:
+                guiRenderer.get_element("pageBackward").show = False
+
+            if self.gamePage < math.ceil(len(self.uuids)/self.perPage) - 1:
+                guiRenderer.get_element("pageForward").show = True
+
+            else:
+                guiRenderer.get_element("pageForward").show = False
+
+            guiRenderer.get_element("pageText").renderables[0].text.set_text(f"Page {self.gamePage+1}/{math.ceil(len(self.uuids)/self.perPage)}")
 
         if random.randint(1, 100) <= 10:
             newFlair = Flair(random.randint(0, self.screen.get_width()), random.randint(0, self.screen.get_height()))

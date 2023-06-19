@@ -20,6 +20,7 @@ class Flair(GuiElement):
         return rotated_image, new_rect.topleft
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
+        return
         self.progress += 180 * dt
         if self.progress >= 360:
             self.done = True

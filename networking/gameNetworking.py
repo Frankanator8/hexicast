@@ -6,8 +6,8 @@ import time
 
 class GameNetworking(Networking):
     def __init__(self):
-        super().__init__("https://spring-codefest-server.frankanator433.repl.co",
-                         "wss://spring-codefest-server.frankanator433.repl.co/game")
+        super().__init__("https://hexicast-server.frankanator433.repl.co",
+                         "wss://hexicast-server.frankanator433.repl.co/game")
         # super().__init__("http://localhost:7070",
         #                  "ws://localhost:7070/game")
         self.uuid = ""
@@ -17,6 +17,8 @@ class GameNetworking(Networking):
         self.uuidToName = {}
         self.gameStatus = ""
         self.gameData = {}
+        self.userData = {}
+        self.userDataQueue = set()
 
         self.nameQueue = []
         self.gameDataRequestTime = 0.01
@@ -64,6 +66,23 @@ class GameNetworking(Networking):
 
     def signup(self, name, display, pw):
         threading.Thread(target=self.__signup, args=(name, display, pw, ), daemon=True).start()
+
+    def __getUserInfo(self, username, uuid):
+        if username not in self.userDataQueue and username not in self.userData.keys():
+            self.userDataQueue.add(username)
+            if uuid:
+                res = self.get("getInfoByUuid", uuid=username)
+
+            else:
+                res = self.get("getInfo", username=username)
+
+            if res != "DNE":
+
+                self.userData[username] = res
+                self.userDataQueue.remove(username)
+
+    def getUserInfo(self, username, uuid=False):
+        threading.Thread(target=self.__getUserInfo, args=(username, uuid, ), daemon=True).start()
 
 
     def __join(self, name):

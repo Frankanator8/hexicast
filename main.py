@@ -1,10 +1,11 @@
 import sys
 import uuid as UUID
 import os
+
+from render.gui.base.text import Text
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-
 import pygame
-
 import loader
 from audio.musicmaster import MusicMaster
 from audio.soundmaster import SoundMaster
@@ -71,7 +72,7 @@ guiMaker.makeInitialGui()
 previousGameList = []
 
 screenMaster.addScreenFunc(0, guiMaker.updateScreen0)
-screenMaster.addChangeFunc(1, guiMaker.on_login_window)
+screenMaster.addChangeFunc(1, guiMaker.on_game_select_window)
 screenMaster.addScreenFunc(1, guiMaker.updateScreen1)
 screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
@@ -126,11 +127,13 @@ while running:
         else:
             gameManager.ticks += 1
 
+
+
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)
         gameStateManager.render(screen)
-
+    Text(f"FPS {round(clock.get_fps())}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
     clock.tick(60)
     screenMaster.tick()
     pygame.display.flip()
