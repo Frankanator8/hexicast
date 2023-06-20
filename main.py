@@ -31,9 +31,12 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF)
 pygame.display.set_icon(loader.load_image("icon"))
 pygame.display.set_caption("Hexicast")
+
+pygame.event.set_allowed([pygame.QUIT])
+
 
 IsometricRenderer.init()
 Fonts.init()

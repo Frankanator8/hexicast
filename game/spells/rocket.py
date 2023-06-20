@@ -5,7 +5,6 @@ class Rocket(Spell):
     def __init__(self, player):
         super().__init__(player.x, player.y, player.z, "spells/rocket", "n", player.uuid, Stats(), 3)
         self.player = player
-        print("i" + str(player.z))
         self.targetZ = player.z + 3
 
     def tick(self, dt, isometricRenderer):
@@ -16,8 +15,6 @@ class Rocket(Spell):
 
         else:
             player.zVel = 10 * dt
-
-        print(player.z)
 
         if self.time_elapsed > 6:
             self.done = True

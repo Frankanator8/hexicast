@@ -3,6 +3,7 @@ import tools
 import pygame
 
 import loader
+from render.infinitesurface import InfiniteSurface
 
 
 class IsometricRenderer:
@@ -38,6 +39,7 @@ class IsometricRenderer:
         self.renderShadows = True
         self.renderCache = {}
         self.renderPoses = {}
+        self.preRender = InfiniteSurface()
 
     def addEntity(self, entity):
         self.entities.append(entity)
@@ -58,6 +60,29 @@ class IsometricRenderer:
         iso_x += display.get_width()/2
         iso_y += display.get_height()/2
         return iso_x, iso_y
+
+    def is_visible(self, x, y, z):
+        good = False
+        try:
+            self.map.data[y+1][x][z]
+
+        except IndexError:
+            good = True
+
+        try:
+            self.map.data[y][x+1][z]
+
+        except IndexError:
+            good = True
+
+        try:
+            self.map.data[y][x][z+1]
+
+        except IndexError:
+            good = True
+
+
+        return good
 
     def getXYZ(self, x, y, precise=False):
         possible = []
@@ -122,30 +147,31 @@ class IsometricRenderer:
                 for z, block in enumerate(cell):
                     oldY = y
                     oldX = x
-                    x -= camera.x
-                    y -= camera.y
+                    if self.is_visible(x, y, z):
+                        x -= camera.x
+                        y -= camera.y
 
-                    iso_x, iso_y = self.getIsoXY(x, y, z, display)
-                    if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
-                        tintDegree = self.getTint(oldX, oldY, z)
-                        if (block, tintDegree) not in self.renderCache.keys():
-                            tex = self.BLOCK_DICT[block].copy()
-                            tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
-                            self.renderCache[(block, tintDegree)] = tex
+                        iso_x, iso_y = self.getIsoXY(x, y, z, display)
+                        if not (iso_x+size[0] < 0 or iso_x > display.get_width() or iso_y+size[1] < 0 or iso_y > display.get_height()):
+                            tintDegree = self.getTint(oldX, oldY, z)
+                            if (block, tintDegree) not in self.renderCache.keys():
+                                tex = self.BLOCK_DICT[block].copy()
+                                tex.fill((tintDegree, tintDegree, tintDegree), None, pygame.BLEND_RGBA_MULT)
+                                self.renderCache[(block, tintDegree)] = tex
 
-                        else:
-                            tex = self.renderCache[(block, tintDegree)]
+                            else:
+                                tex = self.renderCache[(block, tintDegree)]
 
-                        display.blit(tex, (iso_x, iso_y))
-                        topPt = (iso_x + self.TILE_SIZE[0]/2, iso_y)
-                        botPt = (iso_x + self.TILE_SIZE[0]/2, iso_y + self.TILE_SIZE[1]/2)
-                        self.renderPoses[(tools.Line.determineFromSlopePoint(1/2, *topPt),
-                                          tools.Line.determineFromSlopePoint(-1/2, *topPt),
-                                          tools.Line.determineFromSlopePoint(1/2, *botPt),
-                                          tools.Line.determineFromSlopePoint(-1/2, *botPt))] = (oldX, oldY, z)
+                            display.blit(tex, (iso_x, iso_y))
+                            topPt = (iso_x + self.TILE_SIZE[0]/2, iso_y)
+                            botPt = (iso_x + self.TILE_SIZE[0]/2, iso_y + self.TILE_SIZE[1]/2)
+                            self.renderPoses[(tools.Line.determineFromSlopePoint(1/2, *topPt),
+                                              tools.Line.determineFromSlopePoint(-1/2, *topPt),
+                                              tools.Line.determineFromSlopePoint(1/2, *botPt),
+                                              tools.Line.determineFromSlopePoint(-1/2, *botPt))] = (oldX, oldY, z)
 
-                    y = oldY
-                    x = oldX
+                        y = oldY
+                        x = oldX
 
                     if (x, y) in placeDicts.keys():
                         for entity in placeDicts[(x, y)]:
@@ -184,3 +210,4 @@ class IsometricRenderer:
         self.entities = []
         self.renderCache = {}
         self.renderPoses = {}
+        self.preRender = InfiniteSurface()

@@ -28,7 +28,11 @@ class Player(Entity):
         if not self.alive:
             return
 
-        inWater = map.data[math.floor(self.y)][math.floor(self.x)][-1] == 0
+        try:
+            inWater = map.data[math.floor(self.y)][math.floor(self.x)][math.floor(self.z)-1] == 0
+
+        except IndexError:
+            inWater = False
 
         futPosition = [self.x, self.y]
         if keys[pygame.K_UP] or keys[pygame.K_w]:

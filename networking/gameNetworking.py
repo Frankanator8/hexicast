@@ -68,21 +68,21 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__signup, args=(name, display, pw, ), daemon=True).start()
 
     def __getUserInfo(self, username, uuid):
-        if username not in self.userDataQueue and username not in self.userData.keys():
-            self.userDataQueue.add(username)
-            if uuid:
-                res = self.get("getInfoByUuid", uuid=username)
+        self.userDataQueue.add(username)
+        if uuid:
+            res = self.get("getInfoByUuid", uuid=username)
 
-            else:
-                res = self.get("getInfo", username=username)
+        else:
+            res = self.get("getInfo", username=username)
 
-            if res != "DNE":
+        if res != "DNE":
 
-                self.userData[username] = res
-                self.userDataQueue.remove(username)
+            self.userData[username] = res
+            self.userDataQueue.remove(username)
 
     def getUserInfo(self, username, uuid=False):
-        threading.Thread(target=self.__getUserInfo, args=(username, uuid, ), daemon=True).start()
+        if username not in self.userDataQueue and username not in self.userData.keys():
+            threading.Thread(target=self.__getUserInfo, args=(username, uuid, ), daemon=True).start()
 
 
     def __join(self, name):
@@ -119,13 +119,13 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__loopGetGames, daemon=True).start()
 
     def __getName(self, uuid):
-        if uuid not in self.uuidToName.keys() and uuid not in self.nameQueue:
-            self.nameQueue.append(uuid)
-            self.uuidToName[uuid] = self.get("getName", uuid=uuid)
-            self.nameQueue.remove(uuid)
+        self.nameQueue.append(uuid)
+        self.uuidToName[uuid] = self.get("getName", uuid=uuid)
+        self.nameQueue.remove(uuid)
 
     def getName(self, uuid):
-        threading.Thread(target=self.__getName, args=(uuid, ), daemon=True).start()
+        if uuid not in self.uuidToName.keys() and uuid not in self.nameQueue:
+            threading.Thread(target=self.__getName, args=(uuid, ), daemon=True).start()
 
     def __joinGame(self):
         self.post("joinGame", {"uuid":self.uuid, "game_id":self.prospectiveGameUuid})
