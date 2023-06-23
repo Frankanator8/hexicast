@@ -1,6 +1,7 @@
 import math
 import random
 import threading
+import time
 import uuid as UUID
 import pygame
 import loader
@@ -9,7 +10,10 @@ from render.gui.ExitButton import ExitButton
 from render.gui.Flair import Flair
 from render.gui.GameButton import GameButton
 from render.gui.GamemodeButton import GamemodeButton
+from render.gui.MapButton import MapButton
+from render.gui.MapViewer import MapViewer
 from render.gui.SubmitButton import SubmitButton
+from render.gui.ToggleButton import ToggleButton
 from render.gui.base.element import GuiElement
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
@@ -19,6 +23,13 @@ from render.gui.elements.textinput import TextInput
 from datetime import datetime
 
 class GuiMaker:
+    TIPS = [
+        "Use WASD instead of arrow keys\nto move so you can cast\nspells while moving!",
+        "When aiming, you can immediately\nstart casting the next\nspell when you click to aim!",
+        "Explosion Propulsion can be\ncountered with Water by using\nthe river to detonate the bomb",
+        "Rated challenges only provide\n1/2 of the rating change\na ladder game does",
+        "Equal or higher tier spells will\ndestroy lower or equal\ntier spells"
+    ]
     def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer, musicMaster, soundMaster):
         self.screen = screen
         self.gameNetworking = gameNetworking
@@ -42,6 +53,13 @@ class GuiMaker:
         self.tutorialStage = 0
         self.loginScreen = 0
         self.gameSelectScreen = 0
+
+        self.mapButtons = []
+        self.mapButtonIds = []
+        self.mapViewer = None
+        self.selectedMap = ""
+        self.ladderTime = 0
+        self.lastTime = time.time()
 
         self.flairs = []
 
@@ -246,13 +264,17 @@ class GuiMaker:
         if self.gamePage < math.ceil(len(self.uuids)/self.perPage) - 1:
             self.gamePage += 1
 
-    def createChallengeGUI(self):
+    def deleteSelectScreen0(self):
         guiRenderer = self.renderer
         delete = ["ladderButton", "challengeButton", "privateButton", "playerIcon", "dispName", "userName", "trophyIcon",
                   "trophyText", "dateIcon", "dateText", "sepLine", "gameModeText"]
         for tag in delete:
             if guiRenderer.has_element(tag):
                 guiRenderer.remove_element(tag)
+
+    def createChallengeGUI(self):
+        guiRenderer = self.renderer
+        self.deleteSelectScreen0()
 
         self.gameSelectScreen = 2
 
@@ -268,8 +290,10 @@ class GuiMaker:
         guiRenderer.add_element(playerCountInput, tag="playerCountInput")
         sepLine = GuiElement(self.w+3, 125, [Renderable(pygame.Rect(self.w+3, 125, self.screen.get_width() - self.w - 6, 4), (0, 0, 0), 0)])
         guiRenderer.add_element(sepLine, tag="lobbySepLine")
+        ratedButton = ToggleButton(self.w+350, 95, "Rated")
+        guiRenderer.add_element(ratedButton, tag="ratedButton")
         gameSubmit = SubmitButton(self.w+10, 100, 100, 50, self.fontS, lambda: self.gameNetworking.createGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text)}))
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":ratedButton.value}))
         guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
         gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
@@ -286,10 +310,84 @@ class GuiMaker:
         pageForward = Button(self.w+150, 150, [Renderable(loader.load_image("arrowF"), (self.w+150, 150))], lambda:None, lambda:None, lambda:None, self.incrementPage)
         guiRenderer.add_element(pageForward, tag="pageForward")
 
+        backButton = Button(self.screen.get_width() - 150, 10, [Renderable(loader.load_image("exit", size=(25, 25)), (self.screen.get_width() - 150, 10)),
+                                                                Renderable(Text("Back to menu", self.fontS, (0, 0, 0), (self.screen.get_width() - 120, 10)))],
+                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.create_selectscreen0)
+        guiRenderer.add_element(backButton, tag="backButton")
+
+    def createPrivateGUI(self):
+        self.deleteSelectScreen0()
+        self.gameSelectScreen = 3
+        guiRenderer = self.renderer
+
+        joinText = GuiElement(self.w+10, 60, [Renderable(Text("Got a code? Input it here:", self.font, (0, 0, 0), (self.w+10, 60)))])
+        guiRenderer.add_element(joinText, tag="joinText")
+        joinInput = TextInput(self.w+10, 110, Text("", self.fontM, (0, 0, 0), (self.w+10, 110)))
+        guiRenderer.add_element(joinInput, tag="joinInput")
+        joinButton = SubmitButton(self.w+10, 165, 100, 20, self.fontS, lambda:self.gameNetworking.joinPrivateGame(joinInput.text), text="Join")
+        guiRenderer.add_element(joinButton, tag="joinButton")
+        joinError = GuiElement(self.w+120, 165, [Renderable(Text("", self.fontS, (255, 0, 0), (self.w+120, 165)))])
+        guiRenderer.add_element(joinError, tag="joinError")
+
+        createText = GuiElement(self.w+10, 180, [Renderable(Text("...or create a game", self.fontM, (0, 0, 0), (self.w+10, 180)))])
+        guiRenderer.add_element(createText, tag="createText")
+
+        playerCountBanner = GuiElement(self.w+10, 240, [Renderable(Text("Players:", self.fontS, (0, 0, 0), (self.w+10, 240)))])
+        guiRenderer.add_element(playerCountBanner, tag="playerCountBanner")
+        playerCountInput = TextInput(self.w+90, 240, Text("", self.fontS, (0, 0, 0), (self.w+90, 240)), maxLen=1)
+        guiRenderer.add_element(playerCountInput, tag="playerCountInput")
+
+        nameBanner = GuiElement(self.w+150, 240, [Renderable(Text("Code:", self.fontS, (0, 0, 0), (self.w+150, 240)))])
+        guiRenderer.add_element(nameBanner, tag="nameBanner")
+        gameNameInput = TextInput(self.w+200, 240, Text("", self.fontS, (0, 0, 0), (self.w+200, 240)), maxLen=18)
+        guiRenderer.add_element(gameNameInput, tag="gameNameInput")
+
+        mapText = GuiElement(self.w+10, 300, [Renderable(Text("Choose a map (hover to preview)", self.fontM, (0, 0, 0), (self.w+10, 300)))])
+        guiRenderer.add_element(mapText, tag="mapText")
+        self.mapViewer = MapViewer(self.w+170, 350, self.screen.get_width()-(self.w+170)-20, 200)
+        guiRenderer.add_element(self.mapViewer, tag="mapViewer")
+        self.mapButtons = []
+        self.mapButtonIds = []
+        for index, map in enumerate(self.gameNetworking.mapInfo):
+            mapName, mapInfo = map
+            mapButton = MapButton(self.w+10, 350+index*28, 150, 25, mapName, mapInfo, self.mapViewer, self.mapButtons)
+            self.mapButtons.append(mapButton)
+            guiRenderer.add_element(mapButton, tag=f"mapButton{mapName}")
+            self.mapButtonIds.append(f"mapButton{mapName}")
+        gameSubmit = SubmitButton(self.w+10, 550, 100, 40, self.fontS, lambda: self.gameNetworking.createPrivateGame(gameNameInput.text,
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":False, "map":self.selectedMap}))
+        guiRenderer.add_element(gameSubmit, tag="gameSubmit")
+
+        gameSubmitError = GuiElement(self.w+120, 560, [Renderable(Text("", self.fontS, (255, 0, 0), (self.w+120, 560)))])
+        guiRenderer.add_element(gameSubmitError, tag="gameSubmitError")
+
+
+        backButton = Button(self.screen.get_width() - 150, 10, [Renderable(loader.load_image("exit", size=(25, 25)), (self.screen.get_width() - 150, 10)),
+                                                                Renderable(Text("Back to menu", self.fontS, (0, 0, 0), (self.screen.get_width() - 120, 10)))],
+                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.create_selectscreen0)
+        guiRenderer.add_element(backButton, tag="backButton")
+
+    def createLadderGUI(self):
+        self.deleteSelectScreen0()
+        self.gameSelectScreen = 1
+        self.ladderTime = 0
+        guiRenderer = self.renderer
+
+        joiningText = GuiElement(self.w+10, 100, [Renderable(Text("Finding an opponent...", self.font, (255, 195, 75), (self.w+10, 100)))])
+        guiRenderer.add_element(joiningText, tag="joiningText")
+
+        tipText = GuiElement(self.w+10, 200, [Renderable(Text(random.choice(self.TIPS), self.fontM, (0, 0, 0), (self.w+10, 200)))])
+        guiRenderer.add_element(tipText, tag="tipText")
+
     def resetSelectWindow(self):
         destroy = ["createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
                    "playerCountInput", "lobbySepLine", "gameSubmit", "gameName",
-                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward"]
+                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "backButton", "ratedButton",
+
+                   "joinText", "joinInput", "createText", "mapText", "mapViewer", "gameSubmitError", "joinError",
+
+                   "joiningText", "tipText"]
+        destroy.extend(self.mapButtonIds)
         for uuid in self.uuids:
             destroy.append(f"gameListButton{uuid}")
 
@@ -299,6 +397,46 @@ class GuiMaker:
             if self.renderer.has_element(tag):
                 self.renderer.remove_element(tag)
 
+    def create_selectscreen0(self):
+        self.gameSelectScreen = 0
+        self.resetSelectWindow()
+        guiRenderer = self.renderer
+        lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
+        guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
+
+        ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.gameNetworking, self.createLadderGUI)
+        guiRenderer.add_element(ladderButton, tag="ladderButton")
+
+        challengeButton = GamemodeButton(self.w+10, 320, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.CHALLENGE, self.gameNetworking, self.createChallengeGUI)
+        guiRenderer.add_element(challengeButton, tag="challengeButton")
+
+        privateButton = GamemodeButton(self.w+10, 440, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.PRIVATE, self.gameNetworking, self.createPrivateGUI)
+        guiRenderer.add_element(privateButton, tag="privateButton")
+
+        icon = GuiElement(self.w+10, 20, [Renderable(loader.load_image("p1/e", size=(100, 100)), (self.w+10, 20))])
+        guiRenderer.add_element(icon, tag="playerIcon")
+
+        dispName = GuiElement(self.w+110, 20, [Renderable(Text("loading...", self.font, (0, 0, 0), (self.w+110, 20)))])
+        guiRenderer.add_element(dispName, tag="dispName")
+
+        userName = GuiElement(self.w+110, 65, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+110, 65)))])
+        guiRenderer.add_element(userName, tag="userName")
+
+        trophyIcon = GuiElement(self.w+110, 95, [Renderable(loader.load_image("trophy", size=(20, 20)), (self.w+110, 95))])
+        guiRenderer.add_element(trophyIcon, tag="trophyIcon")
+        trophyText = GuiElement(self.w+135, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+135, 95)))])
+        guiRenderer.add_element(trophyText, tag="trophyText")
+
+        dateIcon = GuiElement(self.w+220, 95, [Renderable(loader.load_image("calendar", size=(20, 20)), (self.w+220, 95))])
+        guiRenderer.add_element(dateIcon, tag="dateIcon")
+        dateText = GuiElement(self.w+245, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+245, 95)))])
+        guiRenderer.add_element(dateText, tag="dateText")
+
+        sepLine = GuiElement(self.w+10, 130, [Renderable(pygame.Rect(self.w+10, 130, self.screen.get_width()-self.w-20, 5), (0, 0, 0), 0)])
+        guiRenderer.add_element(sepLine, tag="sepLine")
+
+        gameModeText = GuiElement(self.w+10, 140, [Renderable(Text("Choose a gamemode:", self.font, (0, 0, 0), (self.w+10, 140)))])
+        guiRenderer.add_element(gameModeText, tag="gameModeText")
 
     def on_game_select_window(self):
         self.gameSelectScreen = 0
@@ -338,54 +476,24 @@ class GuiMaker:
             for tag in destroy:
                 guiRenderer.remove_element(tag)
 
-        lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
-        guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
+        self.create_selectscreen0()
 
-        ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.createChallengeGUI)
-        guiRenderer.add_element(ladderButton, tag="ladderButton")
-
-        challengeButton = GamemodeButton(self.w+10, 320, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.CHALLENGE, self.createChallengeGUI)
-        guiRenderer.add_element(challengeButton, tag="challengeButton")
-
-        privateButton = GamemodeButton(self.w+10, 440, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.PRIVATE, self.createChallengeGUI)
-        guiRenderer.add_element(privateButton, tag="privateButton")
-
-        icon = GuiElement(self.w+10, 20, [Renderable(loader.load_image("p1/e", size=(100, 100)), (self.w+10, 20))])
-        guiRenderer.add_element(icon, tag="playerIcon")
-
-        dispName = GuiElement(self.w+110, 20, [Renderable(Text("loading...", self.font, (0, 0, 0), (self.w+110, 20)))])
-        guiRenderer.add_element(dispName, tag="dispName")
-
-        userName = GuiElement(self.w+110, 65, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+110, 65)))])
-        guiRenderer.add_element(userName, tag="userName")
-
-        trophyIcon = GuiElement(self.w+110, 95, [Renderable(loader.load_image("trophy", size=(20, 20)), (self.w+110, 95))])
-        guiRenderer.add_element(trophyIcon, tag="trophyIcon")
-        trophyText = GuiElement(self.w+135, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+135, 95)))])
-        guiRenderer.add_element(trophyText, tag="trophyText")
-
-        dateIcon = GuiElement(self.w+220, 95, [Renderable(loader.load_image("calendar", size=(20, 20)), (self.w+220, 95))])
-        guiRenderer.add_element(dateIcon, tag="dateIcon")
-        dateText = GuiElement(self.w+245, 95, [Renderable(Text("loading...", self.fontS, (0, 0, 0), (self.w+245, 95)))])
-        guiRenderer.add_element(dateText, tag="dateText")
-
-        sepLine = GuiElement(self.w+10, 130, [Renderable(pygame.Rect(self.w+10, 130, self.screen.get_width()-self.w-20, 5), (0, 0, 0), 0)])
-        guiRenderer.add_element(sepLine, tag="sepLine")
-
-        gameModeText = GuiElement(self.w+10, 140, [Renderable(Text("Choose a gamemode:", self.font, (0, 0, 0), (self.w+10, 140)))])
-        guiRenderer.add_element(gameModeText, tag="gameModeText")
 
         self.deleteCredits()
         self.deleteTutorial()
 
-
+    def mixColor(self, color1, color2, proportion):
+        return (color1[0] * proportion + color2[0] * (1-proportion),
+                color1[1] * proportion + color2[1] * (1-proportion),
+                color1[2] * proportion + color2[2] * (1-proportion))
 
     def updateScreen1(self):
         guiRenderer = self.renderer
         screen = self.screen
         gameNetworking = self.gameNetworking
         if self.gameSelectScreen == 0:
-            gameNetworking.getUserInfo(gameNetworking.accountUuid, uuid=True)
+            if gameNetworking.accountUuid != "":
+                gameNetworking.getUserInfo(gameNetworking.accountUuid, uuid=True)
             gameNetworking.getName(gameNetworking.uuid)
 
             if self.gameNetworking.accountUuid == "":
@@ -417,6 +525,15 @@ class GuiMaker:
             guiRenderer.get_element("dispName").renderables[0].text.set_text(dispText)
             guiRenderer.get_element("userName").renderables[0].text.set_text(usernameText)
 
+        elif self.gameSelectScreen == 1:
+            self.ladderTime += time.time() - self.lastTime
+            if self.ladderTime > 3:
+                self.ladderTime = 0
+                guiRenderer.get_element("tipText").renderables[0].text.set_text(random.choice(self.TIPS))
+
+            guiRenderer.get_element("joiningText").renderables[0].text.set_color(self.mixColor((255, 195, 75), (255, 59, 59), (math.cos(self.ladderTime/3*math.pi*2)+1)/2))
+
+
         elif self.gameSelectScreen == 2:
             try:
                 if guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
@@ -428,11 +545,15 @@ class GuiMaker:
             except ValueError:
                 guiRenderer.get_element("gameSubmit").show = False
 
+
             if guiRenderer.get_element("gameName").renderables[0].text.text != "Choose a game":
                 guiRenderer.get_element("joinButton").show = True
 
             else:
                 guiRenderer.get_element("joinButton").show = False
+
+            if gameNetworking.accountUuid == "":
+                guiRenderer.get_element("ratedButton").show = False
 
 
             removeOffset = 0
@@ -446,11 +567,12 @@ class GuiMaker:
 
             for uuid in gameNetworking.games.keys():
                 if uuid not in self.uuids:
-                    self.uuids.append(uuid)
-                    gameNetworking.getName(gameNetworking.games[uuid]["host"])
-                    thisButton = GameButton(self.w+10, 0, uuid, (255, 255, 255), self.fontS, screen.get_width(), gameNetworking, guiRenderer)
-                    guiRenderer.add_element(thisButton, tag=f"gameListButton{uuid}")
-                    self.uuidToButton[uuid] = thisButton
+                    if not (gameNetworking.games[uuid]["settings"]["rated"] and gameNetworking.accountUuid == ""):
+                        self.uuids.append(uuid)
+                        gameNetworking.getName(gameNetworking.games[uuid]["host"])
+                        thisButton = GameButton(self.w+10, 0, uuid, (255, 255, 255), self.fontS, screen.get_width(), gameNetworking, guiRenderer)
+                        guiRenderer.add_element(thisButton, tag=f"gameListButton{uuid}")
+                        self.uuidToButton[uuid] = thisButton
 
             for index, uuid in enumerate(self.uuids):
                 if self.gamePage * self.perPage <= index < (self.gamePage+1) * self.perPage:
@@ -476,6 +598,30 @@ class GuiMaker:
 
             guiRenderer.get_element("pageText").renderables[0].text.set_text(f"Page {self.gamePage+1}/{math.ceil(len(self.uuids)/self.perPage)}")
 
+        elif self.gameSelectScreen == 3:
+            for mapButton in self.mapButtons:
+                if mapButton.selected:
+                    self.selectedMap = mapButton.mapName
+
+            try:
+                if self.selectedMap != "" and guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
+                    guiRenderer.get_element("gameSubmit").show = True
+
+                else:
+                    guiRenderer.get_element("gameSubmit").show = False
+
+            except ValueError:
+                guiRenderer.get_element("gameSubmit").show = False
+
+            if guiRenderer.get_element("joinInput").text != "":
+                guiRenderer.get_element("joinButton").show = True
+
+            else:
+                guiRenderer.get_element("joinButton").show = False
+
+            guiRenderer.get_element("gameSubmitError").renderables[0].text.set_text(gameNetworking.createPrivateGameMessage)
+            guiRenderer.get_element("joinError").renderables[0].text.set_text(gameNetworking.joinPrivateGameMessage)
+
         if random.randint(1, 100) <= 10:
             newFlair = Flair(random.randint(0, self.screen.get_width()), random.randint(0, self.screen.get_height()))
             flairID = str(UUID.uuid4())
@@ -489,9 +635,10 @@ class GuiMaker:
                 guiRenderer.remove_element(i)
                 self.flairs.pop(x-removeOffset)
                 removeOffset += 1
-
         if gameNetworking.gameUuid != "":
             self.screenMaster.screenID = 2
+
+        self.lastTime = time.time()
 
     def on_end_screen(self):
         guiRenderer = self.renderer
@@ -562,10 +709,9 @@ class GuiMaker:
     def on_loading_window(self):
         self.deleteCredits()
         self.deleteTutorial()
-        destroy = ["lightBlueBanner", "createBanner", "nameBanner", "gameNameInput", "playerCountBanner",
-                   "playerCountInput", "lobbySepLine", "gameSubmit", "gameName",
-                   "playerList", "joinButton", "pageBackward", "pageText", "pageForward", "blueBanner", "gameLogo",
+        destroy = ["lightBlueBanner", "blueBanner", "gameLogo",
                    "musicBanner", "musicSlider", "sfxBanner", "sfxSlider", "creditButton", "tutorialButton"]
+        self.resetSelectWindow()
         for uuid in self.uuids:
             destroy.append(f"gameListButton{uuid}")
 

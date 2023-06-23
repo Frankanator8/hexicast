@@ -19,6 +19,7 @@ class GameNetworking(Networking):
         self.gameData = {}
         self.userData = {}
         self.userDataQueue = set()
+        self.mapInfo = []
 
         self.nameQueue = []
         self.gameDataRequestTime = 0.01
@@ -31,6 +32,8 @@ class GameNetworking(Networking):
         self.accountUuid = ""
 
         self.signinMessage = ""
+        self.joinPrivateGameMessage = ""
+        self.createPrivateGameMessage = ""
 
     def reset(self):
         self.gameStatus = ""
@@ -40,6 +43,12 @@ class GameNetworking(Networking):
         self.sendGameData = {}
         self.lastSentUuid = ""
         self.sendUuid = ""
+
+    def __getMapInfo(self):
+        self.mapInfo = self.get("maps")
+
+    def getMapInfo(self):
+        threading.Thread(target=self.__getMapInfo, daemon=True).start()
 
     def __login(self, username, pw):
         res = super().post("login", {"name":username, "pw":pw})
@@ -92,11 +101,37 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__join, args=(name, ), daemon=True).start()
 
     def __createGame(self, name, settings):
-        self.gameUuid = self.post("createGame", {"name":name, "settings":settings, "uuid":self.uuid, "pw":""})
+        self.gameUuid = self.post("createGame", {"name":name, "settings":settings, "uuid":self.uuid})
         self.prospectiveGameUuid = self.gameUuid
         self.__joinGame()
     def createGame(self, name, settings):
         threading.Thread(target=self.__createGame, args=(name, settings), daemon=True).start()
+
+    def __createPrivateGame(self, name, settings):
+        res = self.post("createPrivateGame", {"name":name, "settings":settings, "uuid":self.uuid})
+        if res != "No":
+            self.gameUuid = res
+            self.prospectiveGameUuid = self.gameUuid
+            self.__joinGame()
+
+        else:
+            self.createPrivateGameMessage = "Code already in use"
+
+    def createPrivateGame(self, name, settings):
+        threading.Thread(target=self.__createPrivateGame, args=(name, settings, ), daemon=True).start()
+
+
+    def __joinPrivateGame(self, code):
+        ret = self.post("joinPrivateGame", {"uuid":self.uuid, "game_id":code})
+        if ret == "Full game" or ret == "Game does not exist":
+            self.joinPrivateGameMessage = ret
+
+        else:
+            self.gameUuid = ret
+            self.prospectiveGameUuid = ret
+
+    def joinPrivateGame(self, code):
+        threading.Thread(target=self.__joinPrivateGame, args=(code, ), daemon=True).start()
 
     def __getGames(self):
         self.games = self.get("getGames")

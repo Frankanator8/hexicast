@@ -3,6 +3,7 @@ import uuid as UUID
 import os
 
 from render.gui.base.text import Text
+from render.miniIRenderer import MiniIsometricRenderer
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
@@ -39,6 +40,7 @@ pygame.event.set_allowed([pygame.QUIT])
 
 
 IsometricRenderer.init()
+MiniIsometricRenderer.init()
 Fonts.init()
 musicMaster = MusicMaster()
 soundMaster = SoundMaster()
@@ -50,6 +52,7 @@ gameNetworking = GameNetworking()
 gameNetworking.loopGetGames()
 gameNetworking.loopGameState()
 gameNetworking.loopUpdateGame()
+gameNetworking.getMapInfo()
 
 
 screenMaster = ScreenMaster()

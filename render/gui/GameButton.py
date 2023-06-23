@@ -12,7 +12,7 @@ class GameButton(Button):
         game = gameNetworking.games[gameUUID]
         self.guiRenderer = guiRenderer
         super().__init__(x, y, [Renderable(pygame.Rect(x, y, screen_width-x-10, font[1]*2+2), color, 3),
-                                Renderable(Text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']}\nHost:loading...", font, (0, 0, 0), (x+1, y+1)))],
+                                Renderable(Text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']} ({'Rated' if game['settings']['rated'] else 'Unrated'})\nHost:loading...", font, (0, 0, 0), (x+1, y+1)))],
                          self.on_hover,self.on_unhover,lambda:None,self.on_release)
 
     def on_hover(self):
@@ -54,7 +54,7 @@ class GameButton(Button):
             except KeyError:
                 hostName = "loading"
 
-            self.renderables[1].text.set_text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']}\nHost:{hostName}")
+            self.renderables[1].text.set_text(f"{game['name']} - {len(game['players'])}/{game['settings']['maxPlayers']} ({'Rated' if game['settings']['rated'] else 'Unrated'})\nHost:{hostName}")
 
         except KeyError:
             pass

@@ -16,6 +16,7 @@ class GamemodeButton(Button):
         LADDER: "1v1 rated fun! Automatically queues you into a game",
         CHALLENGE: "Rated or unrated fun, with you choosing the game!",
         PRIVATE: "Unrated fun, create private game lobbies!"
+
     }
     COLORS = {
         LADDER: (228, 0, 0),
@@ -27,7 +28,7 @@ class GamemodeButton(Button):
         CHALLENGE: (197, 82, 255),
         PRIVATE: (103, 206, 255)
     }
-    def __init__(self, x, y, w, h, challengeType, func):
+    def __init__(self, x, y, w, h, challengeType, gameNetworking, func):
         super().__init__(x, y, [Renderable(pygame.Rect(x, y, w, h), self.COLORS[challengeType], 5),
                                 Renderable(loader.load_image(challengeType, size=(h-10, h-10)), (x+5, y+5)),
                                 Renderable(Text(challengeType.capitalize(), Fonts.font48, (0, 0, 0), (x+5+h-10, y+5))),
@@ -37,6 +38,7 @@ class GamemodeButton(Button):
         self.challengeType = challengeType
         self.colorFluc = 0
         self.trueRect = pygame.Rect(x, y, w, h)
+        self.gameNetworking = gameNetworking
 
     def mixColor(self, color1, color2, proportion):
         return (color1[0] * proportion + color2[0] * (1-proportion),
@@ -44,19 +46,24 @@ class GamemodeButton(Button):
                 color1[2] * proportion + color2[2] * (1-proportion))
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
-        super().tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
-        if self.hover:
-            self.colorFluc += dt*4
+        if not (self.gameNetworking.accountUuid == "" and self.challengeType == self.LADDER):
+            super().tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
+            if self.hover:
+                self.colorFluc += dt*4
+
+            else:
+                self.colorFluc = 0
+
+            self.renderables[0].color = self.mixColor(self.COLORS[self.challengeType], self.SECONDARY[self.challengeType],
+                                                      (1+math.cos(self.colorFluc))/2)
+
+            if self.click:
+                self.renderables[0].rect = pygame.Rect(self.trueRect.x-3, self.trueRect.y-3, self.trueRect.w+6, self.trueRect.h+6)
+
+            else:
+                self.renderables[0].rect = self.trueRect
 
         else:
-            self.colorFluc = 0
-
-        self.renderables[0].color = self.mixColor(self.COLORS[self.challengeType], self.SECONDARY[self.challengeType],
-                                                  (1+math.cos(self.colorFluc))/2)
-
-        if self.click:
-            self.renderables[0].rect = pygame.Rect(self.trueRect.x-3, self.trueRect.y-3, self.trueRect.w+6, self.trueRect.h+6)
-
-        else:
-            self.renderables[0].rect = self.trueRect
+            self.renderables[0].color = (96, 96, 96)
+            self.renderables[3].text.set_text("Ladder is only available to signed in players")
 
