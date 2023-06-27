@@ -205,3 +205,10 @@ class GameNetworking(Networking):
 
     def loopUpdateGame(self):
         threading.Thread(target=self.__loopUpdateGame, daemon=True).start()
+
+    def __queue(self):
+        self.prospectiveGameUuid = self.post("queue", {"accountUuid": self.accountUuid, "uuid":self.uuid})
+        self.__joinGame()
+
+    def queue(self):
+        threading.Thread(target=self.__queue, daemon=True).start()

@@ -293,7 +293,7 @@ class GuiMaker:
         ratedButton = ToggleButton(self.w+350, 95, "Rated")
         guiRenderer.add_element(ratedButton, tag="ratedButton")
         gameSubmit = SubmitButton(self.w+10, 100, 100, 50, self.fontS, lambda: self.gameNetworking.createGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":ratedButton.value}))
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":ratedButton.value, "show":True}))
         guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
         gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
@@ -355,7 +355,7 @@ class GuiMaker:
             guiRenderer.add_element(mapButton, tag=f"mapButton{mapName}")
             self.mapButtonIds.append(f"mapButton{mapName}")
         gameSubmit = SubmitButton(self.w+10, 550, 100, 40, self.fontS, lambda: self.gameNetworking.createPrivateGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":False, "map":self.selectedMap}))
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":False, "map":self.selectedMap, "show":False}))
         guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
         gameSubmitError = GuiElement(self.w+120, 560, [Renderable(Text("", self.fontS, (255, 0, 0), (self.w+120, 560)))])
@@ -397,6 +397,10 @@ class GuiMaker:
             if self.renderer.has_element(tag):
                 self.renderer.remove_element(tag)
 
+    def doLadder(self):
+        self.createLadderGUI()
+        self.gameNetworking.queue()
+
     def create_selectscreen0(self):
         self.gameSelectScreen = 0
         self.resetSelectWindow()
@@ -404,7 +408,7 @@ class GuiMaker:
         lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
 
-        ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.gameNetworking, self.createLadderGUI)
+        ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.gameNetworking, self.doLadder)
         guiRenderer.add_element(ladderButton, tag="ladderButton")
 
         challengeButton = GamemodeButton(self.w+10, 320, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.CHALLENGE, self.gameNetworking, self.createChallengeGUI)
