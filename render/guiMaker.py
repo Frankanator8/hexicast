@@ -293,7 +293,8 @@ class GuiMaker:
         ratedButton = ToggleButton(self.w+350, 95, "Rated")
         guiRenderer.add_element(ratedButton, tag="ratedButton")
         gameSubmit = SubmitButton(self.w+10, 100, 100, 50, self.fontS, lambda: self.gameNetworking.createGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":ratedButton.value, "show":True}))
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":ratedButton.value, "show":True, "type":"challenge"}))
+
         guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
         gameName = GuiElement(10, 100, [Renderable(Text("Choose a game", self.font, (5, 0, 149), (10, 100)))])
@@ -355,7 +356,7 @@ class GuiMaker:
             guiRenderer.add_element(mapButton, tag=f"mapButton{mapName}")
             self.mapButtonIds.append(f"mapButton{mapName}")
         gameSubmit = SubmitButton(self.w+10, 550, 100, 40, self.fontS, lambda: self.gameNetworking.createPrivateGame(gameNameInput.text,
-                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":False, "map":self.selectedMap, "show":False}))
+                                                                                                              {"maxPlayers": int(playerCountInput.text), "rated":False, "map":self.selectedMap, "show":False, "type":"private"}))
         guiRenderer.add_element(gameSubmit, tag="gameSubmit")
 
         gameSubmitError = GuiElement(self.w+120, 560, [Renderable(Text("", self.fontS, (255, 0, 0), (self.w+120, 560)))])

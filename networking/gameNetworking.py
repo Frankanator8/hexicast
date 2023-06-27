@@ -18,6 +18,7 @@ class GameNetworking(Networking):
         self.gameStatus = ""
         self.gameData = {}
         self.userData = {}
+        self.userDataKeyType = {}
         self.userDataQueue = set()
         self.mapInfo = []
 
@@ -77,17 +78,18 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__signup, args=(name, display, pw, ), daemon=True).start()
 
     def __getUserInfo(self, username, uuid):
-        self.userDataQueue.add(username)
-        if uuid:
-            res = self.get("getInfoByUuid", uuid=username)
+        if username not in self.userDataQueue:
+            self.userDataQueue.add(username)
+            if uuid:
+                res = self.get("getInfoByUuid", uuid=username)
 
-        else:
-            res = self.get("getInfo", username=username)
+            else:
+                res = self.get("getInfo", username=username)
 
-        if res != "DNE":
-
-            self.userData[username] = res
-            self.userDataQueue.remove(username)
+            if res != "DNE":
+                self.userDataKeyType[username] = uuid
+                self.userData[username] = res
+                self.userDataQueue.remove(username)
 
     def getUserInfo(self, username, uuid=False):
         if username not in self.userDataQueue and username not in self.userData.keys():
@@ -95,7 +97,7 @@ class GameNetworking(Networking):
 
 
     def __join(self, name):
-        self.uuid = self.post("join", {"name":name})
+        self.uuid = self.post("join", {"name":name, "accountUuid":self.accountUuid})
 
     def join(self, name):
         threading.Thread(target=self.__join, args=(name, ), daemon=True).start()
@@ -205,6 +207,23 @@ class GameNetworking(Networking):
 
     def loopUpdateGame(self):
         threading.Thread(target=self.__loopUpdateGame, daemon=True).start()
+
+    def __loopUpdatePlayers(self):
+        while True:
+            if self.closed:
+                return
+
+            try:
+                for username in self.userData.keys():
+                    self.__getUserInfo(username, self.userDataKeyType[username])
+
+            except (requests.exceptions.JSONDecodeError, requests.exceptions.ConnectionError):
+                pass
+
+            time.sleep(2)
+
+    def loopUpdatePlayers(self):
+        threading.Thread(target=self.__loopUpdatePlayers, daemon=True).start()
 
     def __queue(self):
         self.prospectiveGameUuid = self.post("queue", {"accountUuid": self.accountUuid, "uuid":self.uuid})

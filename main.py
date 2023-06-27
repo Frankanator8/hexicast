@@ -53,6 +53,7 @@ gameNetworking.loopGetGames()
 gameNetworking.loopGameState()
 gameNetworking.loopUpdateGame()
 gameNetworking.getMapInfo()
+gameNetworking.loopUpdatePlayers()
 
 
 screenMaster = ScreenMaster()
