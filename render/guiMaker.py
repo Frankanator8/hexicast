@@ -418,7 +418,7 @@ class GuiMaker:
         privateButton = GamemodeButton(self.w+10, 440, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.PRIVATE, self.gameNetworking, self.createPrivateGUI)
         guiRenderer.add_element(privateButton, tag="privateButton")
 
-        icon = GuiElement(self.w+10, 20, [Renderable(loader.load_image("p1/e", size=(100, 100)), (self.w+10, 20))])
+        icon = GuiElement(self.w+10, 20, [Renderable(loader.load_image("p1/e/0", size=(100, 100)), (self.w+10, 20))])
         guiRenderer.add_element(icon, tag="playerIcon")
 
         dispName = GuiElement(self.w+110, 20, [Renderable(Text("loading...", self.font, (0, 0, 0), (self.w+110, 20)))])
@@ -656,7 +656,7 @@ class GuiMaker:
         allPlayers = self.gameNetworking.gameData["players"]
         for player, time in self.gameNetworking.gameData["result"].items():
             times.append((player, time - self.gameNetworking.gameData["gameData"]["timeStart"]))
-            allPlayers.remove(player)
+            allPlayers.remove(player) 
             self.gameNetworking.getName(player)
 
         times.sort(key=lambda x:x[1], reverse=True)

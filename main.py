@@ -105,7 +105,7 @@ while running:
     musicMaster.tick(dt)
 
     if 0 <= screenMaster.screenID < 10:
-        musicMaster.playMusic("lobby1.wav")
+        musicMaster.playMusic("Lobby_Music.wav")
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
 
@@ -134,8 +134,7 @@ while running:
         else:
             gameManager.ticks += 1
 
-
-
+        iRenderer.doAnimationTick(dt)
         iRenderer.render()
         spellRe.render(screen, dt)
         spellId.render(screen)

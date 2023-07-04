@@ -127,6 +127,10 @@ class IsometricRenderer:
 
         return tintDegree
 
+    def doAnimationTick(self, dt):
+        for entity in self.entities:
+            entity.animationTick(dt)
+
     def render(self):
         map = self.map
         display = self.screen
