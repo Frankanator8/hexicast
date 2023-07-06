@@ -19,8 +19,11 @@ class Player(Entity):
         self.stats = Stats(hp=100, maxHP=100, atk=0, defense=5, speed=8)
         self.hpChange = 0
         self.trueHP = self.stats.hp
-        self.pRender = {"n":{}, "w":{}, "s":{},"e":{}}
+        self.me = False
+        self.pRender = {"n":{}, "w":{}, "s":{},"e":{},
+                        "ni":{}, "wi":{}, "si":{}, "ei":{}}
 
+        self.glowTick = 0
         self.alive = True
         self.show = True
 
@@ -88,7 +91,9 @@ class Player(Entity):
         return 0, -40
 
     def hash(self):
-        return f"{self.image}/{self.direction}/{self.animation.animationFrame}-{round(self.stats.hp)}-{self.name}-{self.show}-{self.alive}"
+        return f"{self.image}/{self.animation.direction}/{self.animation.animationFrame}" \
+               f"{round(self.stats.hp)}-{self.name}-{self.show}-{self.alive}" \
+               f"{self.glowTick%6}"
 
     def render(self, size):
         ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)
@@ -96,24 +101,33 @@ class Player(Entity):
             ret.blit(super().render(size), (0, 40))
         return ret
 
+    def mixColor(self, color1, color2, proportion):
+        return (color1[0] * proportion + color2[0] * (1-proportion),
+                color1[1] * proportion + color2[1] * (1-proportion),
+                color1[2] * proportion + color2[2] * (1-proportion))
+
     def prioritizedRender(self, size):
         ret = pygame.Surface((size[0], size[1]+40), pygame.SRCALPHA)
         if self.show:
-            t = Text(self.name, Fonts.font18, (0, 0, 0), (0, 0))
+            t = Text(self.name, Fonts.font18, (50+50*math.sin(self.glowTick), 50+50*math.sin(self.glowTick), 50+50*math.sin(self.glowTick)), (0, 0))
             pygame.draw.rect(ret, (255, 255, 255), pygame.Rect(0, 0, t.w, t.h))
             t.render(ret)
             if self.alive:
-                pygame.draw.rect(ret, (255, 0, 0), pygame.Rect(0, 20, size[0], 18), border_radius=5)
-                pygame.draw.rect(ret, (0, 255, 0), pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
-                if self.animation.animationFrame not in self.pRender[self.direction].keys():
-                    self.pRender[self.direction][self.animation.animationFrame] = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
+                pygame.draw.rect(ret, (116, 116, 116), pygame.Rect(0, 20, size[0], 18), border_radius=5)
+                colorMix = self.mixColor((72, 255, 57), (255, 87, 87), self.stats.hp/self.stats.maxHP)
+                pygame.draw.rect(ret, colorMix, pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
+                greenFlashProgress = (self.glowTick%6)/6
+                print(greenFlashProgress)
+                pygame.draw.rect(ret, (min(colorMix[0]+100, 255), min(colorMix[1]+100, 255), min(colorMix[2]+100, 255)), pygame.Rect(0, 25, min(greenFlashProgress*size[0], size[0] * self.stats.hp/self.stats.maxHP), 8), border_radius=0)
+                if self.animation.animationFrame not in self.pRender[self.animation.direction].keys():
+                    self.pRender[self.animation.direction][self.animation.animationFrame] = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
                     mask = pygame.mask.from_surface(super().render(size))
                     for x, y in mask.outline(every=4):
                         for xO in range(-1, 2):
                             for yO in range(-1, 2):
-                                self.pRender[self.direction][self.animation.animationFrame].set_at((x+xO, y+yO), (255, 255, 255))
+                                self.pRender[self.animation.direction][self.animation.animationFrame].set_at((x+xO, y+yO), (255, 255, 255))
 
-                ret.blit(self.pRender[self.direction][self.animation.animationFrame] , (0, 40))
+                ret.blit(self.pRender[self.animation.direction][self.animation.animationFrame], (0, 40))
 
         return ret
 
@@ -130,8 +144,9 @@ class Player(Entity):
         self.trueHP = value
 
     def animationTick(self, dt):
+        self.glowTick += dt * 2
         if self.falling:
-            self.animation.delay = 0.2
+            self.animation.delay = 0.33
             self.animation.tick(dt, self.direction)
 
         else:
@@ -140,7 +155,6 @@ class Player(Entity):
                 self.animation.tick(dt, self.direction)
 
             else:
-                self.animation.animationFrame = 0
-                self.animation.forward = True
+                self.animation.tick(dt, f"{self.direction}i")
 
         self.lastPos = (self.x, self.y, self.z)

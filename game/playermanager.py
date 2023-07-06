@@ -21,6 +21,8 @@ class PlayerManager:
         for uuid, pos in players.items():
             p = Player(pos[0], pos[1], pos[2], 1)
             p.uuid = uuid
+            if self.gameNetworking.uuid == p.uuid:
+                p.me = True
             self.players[uuid] = p
             self.playerPoses[uuid] = []
             self.truePoses[uuid] = (pos[0], pos[1], pos[2])

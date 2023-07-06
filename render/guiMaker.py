@@ -12,8 +12,10 @@ from render.gui.GameButton import GameButton
 from render.gui.GamemodeButton import GamemodeButton
 from render.gui.MapButton import MapButton
 from render.gui.MapViewer import MapViewer
+from render.gui.ScrollingBackground import ScrollingBackground
 from render.gui.SubmitButton import SubmitButton
 from render.gui.ToggleButton import ToggleButton
+from render.gui.UpVisualEffect import UpVisualEffect
 from render.gui.base.element import GuiElement
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
@@ -62,6 +64,10 @@ class GuiMaker:
         self.lastTime = time.time()
 
         self.flairs = []
+        self.upVFX = []
+        self.upVFXCreated = 0
+
+        self.dt = 0
 
     def incrementTutorial(self):
         self.tutorialStage += 1
@@ -220,6 +226,21 @@ class GuiMaker:
 
             guiRenderer.get_element("helpText").renderables[0].text.set_text(self.gameNetworking.signinMessage)
 
+        if self.upVFXCreated > 1.7:
+            self.upVFXCreated = 0
+            newUpV = UpVisualEffect(0, 300, UpVisualEffect.ARROW)
+            uuid = str(UUID.uuid4())
+            self.upVFX.append(f"upV-{uuid}")
+            guiRenderer.add_element(newUpV, tag=f"upV-{uuid}", back=True)
+
+        self.upVFXCreated += self.dt
+
+        removeOffset = 0
+        for index in range(len(self.upVFX)):
+            tag = self.upVFX[index - removeOffset]
+            if guiRenderer.get_element(tag).done:
+                guiRenderer.remove_element(self.upVFX.pop(index-removeOffset))
+                removeOffset+=1
 
         if gameNetworking.uuid != "":
             self.screenMaster.screenID = 1
@@ -228,7 +249,7 @@ class GuiMaker:
         guiRenderer = self.renderer
 
         blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
-        guiRenderer.add_element(blueBanner, tag="blueBanner")
+        guiRenderer.add_element(blueBanner, tag="blueBanner", back=True)
         aestheticBanner = GuiElement(self.w, 0, [Renderable(loader.load_image("back", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
         guiRenderer.add_element(aestheticBanner, tag="aestheticBanner")
         gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
@@ -406,7 +427,7 @@ class GuiMaker:
         self.gameSelectScreen = 0
         self.resetSelectWindow()
         guiRenderer = self.renderer
-        lightBlueBanner = GuiElement(0, 0, [Renderable(loader.load_image("lobbyBanner", size=(self.screen.get_width()-self.w, self.screen.get_height())), (self.w, 0))])
+        lightBlueBanner = ScrollingBackground("lobbyBanner", self.w, 0, speed=0.03)
         guiRenderer.add_element(lightBlueBanner, tag="lightBlueBanner")
 
         ladderButton = GamemodeButton(self.w+10, 200, self.screen.get_width()-(self.w+10)-10, 100, GamemodeButton.LADDER, self.gameNetworking, self.doLadder)
@@ -456,7 +477,7 @@ class GuiMaker:
 
         if not guiRenderer.has_element("blueBanner"):
             blueBanner = GuiElement(0, 0, [Renderable(loader.load_image("sidebanner", size=(self.w, self.screen.get_height())), (0, 0))])
-            guiRenderer.add_element(blueBanner, tag="blueBanner")
+            guiRenderer.add_element(blueBanner, tag="blueBanner", back=True)
             gameLogo = GuiElement(0, 10, [Renderable(loader.load_image("logo", size=(self.w,80)), (0, 10))])
             guiRenderer.add_element(gameLogo, tag="gameLogo")
             musicBanner = GuiElement(10, self.screen.get_height()-200, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-200)))])
@@ -640,8 +661,26 @@ class GuiMaker:
                 guiRenderer.remove_element(i)
                 self.flairs.pop(x-removeOffset)
                 removeOffset += 1
+
+        if self.upVFXCreated > 1.7:
+            self.upVFXCreated = 0
+            newUpV = UpVisualEffect(0, 300, UpVisualEffect.ARROW)
+            uuid = str(UUID.uuid4())
+            self.upVFX.append(f"upV-{uuid}")
+            guiRenderer.add_element(newUpV, tag=f"upV-{uuid}", back=True)
+
+        self.upVFXCreated += self.dt
+
+        removeOffset = 0
+        for index in range(len(self.upVFX)):
+            tag = self.upVFX[index - removeOffset]
+            if guiRenderer.get_element(tag).done:
+                guiRenderer.remove_element(self.upVFX.pop(index-removeOffset))
+                removeOffset+=1
+
         if gameNetworking.gameUuid != "":
             self.screenMaster.screenID = 2
+
 
         self.lastTime = time.time()
 

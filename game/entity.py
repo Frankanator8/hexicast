@@ -22,7 +22,7 @@ class Entity:
         return self.animation.get_image(size=size)
 
     def hash(self):
-        return f"{self.image}/{self.direction}/{self.animation.animationFrame}"
+        return f"{self.image}/{self.animation.direction}/{self.animation.animationFrame}"
 
     def renderOffset(self):
         return 0, 0

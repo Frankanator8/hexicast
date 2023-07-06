@@ -106,6 +106,7 @@ while running:
 
     if 0 <= screenMaster.screenID < 10:
         musicMaster.playMusic("Lobby_Music.wav")
+        guiMaker.dt = dt
         guiRenderer.tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)
         guiRenderer.render(screen)
 

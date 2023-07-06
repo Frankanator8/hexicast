@@ -1,7 +1,7 @@
 import pygame
 
 class Text: # allows for renderable text
-    def __init__(self, text, font, color, pos):
+    def __init__(self, text, font, color, pos, outline=0, outline_color=None):
         self.font_render = None
         self.text = text
         self.font = font
@@ -9,6 +9,9 @@ class Text: # allows for renderable text
         self.pos = pos
         self.w = 0
         self.h = 0
+        self.outline = outline
+        self.outline_render = None
+        self.outline_color = outline_color
         self.make_font()
 
     def centerAt(self, x, y):
@@ -45,11 +48,35 @@ class Text: # allows for renderable text
             self.w = self.font_render.get_width()
             self.h = self.font_render.get_height()
 
+        if self.outline > 0:
+            if type(self.font_render) != list:
+                mask = pygame.mask.from_surface(self.font_render)
+                self.outline_render = pygame.Surface((self.font_render.get_width()+self.outline*4, self.font_render.get_height()+self.outline*4), pygame.SRCALPHA)
+                for x, y in mask.outline():
+                    for xO in range(self.outline):
+                        for yO in range(self.outline):
+                            self.outline_render.set_at((self.outline*2+x+xO, self.outline*2+y+yO), self.outline_color)
+
+            else:
+                self.outline_render = []
+                for text in self.font_render:
+                    mask = pygame.mask.from_surface(text)
+                    self.outline_render.append(pygame.Surface((text.get_width()+self.outline*4, text.get_height()+self.outline*4), pygame.SRCALPHA))
+                    for x, y in mask.outline():
+                        for xO in range(self.outline):
+                            for yO in range(self.outline):
+                                self.outline_render[-1].set_at((self.outline*2+x+xO, self.outline*2+y+yO), self.outline_color)
+
+
     def render(self, screen):
         if type(self.font_render) != list:
+            if self.outline > 0:
+                screen.blit(self.outline_render, (self.pos[0]-self.outline*2, self.pos[1]-self.outline*2))
             screen.blit(self.font_render, self.pos)
+
 
         else:
             for index, render in enumerate(self.font_render):
+                if self.outline > 0:
+                    screen.blit(self.outline_render[index], (self.pos[0]-self.outline*2, self.pos[1]+ index * (self.font[1] + 2)-self.outline*2))
                 screen.blit(render, (self.pos[0], self.pos[1] + index * (self.font[1] + 2)))
-
