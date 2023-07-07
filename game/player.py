@@ -10,6 +10,7 @@ from render.gui.base.text import Text
 class Player(Entity):
     def __init__(self, x, y, z, type):
         super().__init__(x, y, z, "p1", "n")
+        self.hasPriorityRender = True
         self.type = type
         self.zVel = 0
         self.timeSinceJump = 0
@@ -117,7 +118,6 @@ class Player(Entity):
                 colorMix = self.mixColor((72, 255, 57), (255, 87, 87), self.stats.hp/self.stats.maxHP)
                 pygame.draw.rect(ret, colorMix, pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
                 greenFlashProgress = (self.glowTick%6)/6
-                print(greenFlashProgress)
                 pygame.draw.rect(ret, (min(colorMix[0]+100, 255), min(colorMix[1]+100, 255), min(colorMix[2]+100, 255)), pygame.Rect(0, 25, min(greenFlashProgress*size[0], size[0] * self.stats.hp/self.stats.maxHP), 8), border_radius=0)
                 if self.animation.animationFrame not in self.pRender[self.animation.direction].keys():
                     self.pRender[self.animation.direction][self.animation.animationFrame] = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)

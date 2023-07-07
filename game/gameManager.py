@@ -1,10 +1,11 @@
 class GameManager:
-    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster, timeManager):
+    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster, timeManager, decorManager):
         self.playerManager = playerManager
         self.gameNetworking = gameNetworking
         self.screenMaster = screenMaster
         self.spellManager = spellManager
         self.timeManager = timeManager
+        self.decorManager = decorManager
         self.started = False
         self.ticksSinceLastUpdate = 0
         self.ticks = 0
@@ -20,6 +21,7 @@ class GameManager:
             self.playerManager.makePlayers()
             self.spellManager.isometricRenderer.map.load(self.gameNetworking.gameData["gameData"]["map"])
             self.playerManager.map.data = self.spellManager.isometricRenderer.map.data
+            self.decorManager.init()
             self.flush()
             self.screenMaster.screenID = 10
 
@@ -30,6 +32,7 @@ class GameManager:
         self.spellManager.reset()
         self.gameNetworking.reset()
         self.spellManager.isometricRenderer.reset()
+        self.decorManager.reset()
 
     def updateGameData(self):
         data = {}

@@ -17,6 +17,7 @@ class Entity:
             self.animation = animation
 
         self.direction = direction
+        self.hasPriorityRender = False
 
     def render(self, size):
         return self.animation.get_image(size=size)

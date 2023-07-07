@@ -22,13 +22,13 @@ class EntityAnimation:
     def nextFrame(self):
         if self.type == EntityAnimation.LOOP:
             self.animationFrame += 1
-            if self.animationFrame >= len(os.listdir(f"assets/{self.folder}/{self.direction}")):
+            if self.animationFrame >= len([x for x in os.listdir(f"assets/{self.folder}/{self.direction}") if x != ".DS_Store"]):
                 self.animationFrame = 0
 
         else:
             if self.forward:
                 self.animationFrame += 1
-                if self.animationFrame + 1 >= len(os.listdir(f"assets/{self.folder}/{self.direction}")):
+                if self.animationFrame + 1 >= len([x for x in os.listdir(f"assets/{self.folder}/{self.direction}") if x != ".DS_Store"]):
                     self.forward = False
 
             else:

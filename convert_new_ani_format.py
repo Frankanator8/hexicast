@@ -9,5 +9,5 @@ for root, dirs, files in os.walk("assets/spells"):
 for folder in to_convert:
     for direction in ["n", "e", "s", "w"]:
         os.mkdir(f"assets/{folder}/{direction}")
-        shutil.move(f"assets/{folder}/{direction}.png", f"assets/{folder}/{direction}/0")
+        shutil.move(f"assets/{folder}/{direction}.png", f"assets/{folder}/{direction}/0.png")
 

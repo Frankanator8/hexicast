@@ -2,10 +2,11 @@ import sys
 import uuid as UUID
 import os
 
-from render.gui.base.text import Text
-from render.miniIRenderer import MiniIsometricRenderer
+from game.decorManager import DecorManager
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+from render.gui.base.text import Text
+from render.miniIRenderer import MiniIsometricRenderer
 import pygame
 import loader
 from audio.musicmaster import MusicMaster
@@ -63,10 +64,10 @@ iMap = IsometricMap("assets/better.txt")
 map = Map(iMap)
 iRenderer.setMap(iMap)
 spellManager = SpellManager(iRenderer)
-
+decorManager = DecorManager(gameNetworking, iRenderer)
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
 gameStateManager = GameStateManager(gameNetworking, screenMaster)
-gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager)
+gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager, decorManager)
 
 spellRe = SpellRegister()
 spellId = SpellIdentifier(spellRe)
@@ -126,6 +127,7 @@ while running:
             spellId.tick(dt, spellCreator)
             spellCreator.tick(spellRe)
         spellManager.tick(gameNetworking, dt, gameManager.ticksSinceLastUpdate)
+        decorManager.tick(playerManager.getMyPlayer(), dt)
         gameStateManager.tick(dt, playerManager.getMyPlayer())
         if gameNetworking.sendUuid == gameNetworking.lastSentUuid:
             gameNetworking.sendGameData = gameManager.updateGameData()

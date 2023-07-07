@@ -6,12 +6,14 @@ import uuid as UUID
 import pygame
 import loader
 from render import fonts
+from render.gui.Confetti import Confetti
 from render.gui.ExitButton import ExitButton
 from render.gui.Flair import Flair
 from render.gui.GameButton import GameButton
 from render.gui.GamemodeButton import GamemodeButton
 from render.gui.MapButton import MapButton
 from render.gui.MapViewer import MapViewer
+from render.gui.Pulse import Pulse
 from render.gui.ScrollingBackground import ScrollingBackground
 from render.gui.SubmitButton import SubmitButton
 from render.gui.ToggleButton import ToggleButton
@@ -66,6 +68,7 @@ class GuiMaker:
         self.flairs = []
         self.upVFX = []
         self.upVFXCreated = 0
+        self.confetti = []
 
         self.dt = 0
 
@@ -244,6 +247,7 @@ class GuiMaker:
 
         if gameNetworking.uuid != "":
             self.screenMaster.screenID = 1
+
 
     def makeInitialGui(self):
         guiRenderer = self.renderer
@@ -678,6 +682,14 @@ class GuiMaker:
                 guiRenderer.remove_element(self.upVFX.pop(index-removeOffset))
                 removeOffset+=1
 
+        removeOffset = 0
+        for index in range(len(self.confetti)):
+            tag = self.confetti[index-removeOffset]
+            if guiRenderer.get_element(tag).y > self.screen.get_height():
+                guiRenderer.remove_element(tag)
+                self.confetti.pop(index-removeOffset)
+                removeOffset += 1
+
         if gameNetworking.gameUuid != "":
             self.screenMaster.screenID = 2
 
@@ -686,7 +698,7 @@ class GuiMaker:
 
     def on_end_screen(self):
         guiRenderer = self.renderer
-        destroy = ["loadingBanner", "statusText", "detailText"]
+        destroy = ["loadingBanner", "statusText", "detailText", "groundPulse", "waterPulse", "firePulse"]
         for tag in destroy:
             self.renderer.remove_element(tag)
 
@@ -748,6 +760,19 @@ class GuiMaker:
         except KeyError:
             nOneText = "loading..."
 
+        newConfetti = Confetti(random.randint(0, self.screen.get_width()), -random.randint(0, 20), (random.randint(160, 230), random.randint(160, 230), random.randint(160, 230)), random.randint(15, 100))
+        uuid = str(UUID.uuid4())
+        self.confetti.append(f"confetti-{uuid}")
+        guiRenderer.add_element(newConfetti, f"confetti-{uuid}")
+
+        removeOffset = 0
+        for index in range(len(self.confetti)):
+            tag = self.confetti[index-removeOffset]
+            if guiRenderer.get_element(tag).y > self.screen.get_height():
+                guiRenderer.remove_element(tag)
+                self.confetti.pop(index-removeOffset)
+                removeOffset += 1
+
         guiRenderer.get_element("numberOne").renderables[0].text.set_text(nOneText)
 
     def on_loading_window(self):
@@ -765,7 +790,16 @@ class GuiMaker:
             self.renderer.remove_element(tag)
 
         loadingBanner = GuiElement(0, 0, [Renderable(loader.load_image("loadingBanner", size=self.screen.get_size()), (0, 0))])
+        #loadingBanner = ScrollingBackground("loadingBanner", 0, 0, speed=0.1)
         self.renderer.add_element(loadingBanner, tag="loadingBanner")
+        pulse = Pulse(83, 300, loader.load_image("groundE/template", size=(100, 100)), 1, offset=1)
+        self.renderer.add_element(pulse, tag="groundPulse")
+        pulse = Pulse(347, 300, loader.load_image("waterE/template", size=(100, 100)), 1, offset=0.66)
+        self.renderer.add_element(pulse, tag="waterPulse")
+        pulse = Pulse(613, 300, loader.load_image("fireE/template", size=(100, 100)), 1, offset=0.33)
+        self.renderer.add_element(pulse, tag="firePulse")
+
+
         statusText = GuiElement(10, 450, [Renderable(Text("Waiting for Players...", self.font, (193, 111, 0), (10, 450)))])
         self.renderer.add_element(statusText, tag="statusText")
         detailText = GuiElement(10, 500, [Renderable(Text("Details...", self.fontS, (0, 0, 0), (10, 500)))])

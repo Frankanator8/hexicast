@@ -40,12 +40,17 @@ class IsometricRenderer:
         self.renderCache = {}
         self.renderPoses = {}
         self.preRender = InfiniteSurface()
+        self.priorityRenders = []
 
     def addEntity(self, entity):
         self.entities.append(entity)
+        if entity.hasPriorityRender:
+            self.priorityRenders.append(entity)
 
     def removeEntity(self, entity):
         self.entities.remove(entity)
+        if entity.hasPriorityRender:
+            self.priorityRenders.remove(entity)
 
     def setMap(self, map):
         self.map = map
@@ -146,8 +151,22 @@ class IsometricRenderer:
         for key, item in placeDicts.items():
             item.sort(key=lambda e:e.x-key[0]+e.y-key[1])
 
-        for y, row in enumerate(map.data):
-            for x, cell in enumerate(row):
+        diagFactor = (display.get_height()**2 + display.get_width()**2)**(1/2) * 1.5
+        heightRange = math.ceil(diagFactor/self.TILE_SIZE[1])
+        widthRange = math.ceil(diagFactor/self.TILE_SIZE[0])
+
+        for camOffsetY in range(-heightRange, heightRange+1):
+            for camOffsetX in range(-widthRange, widthRange+1):
+                x = round(camera.x + camOffsetX)
+                y = round(camera.y + camOffsetY)
+                try:
+                    cell = map.data[y][x]
+                    if x<0 or y<0:
+                        continue
+
+                except IndexError:
+                    continue
+
                 for z, block in enumerate(cell):
                     oldY = y
                     oldX = x
@@ -194,7 +213,7 @@ class IsometricRenderer:
 
                                 display.blit(tex, (iso_x + entity.renderOffset()[0], iso_y + entity.renderOffset()[1]))
 
-        for entity in self.entities:
+        for entity in self.priorityRenders:
             cameraX = entity.x - camera.x
             cameraY = entity.y - camera.y
             iso_x, iso_y = self.getIsoXY(cameraX, cameraY, (entity.z+1), display)
@@ -215,3 +234,4 @@ class IsometricRenderer:
         self.renderCache = {}
         self.renderPoses = {}
         self.preRender = InfiniteSurface()
+        self.priorityRenders = []

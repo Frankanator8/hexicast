@@ -5,7 +5,7 @@ IMAGES = {}
 
 def load_image(name, size=None):
     if (name, size) in IMAGES.keys():
-        return IMAGES[(name, size)]
+        return IMAGES[(name, size)].copy()
     image = pygame.image.load(f"assets/{name}.png").convert_alpha()
     if size is not None:
         image = pygame.transform.scale(image, size)
