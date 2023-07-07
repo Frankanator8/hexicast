@@ -115,7 +115,7 @@ class Player(Entity):
             t.render(ret)
             if self.alive:
                 pygame.draw.rect(ret, (116, 116, 116), pygame.Rect(0, 20, size[0], 18), border_radius=5)
-                colorMix = self.mixColor((72, 255, 57), (255, 87, 87), self.stats.hp/self.stats.maxHP)
+                colorMix = self.mixColor((72, 255, 57), (255, 0, 0), self.stats.hp/self.stats.maxHP)
                 pygame.draw.rect(ret, colorMix, pygame.Rect(0, 20, size[0] * self.stats.hp/self.stats.maxHP, 18), border_radius=5)
                 greenFlashProgress = (self.glowTick%6)/6
                 pygame.draw.rect(ret, (min(colorMix[0]+100, 255), min(colorMix[1]+100, 255), min(colorMix[2]+100, 255)), pygame.Rect(0, 25, min(greenFlashProgress*size[0], size[0] * self.stats.hp/self.stats.maxHP), 8), border_radius=0)

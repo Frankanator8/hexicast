@@ -58,7 +58,7 @@ class DecorManager:
         for i in range(self.random.randint(5, 7)):
             self.makeGrassPatch(*self.random.choice(grasses), self.random.randint(2, 7), self.random.randint(2, 3))
 
-        for i in range(50):
+        for i in range(35):
             x, y = self.random.choice(waters)
             self.add_decor(WaterShine(x, y, len(self.isometricRenderer.map.data[y][x])-2, waters, self.isometricRenderer.map))
 

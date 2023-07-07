@@ -2,7 +2,7 @@ import importlib.util
 
 import pip._internal
 
-packages = ["pygame", "requests", "websockets"]
+packages = ["pygame", "requests", "websockets", "Pillow"]
 for package in packages:
     spec = importlib.util.find_spec(package)
     if spec is None:

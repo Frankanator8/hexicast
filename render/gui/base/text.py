@@ -63,8 +63,8 @@ class Text: # allows for renderable text
                     mask = pygame.mask.from_surface(text)
                     self.outline_render.append(pygame.Surface((text.get_width()+self.outline*4, text.get_height()+self.outline*4), pygame.SRCALPHA))
                     for x, y in mask.outline():
-                        for xO in range(self.outline):
-                            for yO in range(self.outline):
+                        for xO in range(-round(self.outline)/2, round(self.outline/2)+1):
+                            for yO in range(-round(self.outline)/2, round(self.outline/2)+1):
                                 self.outline_render[-1].set_at((self.outline*2+x+xO, self.outline*2+y+yO), self.outline_color)
 
 

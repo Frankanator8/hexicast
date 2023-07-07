@@ -66,7 +66,7 @@ iRenderer.setMap(iMap)
 spellManager = SpellManager(iRenderer)
 decorManager = DecorManager(gameNetworking, iRenderer)
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
-gameStateManager = GameStateManager(gameNetworking, screenMaster)
+gameStateManager = GameStateManager(gameNetworking, screenMaster, screen)
 gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager, decorManager)
 
 spellRe = SpellRegister()

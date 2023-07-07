@@ -4,12 +4,15 @@ import random
 
 import pygame
 
+import loader
+from render import fonts
 from render.fonts import Fonts
 from render.gui.base.text import Text
+from PIL import Image, ImageDraw
 
 
 class GameStateManager:
-    def __init__(self, gameNetworking, screenMaster):
+    def __init__(self, gameNetworking, screenMaster, screen):
         self.gameNetworking = gameNetworking
         self.showGracePeriod = True
         self.showDeathScreen = False
@@ -19,6 +22,23 @@ class GameStateManager:
         self.endGameTime = 0
         self.screenMaster = screenMaster
         self.gracePeriod = False
+        self.endGamePlaqueSpeed = 0
+        self.endGameZoom = 5
+        self.refZoom = 0
+        self.bounce = False
+        self.doPlaqueAnimation = True
+        self.dt = 0
+
+        rSize = max(screen.get_width()*2, screen.get_height()*2)
+        pilRender = Image.new("RGB", (rSize, rSize))
+        pilDraw = ImageDraw.Draw(pilRender)
+        for i in range(0, 360, 45):
+            degree = round(i)
+            pilDraw.pieslice([0, 0, rSize, rSize], degree, degree+22.5, (255, 253, 134))
+            pilDraw.pieslice([0, 0, rSize, rSize], degree+22.5, degree+45, (255, 215, 0))
+
+        self.rayRender = pygame.image.fromstring(pilRender.tobytes(), pilRender.size, pilRender.mode)
+        self.rayRender.set_alpha(100)
 
     def reset(self):
         self.showGracePeriod = True
@@ -28,11 +48,18 @@ class GameStateManager:
         self.endGame = False
         self.endGameTime = 0
         self.gracePeriod = False
+        self.endGamePlaqueSpeed = 0
+        self.endGameZoom = 5
+        self.bounce = False
+        self.refZoom = 0
+        self.doPlaqueAnimation = True
 
     @property
     def timeElapsed(self):
         return time.time() - self.gameNetworking.gameData["gameData"]["timeStart"]
+
     def tick(self, dt, player):
+        self.dt = dt
         if self.ticks > 0:
             if (player.x, player.y, player.z) != self.playerPos:
                 self.showGracePeriod = False
@@ -52,7 +79,7 @@ class GameStateManager:
         if self.endGame:
             self.endGameTime += dt
 
-        if self.endGameTime > 2.8:
+        if self.endGameTime > 6:
             self.screenMaster.screenID = 3
             self.gameNetworking.gameUuid = ""
             self.endGame = False
@@ -113,8 +140,8 @@ class GameStateManager:
             countdownSurf = pygame.transform.scale(countdownSurf, ((4+3*(1-degree))*timeText.w, (4+3*(1-degree))*timeText.h))
             screen.blit(countdownSurf, (screen.get_width()/2-countdownSurf.get_width()/2, screen.get_height()/2-countdownSurf.get_height()/2))
 
-        if 30 <= self.timeElapsed <= 32:
-            degree = (32-self.timeElapsed)/2
+        if 30 <= self.timeElapsed <= 31.25:
+            degree = (31.25-self.timeElapsed)/1.25
             fightText = Text(f"F I G H T !", Fonts.font150, (255, 0, 0), (0, 0))
             fightSurf = pygame.Surface((fightText.w, fightText.h), pygame.SRCALPHA)
             fightText.render(fightSurf)
@@ -132,26 +159,40 @@ class GameStateManager:
             deathText.render(screen)
 
         if self.endGame:
-            leftInShift = (1-self.endGameTime)
-            if leftInShift < 0:
-                leftInShift = 0
-            shift = random.randint(-10, 10) - leftInShift * screen.get_width()
-
-            if leftInShift == 0:
-                for i in range(random.randint(30, 60)):
-                    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(screen.get_width()/2 + shift+random.randint(-300, 300),
-                                                                          screen.get_height()/2 + shift+random.randint(-100, 100),
-                                                                          10, 10))
-            pygame.draw.polygon(screen, (0, 255, 0), [(screen.get_width()/2-280+shift, screen.get_height()/2-70),
-                                                      (screen.get_width()/2+270+shift, screen.get_height()/2-70),
-                                                      (screen.get_width()/2+300+shift, screen.get_height()/2+70),
-                                                      (screen.get_width()/2-260+shift, screen.get_height()/2+70)])
-            pygame.draw.polygon(screen, (255, 255, 255), [(screen.get_width()/2-240+shift, screen.get_height()/2-50),
-                                                      (screen.get_width()/2+240+shift, screen.get_height()/2-50),
-                                                      (screen.get_width()/2+260+shift, screen.get_height()/2+50),
-                                                      (screen.get_width()/2-220+shift, screen.get_height()/2+50)])
+            degreeOffset = self.endGameTime * 180
+            screen.blit(pygame.transform.scale(pygame.transform.rotate(self.rayRender, degreeOffset),
+                                               (screen.get_width()*3, screen.get_height()*3)),
+                        (-screen.get_width(), -screen.get_height()))
 
 
-            gameText = Text("G A M E !", Fonts.font150, (255, 0, 0), (0, 0))
-            gameText.centerAt(screen.get_width()/2 + shift, screen.get_height()/2)
-            gameText.render(screen)
+            if self.doPlaqueAnimation:
+                if self.endGameTime < 0.75:
+                    self.endGamePlaqueSpeed -= self.dt * 6.5
+
+                else:
+                    if not self.bounce:
+                        self.refZoom = self.endGameZoom
+                        self.endGamePlaqueSpeed *= -1
+                        self.bounce = True
+
+                    else:
+                        self.endGamePlaqueSpeed -= self.dt * 6.5
+                        if self.endGameZoom < self.refZoom:
+                            self.endGameZoom = self.refZoom
+                            self.doPlaqueAnimation = False
+
+                self.endGameZoom += self.endGamePlaqueSpeed * self.dt
+
+
+            size = (300*self.endGameZoom, 100*self.endGameZoom)
+            screen.blit(loader.load_image("gamePlaque", size=size), (screen.get_width()/2-size[0]/2, screen.get_height()/2-size[1]/2))
+
+            if not self.doPlaqueAnimation:
+                gameText = Text("G A M E !!", Fonts.font150, self.mixColor((255, 216, 56), (255, 255, 255), max((4.5-max(self.endGameTime, 2))/2.5, 0)), (0, 0))
+                gameText.centerAt(screen.get_width()/2, screen.get_height()/2)
+                gameText.render(screen)
+
+    def mixColor(self, color1, color2, proportion):
+        return (color1[0] * proportion + color2[0] * (1-proportion),
+                color1[1] * proportion + color2[1] * (1-proportion),
+                color1[2] * proportion + color2[2] * (1-proportion))

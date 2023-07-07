@@ -634,7 +634,7 @@ class GuiMaker:
                     self.selectedMap = mapButton.mapName
 
             try:
-                if self.selectedMap != "" and guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 2:
+                if self.selectedMap != "" and guiRenderer.get_element("gameNameInput").text != "" and int(guiRenderer.get_element("playerCountInput").text) >= 1:
                     guiRenderer.get_element("gameSubmit").show = True
 
                 else:
@@ -712,7 +712,7 @@ class GuiMaker:
 
         times.sort(key=lambda x:x[1], reverse=True)
         for index, item in enumerate(times):
-            playerRanking = GuiElement(500, 175 + 50*index, [Renderable(Text("loading...", self.fontS, (255, 196, 85), (500, 175+50*index)))])
+            playerRanking = GuiElement(500, 175 + 50*index, [Renderable(Text("loading...", self.fontS, (255, 108, 0), (500, 175+50*index)))])
             self.gameEndUuids.append(item[0])
             guiRenderer.add_element(playerRanking, tag=f"gameEnd{item[0]}")
 
