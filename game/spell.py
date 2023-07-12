@@ -3,8 +3,8 @@ from game.entity import Entity
 
 
 class Spell(Entity):
-    def __init__(self, x, y, z, image, direction, sender, stats, tier):
-        super().__init__(x, y, z, image, direction)
+    def __init__(self, x, y, z, image, direction, sender, stats, tier, animation=None):
+        super().__init__(x, y, z, image, direction, animation=animation)
         self.sender = sender
         self.done = False
         self.tier = tier

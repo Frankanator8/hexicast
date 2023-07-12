@@ -2,9 +2,6 @@ import sys
 import uuid as UUID
 import os
 
-from game.decorManager import DecorManager
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 from render.gui.base.text import Text
 from render.miniIRenderer import MiniIsometricRenderer
 import pygame
@@ -27,6 +24,7 @@ from render.screenmaster import ScreenMaster
 from spells.spellcreator import SpellCreator
 from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
+from game.decorManager import DecorManager
 
 pygame.init()
 

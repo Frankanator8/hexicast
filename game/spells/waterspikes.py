@@ -1,11 +1,12 @@
 from game.player import Player
 from game.spell import Spell
 from game.stats import Stats
+from render.EntityAnimation import EntityAnimation
 
 
 class WaterSpikes(Spell):
     def __init__(self, x, y, z, sender):
-        super().__init__(x, y, z, "spells/waterspikes", "n", sender, Stats(atk=4), 2)
+        super().__init__(x, y, z, "spells/waterspikes", "n", sender, Stats(atk=4), 2, animation=EntityAnimation("spells/waterspikes", 0.1, EntityAnimation.BOUNCE, "n"))
         self.attacking = False
 
     def on_contact(self, entity):
