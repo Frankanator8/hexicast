@@ -1,11 +1,13 @@
 import pygame
 
+from audio.soundlibrary import SoundLibrary
 from render.fonts import Fonts
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
 from render.gui.elements.button import Button
 
 class ExitButton(Button):
+    soundMaster = None
     def __init__(self, x, y, gameManager, screenMaster):
         super().__init__(x, y, [Renderable(pygame.Rect(x, y, 100, 50), (255, 85, 85), 5),
                                 Renderable(Text("Exit", Fonts.font24, (255, 255, 255), (0, 0)))],
@@ -35,3 +37,4 @@ class ExitButton(Button):
         self.recalculateWH()
         self.gameManager.reset()
         self.screenMaster.screenID = 1
+        self.soundMaster.playSound(SoundLibrary.SELECT)

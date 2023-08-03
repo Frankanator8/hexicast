@@ -19,6 +19,6 @@ def load_font(name, size):
 def load_sound(name):
     if name in SOUNDS.keys():
         return SOUNDS[name]
-    sound = pygame.mixer.Sound(f"assets/audio/{name}", name)
+    sound = pygame.mixer.Sound(f"assets/audio/{name}")
     SOUNDS[name] = sound
     return sound

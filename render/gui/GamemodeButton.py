@@ -3,6 +3,7 @@ import math
 import pygame
 
 import loader
+from audio.soundlibrary import SoundLibrary
 from render.fonts import Fonts
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
@@ -28,17 +29,25 @@ class GamemodeButton(Button):
         CHALLENGE: (197, 82, 255),
         PRIVATE: (103, 206, 255)
     }
+    soundMaster = None
     def __init__(self, x, y, w, h, challengeType, gameNetworking, func):
         super().__init__(x, y, [Renderable(pygame.Rect(x, y, w, h), self.COLORS[challengeType], 5),
                                 Renderable(loader.load_image(challengeType, size=(h-10, h-10)), (x+5, y+5)),
                                 Renderable(Text(challengeType.capitalize(), Fonts.font48, (0, 0, 0), (x+5+h-10, y+5))),
                                 Renderable(Text(self.DESCS[challengeType], Fonts.font18, (0, 0, 0), (x+5+h-10, y+5+Text(challengeType, Fonts.font48, (0, 0, 0), (x+5+h-10, y+5)).h)))],
-                         lambda:None, lambda:None, lambda:None, func)
+                         self.hover, lambda:None, lambda:None, self.click)
         self.func = func
         self.challengeType = challengeType
         self.colorFluc = 0
         self.trueRect = pygame.Rect(x, y, w, h)
         self.gameNetworking = gameNetworking
+
+    def click(self):
+        self.soundMaster.playSound(SoundLibrary.SELECT)
+        self.func()
+
+    def hover(self):
+        self.soundMaster.playSound(SoundLibrary.CLICK)
 
     def mixColor(self, color1, color2, proportion):
         return (color1[0] * proportion + color2[0] * (1-proportion),

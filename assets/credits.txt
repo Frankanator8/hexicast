@@ -1,7 +1,8 @@
 Assets
-~ Art - Frank Liu, Matthew Fang
-~ Music - Gavin Huang
+~ Art - Frank Liu (ft. Matthew Fang)
+~ Music - Frank Liu
 ~ Backgrounds - Matthew Fang, Frank Liu
+~ Sound Effects - from Pixabay
 
 Game Design
 ~ Spell Design - Gavin Huang, Frank Liu

@@ -1,11 +1,13 @@
 import pygame
 
+from audio.soundlibrary import SoundLibrary
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
 from render.gui.elements.button import Button
 
 
 class SubmitButton(Button):
+    soundMaster = None
     def __init__(self, x, y, w, h, font, on_release, text="Submit"):
         textDummy = Text(text, font, (0, 0, 0), (x, y))
         self.releaseFunc = on_release
@@ -27,6 +29,7 @@ class SubmitButton(Button):
         self.recalculateWH()
 
     def release(self):
+        self.soundMaster.playSound(SoundLibrary.GAME)
         renderObjs = [Renderable(pygame.Rect(self.x, self.y, self.origW, self.origH), (255, 183, 58),
                                  round((self.origW + self.origH) // 2)), self.renderables[1]]
         self.renderables = renderObjs

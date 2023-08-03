@@ -3,6 +3,7 @@ from game.entity import Entity
 
 
 class Spell(Entity):
+    soundMaster = None
     def __init__(self, x, y, z, image, direction, sender, stats, tier, animation=None):
         super().__init__(x, y, z, image, direction, animation=animation)
         self.sender = sender
@@ -29,7 +30,8 @@ class Spell(Entity):
         pass
 
     def getDictObject(self):
-        return {"x":self.x, "y":self.y, "z":self.z, "direction":self.direction, "image":self.image, "sender":self.sender, "tier":self.tier}
+        return {"x":self.x, "y":self.y, "z":self.z, "direction":self.direction, "image":self.image, "sender":self.sender, "tier":self.tier,
+                "type":self.__class__.__name__, "stats":self.stats.getStringRepr()}
 
     def updateFromDictObject(self, obj):
         self.x = obj["x"]
@@ -39,3 +41,4 @@ class Spell(Entity):
         self.image = obj["image"]
         self.sender = obj["sender"]
         self.tier = obj["tier"]
+        self.stats.setStringRepr(obj["stats"])

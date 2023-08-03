@@ -1,11 +1,12 @@
 class GameManager:
-    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster, timeManager, decorManager):
+    def __init__(self, playerManager, spellManager, gameNetworking, screenMaster, timeManager, decorManager, gameSound):
         self.playerManager = playerManager
         self.gameNetworking = gameNetworking
         self.screenMaster = screenMaster
         self.spellManager = spellManager
         self.timeManager = timeManager
         self.decorManager = decorManager
+        self.gameSound = gameSound
         self.started = False
         self.ticksSinceLastUpdate = 0
         self.ticks = 0
@@ -33,6 +34,7 @@ class GameManager:
         self.gameNetworking.reset()
         self.spellManager.isometricRenderer.reset()
         self.decorManager.reset()
+        self.gameSound.reset()
 
     def updateGameData(self):
         data = {}

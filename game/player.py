@@ -1,3 +1,4 @@
+from audio.soundlibrary import SoundLibrary
 from game.entity import Entity
 import pygame
 import math
@@ -8,6 +9,7 @@ from render.gui.base.text import Text
 
 
 class Player(Entity):
+    soundMaster = None
     def __init__(self, x, y, z, type):
         super().__init__(x, y, z, "p1", "n")
         self.hasPriorityRender = True
@@ -27,6 +29,8 @@ class Player(Entity):
         self.glowTick = 0
         self.alive = True
         self.show = True
+
+        self.runSoundUuid = ""
 
         self.lastPos = (x, y, z)
 
@@ -56,6 +60,10 @@ class Player(Entity):
         elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
             futPosition[0] += self.stats.speed * dt * (0.5 if inWater else 1)
             self.direction = "e"
+
+        if futPosition != [self.x, self.y]:
+            if not self.soundMaster.isPlaying(self.runSoundUuid):
+                self.runSoundUuid = self.soundMaster.playSound(SoundLibrary.RUN)
 
         self.x, self.y = map.findCollisionPoint(futPosition[0], futPosition[1], self)
         if self.z > len(map.data[math.floor(self.y)][math.floor(self.x)]):

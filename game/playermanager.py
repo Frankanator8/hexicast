@@ -1,7 +1,9 @@
+from audio.soundlibrary import SoundLibrary
 from game.player import Player
 
 
 class PlayerManager:
+    soundMaster = None
     def __init__(self, gameNetworking, map, iRenderer):
         self.gameNetworking = gameNetworking
         self.map = map
@@ -11,10 +13,13 @@ class PlayerManager:
         self.playerPoses = {}
         self.truePoses = {}
 
+        self.lowHealthSoundUuid = ""
+
     def reset(self):
         self.players = {}
         self.playerPoses = {}
         self.truePoses = {}
+        self.lowHealthSoundUuid = ""
 
     def makePlayers(self):
         players = self.gameNetworking.gameData["gameData"]["playerPos"]
@@ -34,7 +39,16 @@ class PlayerManager:
         self.players[self.gameNetworking.uuid].tickKeys(keys, prevKeys, dt, self.map)
         for uuid, pos in self.gameNetworking.gameData["gameData"]["playerPos"].items():
             p = self.players[uuid]
+            lastHp = p.stats.hp
             p.stats.hp = self.gameNetworking.gameData["gameData"]["playerHealth"][uuid]
+            if uuid == self.gameNetworking.uuid:
+                if p.stats.hp < p.stats.maxHP * 0.25:
+                    if not self.soundMaster.isPlaying(self.lowHealthSoundUuid):
+                        self.lowHealthSoundUuid = self.soundMaster.playSound(SoundLibrary.LOWHEALTH)
+
+                if lastHp > p.stats.hp:
+                    self.soundMaster.playSound(SoundLibrary.DAMAGE)
+
             p.alive = self.gameNetworking.gameData["gameData"]["alive"][uuid]
             if not p.alive:
                 p.image = "tombstone"

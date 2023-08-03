@@ -5,6 +5,7 @@ import random
 import pygame
 
 import loader
+from audio.soundlibrary import SoundLibrary
 from render import fonts
 from render.fonts import Fonts
 from render.gui.base.text import Text
@@ -12,6 +13,7 @@ from PIL import Image, ImageDraw
 
 
 class GameStateManager:
+    soundMaster = None
     def __init__(self, gameNetworking, screenMaster, screen):
         self.gameNetworking = gameNetworking
         self.showGracePeriod = True
@@ -72,8 +74,11 @@ class GameStateManager:
 
         self.playerPos = (player.x, player.y, player.z)
         self.ticks += 1
+        if not player.alive and not self.showDeathScreen:
+            self.soundMaster.playSound(SoundLibrary.GAMEOVER)
         self.showDeathScreen = not player.alive
-        if len(self.gameNetworking.gameData["result"].keys()) + 1 >= len(self.gameNetworking.gameData["players"]):
+        if len(self.gameNetworking.gameData["result"].keys()) + 1 >= len(self.gameNetworking.gameData["players"]) and not self.endGame:
+            self.soundMaster.playSound(SoundLibrary.WIN)
             self.endGame = True
 
         if self.endGame:

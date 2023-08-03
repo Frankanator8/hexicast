@@ -2,7 +2,12 @@ import sys
 import uuid as UUID
 import os
 
-from render.gui.base.text import Text
+from audio.gamesound import GameSound
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+from audio.soundlibrary import SoundLibrary
+from game.player import Player
+from game.spell import Spell
 from render.miniIRenderer import MiniIsometricRenderer
 import pygame
 import loader
@@ -25,8 +30,11 @@ from spells.spellcreator import SpellCreator
 from spells.spellidentifier import SpellIdentifier
 from spells.spellregister import SpellRegister
 from game.decorManager import DecorManager
+from files.hexicastFiles import HexicastFiles
+
 
 pygame.init()
+pygame.mixer.init()
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -41,8 +49,12 @@ pygame.event.set_allowed([pygame.QUIT])
 IsometricRenderer.init()
 MiniIsometricRenderer.init()
 Fonts.init()
+SoundLibrary.init()
 musicMaster = MusicMaster()
 soundMaster = SoundMaster()
+appSupport = HexicastFiles(musicMaster, soundMaster)
+appSupport.loadSettings()
+appSupport.retrieveUuid()
 
 clock = pygame.time.Clock()
 
@@ -65,7 +77,9 @@ spellManager = SpellManager(iRenderer)
 decorManager = DecorManager(gameNetworking, iRenderer)
 playerManager = PlayerManager(gameNetworking, map, iRenderer)
 gameStateManager = GameStateManager(gameNetworking, screenMaster, screen)
-gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager, decorManager)
+gameSound = GameSound(soundMaster, playerManager, spellManager, gameNetworking)
+gameManager = GameManager(playerManager, spellManager, gameNetworking, screenMaster, gameStateManager, decorManager, gameSound)
+
 
 spellRe = SpellRegister()
 spellId = SpellIdentifier(spellRe)
@@ -73,7 +87,7 @@ spellCreator = SpellCreator(gameManager)
 
 
 guiRenderer = GuiRenderer(screen)
-guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, screenMaster, gameManager, musicMaster, soundMaster)
+guiMaker = GuiMaker(screen, guiRenderer, gameNetworking, screenMaster, gameManager, musicMaster, soundMaster, appSupport)
 guiMaker.makeInitialGui()
 previousGameList = []
 
@@ -84,6 +98,8 @@ screenMaster.addChangeFunc(2, guiMaker.on_loading_window)
 screenMaster.addScreenFunc(2, guiMaker.updateScreen2)
 screenMaster.addChangeFunc(3, guiMaker.on_end_screen)
 screenMaster.addScreenFunc(3, guiMaker.updateScreen3)
+
+soundMaster.loadInto(Player, GameStateManager, PlayerManager, SpellRegister, Spell)
 
 running = True
 bg = loader.load_image("bg", size=(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -102,6 +118,10 @@ while running:
     dt = clock.get_time() / 1000 # sec
 
     musicMaster.tick(dt)
+    soundMaster.tick()
+
+    appSupport.writeSettings()
+    appSupport.writeUuid(gameNetworking.accountUuid)
 
     if 0 <= screenMaster.screenID < 10:
         musicMaster.playMusic("Lobby_Music.wav")
@@ -110,7 +130,7 @@ while running:
         guiRenderer.render(screen)
 
     if screenMaster.screenID == 10:
-        musicMaster.playMusic("game1.wav")
+        musicMaster.playMusic("Glimmer of Hope.wav")
         screen.blit(bg, (0, 0))
         playerManager.tick(keys, prevKeys, dt, gameManager.ticksSinceLastUpdate)
         if playerManager.getMyPlayer().alive:
@@ -140,7 +160,7 @@ while running:
         spellRe.render(screen, dt)
         spellId.render(screen)
         gameStateManager.render(screen)
-    Text(f"FPS {round(clock.get_fps())}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
+    # Text(f"FPS {round(clock.get_fps())}", ("Calibri", 15), (0, 0, 0), (0, 0)).render(screen)
     clock.tick(60)
     screenMaster.tick()
     pygame.display.flip()

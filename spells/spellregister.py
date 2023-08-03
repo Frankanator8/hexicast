@@ -4,11 +4,13 @@ import random
 import pygame.draw
 
 import loader
+from audio.soundlibrary import SoundLibrary
 from tools import dist
 from spells.polygon import generate_polygon
 
 
 class SpellRegister:
+    soundMaster = None
     EMBLEM_R_MULTIPLIER = 3
     def __init__(self):
         self.trail = []
@@ -21,6 +23,8 @@ class SpellRegister:
         self.emblem = None
         self.secondaryInfo = [(0, 0), (0, 0)]
         self.lastPoint = (0, 0)
+
+        self.spellSoundUuid = ""
 
     @staticmethod
     def findPosition(x, y, isometricRenderer):
@@ -56,6 +60,9 @@ class SpellRegister:
             surf.set_alpha(100)
             surf.fill((255, 255, 255, 0))
             if self.sequence[1] == 1: # Fire
+                if not self.soundMaster.isPlaying(self.spellSoundUuid):
+                    self.spellSoundUuid = self.soundMaster.playSound(SoundLibrary.FIRE)
+
                 if len(self.particles) < round(self.radius * 2):
                     for i in range(round(self.radius * 2)-len(self.particles)):
                         r = random.randint(200, 255)
@@ -75,6 +82,8 @@ class SpellRegister:
                 self.particles = newParticles
 
             elif self.sequence[1] == 3: # water
+                if not self.soundMaster.isPlaying(self.spellSoundUuid):
+                    self.spellSoundUuid = self.soundMaster.playSound(SoundLibrary.WATER)
                 if len(self.particles) < 400:
                     for i in range(400 - len(self.particles)):
                         side = -1
@@ -98,6 +107,8 @@ class SpellRegister:
                 self.particles = newParticles
 
             elif self.sequence[1] == 5: # Ground
+                if not self.soundMaster.isPlaying(self.spellSoundUuid):
+                    self.spellSoundUuid = self.soundMaster.playSound(SoundLibrary.GROUND)
                 if len(self.particles) < 10:
                     for i in range(10 - len(self.particles)):
                         y = self.center[1] + random.uniform(0, self.radius)

@@ -5,6 +5,7 @@ import time
 import uuid as UUID
 import pygame
 import loader
+from audio.soundlibrary import SoundLibrary
 from render import fonts
 from render.gui.Confetti import Confetti
 from render.gui.ExitButton import ExitButton
@@ -34,7 +35,7 @@ class GuiMaker:
         "Rated challenges only provide\n1/2 of the rating change\na ladder game does",
         "Equal or higher tier spells will\ndestroy lower or equal\ntier spells"
     ]
-    def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer, musicMaster, soundMaster):
+    def __init__(self, screen, renderer, gameNetworking, screenMaster, gameInitializer, musicMaster, soundMaster, appSupport):
         self.screen = screen
         self.gameNetworking = gameNetworking
         self.font = fonts.Fonts.font48
@@ -47,6 +48,7 @@ class GuiMaker:
         self.gameInitalizer = gameInitializer
         self.musicMaster = musicMaster
         self.soundMaster = soundMaster
+        self.appSupport = appSupport
 
         self.gamePage = 0
         self.perPage = 7
@@ -71,6 +73,14 @@ class GuiMaker:
         self.confetti = []
 
         self.dt = 0
+
+        SubmitButton.soundMaster = self.soundMaster
+        GamemodeButton.soundMaster = self.soundMaster
+        MapButton.soundMaster = self.soundMaster
+        GameButton.soundMaster = self.soundMaster
+        ToggleButton.soundMaster = self.soundMaster
+        ExitButton.soundMaster = self.soundMaster
+
 
     def incrementTutorial(self):
         self.tutorialStage += 1
@@ -135,6 +145,18 @@ class GuiMaker:
             if guiRenderer.has_element(tag):
                 guiRenderer.remove_element(tag)
 
+    def doLogin(self):
+        guiRenderer = self.renderer
+        if guiRenderer.get_element("usernameInput").text != "" and guiRenderer.get_element("passwordInput").text != "":
+            self.gameNetworking.login(guiRenderer.get_element("usernameInput").text, guiRenderer.get_element("passwordInput").text)
+
+        else:
+            if self.appSupport.uuid != "":
+                self.gameNetworking.loginWithUuid(self.appSupport.uuid)
+
+            else:
+                pass
+
     def makeLogin(self):
         self.loginScreen = 1
         guiRenderer = self.renderer
@@ -152,7 +174,7 @@ class GuiMaker:
         passwordInput = TextInput(10, 200, Text("", self.fontS, (0, 0, 0), (10, 200)), maxLen=18, subchar="*")
         guiRenderer.add_element(passwordInput, tag="passwordInput")
 
-        loginButton = SubmitButton(10, 250, 100, 30, self.fontS, lambda:self.gameNetworking.login(usernameInput.text, passwordInput.text), text="Log in")
+        loginButton = SubmitButton(10, 250, 100, 30, self.fontS, self.doLogin, text="Log in")
         guiRenderer.add_element(loginButton, tag="loginButton")
         helpText = GuiElement(120, 250, [Renderable(Text("", self.fontS, (255, 0, 0), (120, 250)))])
         guiRenderer.add_element(helpText, tag="helpText")
@@ -200,6 +222,7 @@ class GuiMaker:
         helpText = GuiElement(110, 100, [Renderable(Text("", self.fontS, (255, 0, 0), (110, 100)))])
         guiRenderer.add_element(helpText, tag="helpText")
 
+
     def updateScreen0(self):
         guiRenderer = self.renderer
         gameNetworking = self.gameNetworking
@@ -213,9 +236,17 @@ class GuiMaker:
         elif self.loginScreen == 1:
             if guiRenderer.get_element("usernameInput").text != "" and guiRenderer.get_element("passwordInput").text != "":
                 guiRenderer.get_element("loginButton").show = True
+                guiRenderer.get_element("loginButton").renderables[1].text.set_text("Log in")
+                guiRenderer.get_element("loginButton").recalculateWH()
 
             else:
-                guiRenderer.get_element("loginButton").show = False
+                if self.appSupport.uuid != "":
+                    guiRenderer.get_element("loginButton").show = True
+                    guiRenderer.get_element("loginButton").renderables[1].text.set_text("Auto")
+                    guiRenderer.get_element("loginButton").recalculateWH()
+
+                else:
+                    guiRenderer.get_element("loginButton").show = False
 
             guiRenderer.get_element("helpText").renderables[0].text.set_text(self.gameNetworking.signinMessage)
 
@@ -269,11 +300,11 @@ class GuiMaker:
 
         musicBanner = GuiElement(10, self.screen.get_height()-200, [Renderable(Text("Music Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-200)))])
         guiRenderer.add_element(musicBanner, tag="musicBanner")
-        musicSlider = Slider(10, self.screen.get_height()-170, self.w-20, 20, 100, lambda x:self.musicMaster.set_volume(x/100))
+        musicSlider = Slider(10, self.screen.get_height()-170, self.w-20, 20, self.musicMaster.volume*100, lambda x:self.musicMaster.set_volume(x/100))
         guiRenderer.add_element(musicSlider, tag="musicSlider")
         sfxBanner = GuiElement(10, self.screen.get_height()-140, [Renderable(Text("Sound FX Volume", self.fontS, (0, 0, 0), (10, self.screen.get_height()-140)))])
         guiRenderer.add_element(sfxBanner, tag="sfxBanner")
-        sfxSlider = Slider(10, self.screen.get_height()-110, self.w-20, 20, 100, lambda x:self.soundMaster.set_volume(x/100))
+        sfxSlider = Slider(10, self.screen.get_height()-110, self.w-20, 20, self.soundMaster.volume*100, lambda x:self.soundMaster.set_volume(x/100))
         guiRenderer.add_element(sfxSlider, tag="sfxSlider")
 
         credits = SubmitButton(10, self.screen.get_height() - 70, 120, 50, self.fontM, self.makeCredits, text="Credits")
@@ -296,6 +327,10 @@ class GuiMaker:
         for tag in delete:
             if guiRenderer.has_element(tag):
                 guiRenderer.remove_element(tag)
+
+    def playAndSelectScreen0(self):
+        self.soundMaster.playSound(SoundLibrary.SELECT)
+        self.create_selectscreen0()
 
     def createChallengeGUI(self):
         guiRenderer = self.renderer
@@ -338,7 +373,7 @@ class GuiMaker:
 
         backButton = Button(self.screen.get_width() - 150, 10, [Renderable(loader.load_image("exit", size=(25, 25)), (self.screen.get_width() - 150, 10)),
                                                                 Renderable(Text("Back to menu", self.fontS, (0, 0, 0), (self.screen.get_width() - 120, 10)))],
-                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.create_selectscreen0)
+                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.playAndSelectScreen0)
         guiRenderer.add_element(backButton, tag="backButton")
 
     def createPrivateGUI(self):
@@ -390,7 +425,7 @@ class GuiMaker:
 
         backButton = Button(self.screen.get_width() - 150, 10, [Renderable(loader.load_image("exit", size=(25, 25)), (self.screen.get_width() - 150, 10)),
                                                                 Renderable(Text("Back to menu", self.fontS, (0, 0, 0), (self.screen.get_width() - 120, 10)))],
-                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.create_selectscreen0)
+                            lambda:backButton.renderables[1].text.set_color((255, 255, 255)), lambda:backButton.renderables[1].text.set_color((0, 0, 0)), lambda:None, self.playAndSelectScreen0)
         guiRenderer.add_element(backButton, tag="backButton")
 
     def createLadderGUI(self):

@@ -1,5 +1,6 @@
 import pygame
 
+from audio.soundlibrary import SoundLibrary
 from render.fonts import Fonts
 from render.gui.base.renderable import Renderable
 from render.gui.base.text import Text
@@ -7,6 +8,7 @@ from render.gui.elements.button import Button
 
 
 class ToggleButton(Button):
+    soundMaster = None
     def __init__(self, x, y, text, default_value=False):
         self.textW = Text(text, Fonts.font18, (0, 0, 0), (x, y)).w
         super().__init__(x, y, [Renderable(Text(text, Fonts.font18, (0, 0, 0), (x, y))),
@@ -16,6 +18,7 @@ class ToggleButton(Button):
 
     def release(self):
         self.value = not self.value
+        self.soundMaster.playSound(SoundLibrary.CLICK)
 
     def tick(self, dt, mousePos, mouseClicked, prevClicked, keys, prevKeys):
         super().tick(dt, mousePos, mouseClicked, prevClicked, keys, prevKeys)

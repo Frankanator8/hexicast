@@ -8,8 +8,8 @@ class GameNetworking(Networking):
     def __init__(self):
         super().__init__("https://hexicast-server.frankanator433.repl.co",
                          "wss://hexicast-server.frankanator433.repl.co/game")
-        # super().__init__("http://localhost:7070",
-        #                  "ws://localhost:7070/game")
+        # super().__init__("http://localhost:8080",
+        #                  "ws://localhost:8080/game")
         self.uuid = ""
         self.gameUuid = ""
         self.prospectiveGameUuid = ""
@@ -52,6 +52,7 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__getMapInfo, daemon=True).start()
 
     def __login(self, username, pw):
+        self.signinMessage = "Logging in..."
         res = super().post("login", {"name":username, "pw":pw})
         if res.split()[0] == "SUCCESS":
             self.accountUuid = res.split()[1]
@@ -66,8 +67,20 @@ class GameNetworking(Networking):
     def login(self, username, pw):
         threading.Thread(target=self.__login, args=(username, pw, ), daemon=True).start()
 
+    def __loginWithUuid(self, uuid):
+        self.signinMessage = "Logging in..."
+        self.__getUserInfo(uuid, uuid=True)
+        while uuid not in self.userData.keys():
+            pass
+        self.accountUuid = uuid
+        self.__join(self.userData[uuid]["displayName"])
+
+    def loginWithUuid(self, uuid):
+        threading.Thread(target=self.__loginWithUuid, args=(uuid,), daemon=True).start()
+
     def __signup(self, name, display, pw):
         res = super().post("signup", {"name":name, "display":display, "pw":pw})
+        self.signinMessage = "Signing up..."
         if res == "GOOD":
             self.__login(name, pw)
 
@@ -110,6 +123,7 @@ class GameNetworking(Networking):
         threading.Thread(target=self.__createGame, args=(name, settings), daemon=True).start()
 
     def __createPrivateGame(self, name, settings):
+        self.createPrivateGameMessage = "Creating..."
         res = self.post("createPrivateGame", {"name":name, "settings":settings, "uuid":self.uuid})
         if res != "No":
             self.gameUuid = res
@@ -124,6 +138,7 @@ class GameNetworking(Networking):
 
 
     def __joinPrivateGame(self, code):
+        self.joinPrivateGameMessage = "Joining..."
         ret = self.post("joinPrivateGame", {"uuid":self.uuid, "game_id":code})
         if ret == "Full game" or ret == "Game does not exist":
             self.joinPrivateGameMessage = ret

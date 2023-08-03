@@ -8,3 +8,9 @@ class Stats:
         self.healing = healing
         self.range = range
         self.knockback = knockback
+
+    def getStringRepr(self):
+        return f"{self.hp}\n{self.maxHP}\n{self.atk}\n{self.defense}\n{self.speed}\n{self.healing}\n{self.range}\n{self.knockback}"
+
+    def setStringRepr(self, s):
+        self.hp, self.maxHP, self.atk, self.defense, self.speed, self.healing, self.range, self.knockback = tuple(s.split())
